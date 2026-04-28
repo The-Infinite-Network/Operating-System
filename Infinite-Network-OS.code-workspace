@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "C:\\Users\\lross\\OneDrive\\Documents\\VAP",
+			"name": "VAP - Canon & Systems"
+		},
+		{
+			"path": "C:\\dev\\~devantigravity-playground\\The-Infinite-Netowrk",
+			"name": "INOS - Code & R&D"
+		}
+	],
+	"settings": {
+		"geminiMcp.taskCwd": "C:\\Users\\lross\\OneDrive\\Documents\\VAP"
+	}
+}
