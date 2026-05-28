@@ -1,0 +1,10 @@
+# Wave 2B baseline secret hygiene
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account.json
+credentials.json
+*secret*
+*token*
