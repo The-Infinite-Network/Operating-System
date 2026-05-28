@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* --- INFINITE EARTH (IE) - v2 DARK THEME --- */
+    --ie-void: #0B0E11;
+    --ie-navy: #0F1E2E;
+    --ie-gold: #C9A227;
+    --ie-teal: #1F6F78;
+    --ie-white: #F5F7FA;
+    --ie-gray: #8A9198;
+
+    /* --- FULCRUM FORTRESS CONSULTING (FFC) --- */
+    --ffc-charcoal: #111827;
+    --ffc-slate: #1F2937;
+    --ffc-teal: #1F6F78;
+
+    /* --- CRUMB N GET IT (CNGI) --- */
+    --cngi-espresso: #2B1D14;
+    --cngi-cream: #FFF4E6;
+    --cngi-berry: #8B1E3F;
+    --cngi-wheat: #D9B58C;
+
+    /* --- GRUMPY GOAT PIZZA (GGP) --- */
+    --ggp-charcoal: #121212;
+    --ggp-cream: #F5F1E8;
+    --ggp-brick: #B23A2F;
+    --ggp-olive: #556B2F;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--ie-void);
+    color: var(--ie-white);
+}
+
+/* Utility Classes for Brand Colors */
+.text-ie-gold {
+    color: var(--ie-gold);
+}
+
+.text-ie-teal {
+    color: var(--ie-teal);
+}
+
+.bg-ie-navy {
+    background-color: var(--ie-navy);
+}
+
+.border-ie-gray {
+    border-color: var(--ie-gray);
+}
+
+/* Button Styles */
+.btn-ie-primary {
+    background-color: var(--ie-gold);
+    color: var(--ie-void);
+    font-weight: 600;
+}
+
+.btn-ie-primary:hover {
+    background-color: #dcb12d;
+}
+
+.btn-ie-secondary {
+    border: 1px solid var(--ie-white);
+    color: var(--ie-white);
+    font-weight: 500;
+}
+
+.btn-ie-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* SPA View Management */
+.view-section {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.view-section.active {
+    display: block;
+    opacity: 1;
+}
+
+/* GGP Specific Theme Overrides for that section */
+#ggp-page {
+    background-color: var(--ggp-cream);
+    color: var(--ggp-charcoal);
+}
+
+#ggp-page h1,
+#ggp-page h2 {
+    color: var(--ggp-charcoal);
+}
+
+.ggp-section {
+    background-color: var(--ggp-cream);
+    color: var(--ggp-charcoal);
+}
+
+.btn-ggp {
+    background-color: var(--ggp-brick);
+    color: white;
+}
+
+.btn-ggp:hover {
+    background-color: #962e24;
+}

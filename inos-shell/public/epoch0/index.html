@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Earth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="inos_e0.css">
+</head>
+
+<body class="flex flex-col min-h-screen">
+
+    <!-- Global Navigation -->
+    <nav class="sticky top-0 z-50 bg-[#0B0E11]/95 backdrop-blur-md border-b border-[#1F2937]">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#home" class="flex items-center gap-2 group">
+                <!-- Abstract IE Logo -->
+                <svg class="w-6 h-6 text-ie-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.5"></circle>
+                    <path d="M2 12h20"></path>
+                </svg>
+                <span
+                    class="text-lg font-bold tracking-widest uppercase text-white group-hover:text-ie-gold transition-colors">Infinite
+                    Earth</span>
+            </a>
+
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-400">
+                <a href="#home" class="hover:text-ie-gold transition-colors">Home</a>
+                <a href="#ventures" class="hover:text-ie-gold transition-colors">Ventures</a>
+                <a href="#about" class="hover:text-ie-gold transition-colors">About</a>
+                <a href="#contact" class="hover:text-ie-gold transition-colors">Contact</a>
+            </div>
+
+            <!-- Mobile Menu Toggle (Patched) -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-400" aria-controls="mobile-menu"
+                aria-expanded="false"
+                onclick="setMobileMenu(!document.getElementById('mobile-menu').classList.contains('hidden'))">
+                Menu
+            </button>
+        </div>
+        <!-- Mobile Menu (Patched) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-ie-navy border-b border-gray-800 px-6 py-4 space-y-4">
+            <a href="#home" class="block text-gray-300" onclick="setMobileMenu(false)">Home</a>
+            <a href="#ventures" class="block text-gray-300" onclick="setMobileMenu(false)">Ventures</a>
+            <a href="#about" class="block text-gray-300" onclick="setMobileMenu(false)">About</a>
+            <a href="#contact" class="block text-gray-300" onclick="setMobileMenu(false)">Contact</a>
+        </div>
+    </nav>
+
+    <!-- ============================================ -->
+    <!-- VIEW: HOME -->
+    <!-- ============================================ -->
+    <section id="home" class="view-section active">
+        <!-- Hero -->
+        <div
+            class="py-32 md:py-48 flex flex-col items-center justify-center text-center px-6 bg-ie-void relative overflow-hidden">
+            <!-- Grid BG -->
+            <div
+                class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgNDBWMHNMNDAgNDBWNDAiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjAzKSIgZmlsbD0ibm9uZSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30 pointer-events-none">
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-white relative z-10">Infinite Earth</h1>
+            <p class="text-xl text-ie-gray mb-10 font-light max-w-2xl relative z-10">
+                A sovereignty-first venture network built to scale durable value.
+            </p>
+            <div class="flex gap-4 relative z-10">
+                <a href="#ventures" class="px-8 py-3 rounded btn-ie-primary transition-all">Explore Ventures</a>
+                <a href="#contact" class="px-8 py-3 rounded btn-ie-secondary transition-all">Contact</a>
+            </div>
+        </div>
+
+        <!-- Teaser Cards (Below Fold) -->
+        <div class="py-20 bg-ie-navy border-t border-[#1F2937]">
+            <div class="max-w-6xl mx-auto px-6">
+                <h3 class="text-sm font-bold text-ie-gray uppercase tracking-widest mb-8 text-center">Ecosystem Preview
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Teaser: FFC -->
+                    <div class="p-6 rounded border border-[#1F2937] bg-ie-void hover:border-ie-teal transition-colors">
+                        <h4 class="text-white font-bold mb-2">Fulcrum Fortress</h4>
+                        <p class="text-sm text-ie-gray mb-4">Sovereignty architecture & consulting.</p>
+                        <a href="#ventures" class="text-xs text-ie-gold font-bold uppercase tracking-wide">View
+                            &rarr;</a>
+                    </div>
+                    <!-- Teaser: CNGI -->
+                    <div
+                        class="p-6 rounded border border-[#1F2937] bg-ie-void hover:border-[#8B1E3F] transition-colors">
+                        <h4 class="text-white font-bold mb-2">Crumb N Get It</h4>
+                        <p class="text-sm text-ie-gray mb-4">Consumer goods & bakery distribution.</p>
+                        <a href="#ventures" class="text-xs text-ie-gold font-bold uppercase tracking-wide">View
+                            &rarr;</a>
+                    </div>
+                    <!-- Teaser: GGP -->
+                    <div
+                        class="p-6 rounded border border-[#1F2937] bg-ie-void hover:border-[#B23A2F] transition-colors">
+                        <h4 class="text-white font-bold mb-2">Grumpy Goat Pizza</h4>
+                        <p class="text-sm text-ie-gray mb-4">Franchise concept (Coming Soon).</p>
+                        <a href="#ventures" class="text-xs text-ie-gold font-bold uppercase tracking-wide">View
+                            &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What We Do -->
+        <div class="py-20 bg-ie-void border-t border-[#1F2937]">
+            <div class="max-w-4xl mx-auto px-6 text-center">
+                <h2 class="text-2xl font-bold text-white mb-10">Our Mandate</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                    <div>
+                        <div class="text-ie-gold text-xl mb-2">✦</div>
+                        <h3 class="font-bold text-white mb-2">Build Durability</h3>
+                        <p class="text-sm text-ie-gray">[Placeholder: We structure ventures to withstand volatility.]
+                        </p>
+                    </div>
+                    <div>
+                        <div class="text-ie-gold text-xl mb-2">✦</div>
+                        <h3 class="font-bold text-white mb-2">Ensure Sovereignty</h3>
+                        <p class="text-sm text-ie-gray">[Placeholder: Operational independence is a non-negotiable
+                            standard.]</p>
+                    </div>
+                    <div>
+                        <div class="text-ie-gold text-xl mb-2">✦</div>
+                        <h3 class="font-bold text-white mb-2">Scale Value</h3>
+                        <p class="text-sm text-ie-gray">[Placeholder: Expanding reach without diluting the core
+                            product.]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- VIEW: VENTURES -->
+    <!-- ============================================ -->
+    <section id="ventures" class="view-section pt-12 pb-24 bg-ie-navy min-h-screen">
+        <div class="max-w-7xl mx-auto px-6 mt-10">
+            <h2 class="text-3xl font-bold text-white mb-12 text-center">Our Ventures</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- CARD A: FFC -->
+                <div class="bg-[#111827] p-8 rounded border border-[#1F2937] hover:border-ie-teal transition-all">
+                    <h3 class="text-xl font-bold text-white mb-3">Fulcrum Fortress Consulting</h3>
+                    <p class="text-[#8A9198] text-sm mb-8 min-h-[40px]">
+                        [Placeholder: Strategic governance and sovereignty architecture.]
+                    </p>
+                    <div class="flex gap-3">
+                        <a href="https://example.com/ffc" target="_blank" rel="noopener"
+                            class="px-4 py-2 bg-[#1F6F78] text-white text-sm font-semibold rounded hover:bg-[#16555c]">Visit
+                            FFC</a>
+                        <a href="#ffc-clients"
+                            class="px-4 py-2 border border-[#1F6F78] text-[#1F6F78] text-sm font-semibold rounded hover:bg-[#1F6F78]/10">Clients</a>
+                    </div>
+                </div>
+
+                <!-- CARD B: CNGI -->
+                <div class="bg-[#FFF4E6] p-8 rounded border border-[#D9B58C] hover:border-[#8B1E3F] transition-all">
+                    <h3 class="text-xl font-bold text-[#2B1D14] mb-3">Crumb N Get It</h3>
+                    <p class="text-[#6B4E3D] text-sm mb-8 min-h-[40px]">
+                        [Placeholder: Quality consumer goods with a decentralized model.]
+                    </p>
+                    <a href="https://example.com/cngi" target="_blank" rel="noopener"
+                        class="px-4 py-2 bg-[#8B1E3F] text-white text-sm font-semibold rounded hover:bg-[#6e1630]">Visit
+                        CNGI</a>
+                </div>
+
+                <!-- CARD C: GGP (Internal) -->
+                <div class="bg-[#F5F1E8] p-8 rounded border border-[#556B2F] hover:border-[#B23A2F] transition-all">
+                    <h3 class="text-xl font-bold text-[#121212] mb-3">Grumpy Goat Pizza</h3>
+                    <p class="text-[#121212] text-sm mb-8 min-h-[40px]">
+                        [Placeholder: Franchise-ready pizza concept.]
+                    </p>
+                    <a href="#ggp"
+                        class="px-4 py-2 bg-[#B23A2F] text-white text-sm font-semibold rounded hover:bg-[#8f2c23]">View
+                        Concept</a>
+                    <p class="text-[10px] text-[#556B2F] mt-3 italic">Dedicated domain coming soon.</p>
+                </div>
+
+                <!-- CARD D: Autonomous Fortress (Internal) -->
+                <div class="bg-[#0F1E2E] p-8 rounded border border-[#1F2937] hover:border-ie-gold transition-all">
+                    <h3 class="text-xl font-bold text-white mb-3">Autonomous Fortress</h3>
+                    <p class="text-ie-gray text-sm mb-8 min-h-[40px]">
+                        [Placeholder: Self-sustaining infrastructure concepts.]
+                    </p>
+                    <a href="#autonomous-fortress"
+                        class="px-4 py-2 border border-white text-white text-sm font-semibold rounded hover:bg-white hover:text-black">Learn
+                        More</a>
+                </div>
+
+                <!-- Placeholder Slot -->
+                <div
+                    class="p-8 rounded border-2 border-dashed border-[#1F2937] flex flex-col items-center justify-center opacity-50">
+                    <span class="text-ie-gray text-xs uppercase tracking-widest">Future Venture (RT Resells)</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- VIEW: ABOUT -->
+    <!-- ============================================ -->
+    <section id="about" class="view-section py-24 bg-ie-void min-h-screen">
+        <div class="max-w-4xl mx-auto px-6">
+            <h1 class="text-3xl font-bold text-white mb-8 text-center">About Infinite Earth</h1>
+            <div class="prose prose-invert prose-lg mx-auto text-ie-gray mb-16">
+                <p>[Narrative Placeholder: Infinite Earth exists to prove that sovereignty and scale are not mutually
+                    exclusive. We operate a holding company model that prioritizes the health of the individual unit
+                    over the speed of the aggregate.]</p>
+            </div>
+
+            <h3 class="text-xl font-bold text-white mb-6">Core Values</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                <div class="p-6 bg-ie-navy rounded border border-[#1F2937]">
+                    <h4 class="text-ie-gold font-bold mb-2">Value 1</h4>
+                    <p class="text-sm text-ie-gray">[Placeholder text]</p>
+                </div>
+                <div class="p-6 bg-ie-navy rounded border border-[#1F2937]">
+                    <h4 class="text-ie-gold font-bold mb-2">Value 2</h4>
+                    <p class="text-sm text-ie-gray">[Placeholder text]</p>
+                </div>
+                <div class="p-6 bg-ie-navy rounded border border-[#1F2937]">
+                    <h4 class="text-ie-gold font-bold mb-2">Value 3</h4>
+                    <p class="text-sm text-ie-gray">[Placeholder text]</p>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-white mb-6">How We Work</h3>
+            <div class="space-y-4 text-ie-gray text-sm">
+                <p>[Paragraph 1 Placeholder: We invest in systems...]</p>
+                <p>[Paragraph 2 Placeholder: We decentralize authority...]</p>
+                <p>[Paragraph 3 Placeholder: We measure success in decades...]</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- VIEW: CONTACT -->
+    <!-- ============================================ -->
+    <section id="contact" class="view-section py-24 bg-ie-navy min-h-screen">
+        <div class="max-w-2xl mx-auto px-6">
+            <h1 class="text-3xl font-bold text-white mb-4 text-center">Contact Us</h1>
+            <p class="text-center text-ie-gray mb-12 text-sm">[Placeholder: We respond within 48 business hours.]</p>
+
+            <form class="space-y-6 bg-ie-void p-8 rounded border border-[#1F2937] mb-12">
+                <div>
+                    <label for="contact-email" class="block text-xs font-semibold text-ie-gray mb-2">EMAIL</label>
+                    <input id="contact-email" type="email"
+                        class="w-full bg-[#1F2937] border-none text-white p-3 rounded focus:ring-1 focus:ring-ie-teal"
+                        placeholder="name@example.com">
+                </div>
+                <div>
+                    <label for="contact-message" class="block text-xs font-semibold text-ie-gray mb-2">MESSAGE</label>
+                    <textarea id="contact-message"
+                        class="w-full bg-[#1F2937] border-none text-white p-3 rounded h-32 focus:ring-1 focus:ring-ie-teal"></textarea>
+                </div>
+                <button type="submit"
+                    class="w-full py-3 bg-ie-gold text-ie-void font-bold rounded hover:bg-[#dcb12d]">Send
+                    Message</button>
+            </form>
+
+            <div class="text-center">
+                <p class="text-ie-gray text-sm mb-4">general@infiniteearth.net (Placeholder)</p>
+                <div class="flex justify-center gap-6 text-ie-gray text-sm">
+                    <a href="#" class="hover:text-white">Twitter</a>
+                    <a href="#" class="hover:text-white">LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- VIEW: FFC CLIENTS (Internal) -->
+    <!-- ============================================ -->
+    <section id="ffc-clients" class="view-section py-24 bg-[#111827] min-h-screen">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="mb-12 border-b border-[#1F2937] pb-6">
+                <a href="#ventures" class="text-sm text-[#1F6F78] hover:text-white mb-4 block">&larr; Back to
+                    Ventures</a>
+                <h1 class="text-3xl font-bold text-white mb-2">FFC Clients & Results</h1>
+                <p class="text-[#8A9198]">Examples of work we’ve supported.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Case Study Slot 1 -->
+                <div class="bg-[#1F2937] p-6 rounded border border-gray-700">
+                    <span class="text-xs font-mono text-[#1F6F78] block mb-2">SECTOR: RETAIL</span>
+                    <h3 class="text-white font-bold mb-2">Regional Service Business</h3>
+                    <p class="text-gray-400 text-sm mb-4">[Problem: Operational bottleneck in supply chain.]</p>
+                    <p class="text-white text-sm border-l-2 border-[#1F6F78] pl-3 mb-4">[Outcome: 20% efficiency gain.]
+                    </p>
+                </div>
+                <!-- Case Study Slot 2 -->
+                <div class="bg-[#1F2937] p-6 rounded border border-gray-700">
+                    <span class="text-xs font-mono text-[#1F6F78] block mb-2">SECTOR: TECH</span>
+                    <h3 class="text-white font-bold mb-2">SaaS Startup</h3>
+                    <p class="text-gray-400 text-sm mb-4">[Problem: Governance structure undefined.]</p>
+                    <p class="text-white text-sm border-l-2 border-[#1F6F78] pl-3 mb-4">[Outcome: Board
+                        operationalized.]</p>
+                </div>
+                <!-- Case Study Slot 3 -->
+                <div class="bg-[#1F2937] p-6 rounded border border-gray-700">
+                    <span class="text-xs font-mono text-[#1F6F78] block mb-2">SECTOR: LOGISTICS</span>
+                    <h3 class="text-white font-bold mb-2">Logistics Firm</h3>
+                    <p class="text-gray-400 text-sm mb-4">[Problem: High turnover in management.]</p>
+                    <p class="text-white text-sm border-l-2 border-[#1F6F78] pl-3 mb-4">[Outcome: Retention plan
+                        active.]</p>
+                </div>
+                <!-- Case Study Slots 4-6 (Placeholders) -->
+                <div class="bg-[#1F2937] p-6 rounded border border-gray-700 opacity-50">
+                    <p class="text-gray-500">Confidential Client</p>
+                </div>
+                <div class="bg-[#1F2937] p-6 rounded border border-gray-700 opacity-50">
+                    <p class="text-gray-500">Confidential Client</p>
+                </div>
+                <div class="bg-[#1F2937] p-6 rounded border border-gray-700 opacity-50">
+                    <p class="text-gray-500">Confidential Client</p>
+                </div>
+            </div>
+
+            <p class="mt-12 text-center text-xs text-gray-600">Client names and outcomes shown only with permission.</p>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- VIEW: GRUMPY GOAT PIZZA (Internal Concept) -->
+    <!-- ============================================ -->
+    <section id="ggp" class="view-section py-24 min-h-screen ggp-section">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="mb-12 border-b border-[#556B2F]/20 pb-6 flex justify-between items-end">
+                <div>
+                    <a href="#ventures" class="text-sm text-[#556B2F] hover:underline mb-4 block">&larr; Back to
+                        Ventures</a>
+                    <h1 class="text-4xl font-bold text-[#121212] mb-2">Grumpy Goat Pizza</h1>
+                    <span
+                        class="inline-block px-3 py-1 bg-[#121212] text-white text-xs font-bold tracking-widest uppercase">Concept
+                        Phase</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-[#B23A2F]">What It Is</h3>
+                    <p class="leading-relaxed mb-6">[Placeholder: A streamlined pizza franchise model designed for
+                        high-traffic, low-overhead operations.]</p>
+                    <div class="p-6 bg-white rounded border border-[#556B2F]/30 shadow-sm">
+                        <h4 class="font-bold mb-4">Why It's Different</h4>
+                        <ul class="space-y-3 text-sm list-disc pl-5">
+                            <li>[Placeholder: Automated inventory systems.]</li>
+                            <li>[Placeholder: Localized sourcing mandate.]</li>
+                            <li>[Placeholder: Simplified menu architecture.]</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex flex-col justify-center items-center bg-[#121212] p-8 rounded text-center">
+                    <h3 class="text-white text-xl font-bold mb-4">Franchise Interest</h3>
+                    <p class="text-gray-400 text-sm mb-8">Early inquiries are being accepted for specific territories.
+                    </p>
+                    <a href="#contact"
+                        class="px-6 py-3 bg-[#B23A2F] text-white font-bold rounded hover:bg-[#962e24] w-full">Contact
+                        Us</a>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-[#556B2F] opacity-70">
+                Note: Dedicated domain (grumpygoatpizza.com or similar) coming soon. No financial claims or guarantees
+                are made at this stage.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- VIEW: AUTONOMOUS FORTRESS (Internal Concept) -->
+    <!-- ============================================ -->
+    <section id="autonomous-fortress" class="view-section py-24 bg-[#0F1E2E] min-h-screen text-white">
+        <div class="max-w-3xl mx-auto px-6">
+            <a href="#ventures" class="text-sm text-gray-400 hover:text-white mb-8 block">&larr; Back to Ventures</a>
+            <h1 class="text-4xl font-bold mb-6">Autonomous Fortress</h1>
+            <p class="text-xl text-gray-400 mb-12 font-light">Self-sustaining infrastructure for the modern age.</p>
+
+            <div class="space-y-8">
+                <div class="border-l-2 border-ie-gold pl-6">
+                    <h3 class="text-lg font-bold mb-2">The Concept</h3>
+                    <p class="text-gray-400 text-sm">[Placeholder: Developing hardware and software solutions that allow
+                        residential and commercial units to operate off-grid for extended periods.]</p>
+                </div>
+                <div class="border-l-2 border-ie-gold pl-6">
+                    <h3 class="text-lg font-bold mb-2">What It Enables</h3>
+                    <ul class="list-none space-y-2 text-sm text-gray-400">
+                        <li>— [Placeholder: Energy independence.]</li>
+                        <li>— [Placeholder: Water filtration redundancy.]</li>
+                        <li>— [Placeholder: Local mesh networking.]</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-gray-800 text-center">
+                <a href="#contact"
+                    class="inline-block px-8 py-3 border border-white rounded hover:bg-white hover:text-[#0F1E2E] transition-colors font-bold">Inquire
+                    About Technology</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-ie-void border-t border-[#1F2937] py-12 text-center text-xs text-ie-gray">
+        <p>&copy; 2025 Infinite Earth. All Rights Reserved.</p>
+    </footer>
+
+    <script src="inos_e0.js"></script>
+</body>
+
+</html>

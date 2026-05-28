@@ -1,0 +1,13 @@
+{
+  "name": "ggp-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "express": "^4.19.2"
+  }
+}

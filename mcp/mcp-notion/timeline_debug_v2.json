@@ -1,0 +1,269 @@
+﻿Database Properties:
+{
+  "Type": {
+    "id": "%3Daij",
+    "name": "Type",
+    "description": "Type of event",
+    "type": "select",
+    "select": {
+      "options": [
+        {
+          "id": "A[qW",
+          "name": "PoLE",
+          "color": "yellow",
+          "description": null
+        },
+        {
+          "id": "CGHf",
+          "name": "Mission Event",
+          "color": "brown",
+          "description": null
+        },
+        {
+          "id": "eV<}",
+          "name": "Asset Event",
+          "color": "yellow",
+          "description": null
+        },
+        {
+          "id": "Bxe[",
+          "name": "System Change",
+          "color": "blue",
+          "description": null
+        },
+        {
+          "id": ":iyi",
+          "name": "Governance",
+          "color": "gray",
+          "description": null
+        },
+        {
+          "id": "JAw=",
+          "name": "Other",
+          "color": "yellow",
+          "description": null
+        },
+        {
+          "id": "116a2710-4e03-415e-b270-fb176334c130",
+          "name": "Milestone",
+          "color": "pink",
+          "description": null
+        },
+        {
+          "id": "bfd359d4-8d1b-4e1e-b902-f06ddca4e643",
+          "name": "Note",
+          "color": "red",
+          "description": null
+        }
+      ]
+    }
+  },
+  "Who": {
+    "id": "%3DwKc",
+    "name": "Who",
+    "description": "Participants or stakeholders",
+    "type": "rich_text",
+    "rich_text": {}
+  },
+  "Link": {
+    "id": "%3FtLH",
+    "name": "Link",
+    "description": "External source link",
+    "type": "url",
+    "url": {}
+  },
+  "Summary": {
+    "id": "GT%3DC",
+    "name": "Summary",
+    "description": null,
+    "type": "rich_text",
+    "rich_text": {}
+  },
+  "SYNC_KEY": {
+    "id": "IQ~B",
+    "name": "SYNC_KEY",
+    "description": null,
+    "type": "rich_text",
+    "rich_text": {}
+  },
+  "Source": {
+    "id": "KFmw",
+    "name": "Source",
+    "description": "Origin of the event",
+    "type": "rich_text",
+    "rich_text": {}
+  },
+  "Tags": {
+    "id": "KGQI",
+    "name": "Tags",
+    "description": "Tags for categorization",
+    "type": "multi_select",
+    "multi_select": {
+      "options": [
+        {
+          "id": "b3f50c8e-6d6c-4e25-98d4-0fde183686b5",
+          "name": "Test",
+          "color": "default",
+          "description": null
+        },
+        {
+          "id": "7285ddb1-aaee-4400-8cd2-a48fa69eb46a",
+          "name": "Dev",
+          "color": "blue",
+          "description": null
+        },
+        {
+          "id": "036e8f9f-a771-4fca-835f-28a06f77de4c",
+          "name": "INOS",
+          "color": "purple",
+          "description": null
+        }
+      ]
+    }
+  },
+  "Actor": {
+    "id": "Nxhl",
+    "name": "Actor",
+    "description": null,
+    "type": "people",
+    "people": {}
+  },
+  "Event Type": {
+    "id": "PY%7Dm",
+    "name": "Event Type",
+    "description": null,
+    "type": "select",
+    "select": {
+      "options": []
+    }
+  },
+  "External Refs": {
+    "id": "R%3B%3Fr",
+    "name": "External Refs",
+    "description": null,
+    "type": "rich_text",
+    "rich_text": {}
+  },
+  "Date": {
+    "id": "SC~U",
+    "name": "Date",
+    "description": "Date and time of the event",
+    "type": "date",
+    "date": {}
+  },
+  "Timestamp": {
+    "id": "anIl",
+    "name": "Timestamp",
+    "description": null,
+    "type": "date",
+    "date": {}
+  },
+  "Room": {
+    "id": "dTvp",
+    "name": "Room",
+    "description": "Physical or virtual room",
+    "type": "rich_text",
+    "rich_text": {}
+  },
+  "Entry": {
+    "id": "gLao",
+    "name": "Entry",
+    "description": "Entry details or notes",
+    "type": "rich_text",
+    "rich_text": {}
+  },
+  "Notes": {
+    "id": "l%3BbP",
+    "name": "Notes",
+    "description": "Additional commentary",
+    "type": "rich_text",
+    "rich_text": {}
+  },
+  "Duration": {
+    "id": "oYXJ",
+    "name": "Duration",
+    "description": "Time spent",
+    "type": "number",
+    "number": {
+      "format": "number"
+    }
+  },
+  "Entity": {
+    "id": "sJgD",
+    "name": "Entity",
+    "description": "Associated entity",
+    "type": "select",
+    "select": {
+      "options": [
+        {
+          "id": "iOxO",
+          "name": "IE",
+          "color": "gray",
+          "description": null
+        },
+        {
+          "id": "PRWt",
+          "name": "FFC",
+          "color": "blue",
+          "description": null
+        },
+        {
+          "id": "BfMF",
+          "name": "GGP",
+          "color": "pink",
+          "description": null
+        },
+        {
+          "id": "<TCK",
+          "name": "CNGI",
+          "color": "purple",
+          "description": null
+        },
+        {
+          "id": "x?rj",
+          "name": "AF",
+          "color": "brown",
+          "description": null
+        },
+        {
+          "id": "UNDR",
+          "name": "Multi-Entity",
+          "color": "default",
+          "description": null
+        },
+        {
+          "id": "GD;q",
+          "name": "Other",
+          "color": "yellow",
+          "description": null
+        }
+      ]
+    }
+  },
+  "Mission": {
+    "id": "yHDn",
+    "name": "Mission",
+    "description": "Mission context",
+    "type": "relation",
+    "relation": {
+      "database_id": "01f4a3c0-30fb-4eb7-b790-f82fc1b5583a",
+      "data_source_id": "e9635ee9-5af3-4a1f-ab48-229ee61132ec",
+      "type": "single_property",
+      "single_property": {}
+    }
+  },
+  "Name": {
+    "id": "title",
+    "name": "Name",
+    "description": "The title of the event",
+    "type": "title",
+    "title": {}
+  },
+  "When": {
+    "id": "a34d706d-7595-4773-8a6b-8c8ab88e3f16",
+    "name": "When",
+    "description": "When this timeline entry occurred",
+    "type": "date",
+    "date": {}
+  }
+}

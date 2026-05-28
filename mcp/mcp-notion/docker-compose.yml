@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  mcp-notion:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NOTION_API_KEY: ${NOTION_API_KEY}
+      NOTION_DB_MISSIONS: ${NOTION_DB_MISSIONS}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    restart: unless-stopped
