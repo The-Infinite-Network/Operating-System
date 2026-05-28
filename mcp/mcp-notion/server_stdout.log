@@ -1,0 +1,7 @@
+[Server] INFO: Starting MCP Notion server (INOS_E0 integration) 
+[Server] INFO: Configuration validated 
+[Server] INFO: Tools initialized 
+[Server] INFO: LLM auth resolved: api_key 
+[Server] INFO: MCP Notion server listening on http://0.0.0.0:3002 
+[Server] INFO: Health check: GET http://0.0.0.0:3002/health 
+[Server] INFO: Tool endpoint: POST http://0.0.0.0:3002/tool/{toolName} 

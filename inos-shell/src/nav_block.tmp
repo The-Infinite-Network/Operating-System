@@ -1,0 +1,26 @@
+            </span>
+            <span className="pill">
+              Missions: {missions.length} · Databases: {databases.length}
+            </span>
+          </div>
+        </header>
+
+        <div className="mx-auto max-w-6xl -mt-2 mb-2 flex justify-between items-center px-1">
+          <div className="flex gap-2 text-xs font-mono uppercase tracking-[0.2em]">
+            {["foundation", "commandHub", "missions"].map((view) => (
+              <button
+                key={view}
+                type="button"
+                onClick={() =>
+                  setRootView(view as "missions" | "foundation" | "commandHub")
+                }
+                className={`px-3 py-1.5 rounded-full border transition-colors ${rootView === view
+                    ? "border-inos-accent text-inos-accent bg-inos-accent/10"
+                    : "border-inos-border text-inos-muted hover:text-inos-text hover:border-inos-accent"
+                  }`}
+              >
+                {view === "foundation"
+                  ? "Foundation"
+                  : view === "commandHub"
+                    ? "Command Hub"
+                    : "WAR · Missions"}

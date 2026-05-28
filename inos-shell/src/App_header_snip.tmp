@@ -1,0 +1,40 @@
+        <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-inos-border bg-[#0f172a]/80 px-4 py-3 shadow-lg">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-inos-muted">
+              Infinite Network OS
+            </p>
+            <h1 className="text-2xl font-semibold">INOS Shell · React</h1>
+            <p className="text-sm text-inos-muted">
+              Tailwind + React + Notion MCP API
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="pill">
+              API: {apiEndpoint.replace(/^https?:\/\//, "")}
+            </span>
+            <span className="pill">
+              Missions: {missions.length} · Databases: {databases.length}
+            </span>
+          </div>
+        </header>
+
+        <div className="mx-auto max-w-6xl -mt-2 mb-2 flex justify-between items-center px-1">
+          <div className="flex gap-2 text-xs font-mono uppercase tracking-[0.2em]">
+            {["missions", "foundation", "commandHub"].map((view) => (
+              <button
+                key={view}
+                type="button"
+                onClick={() =>
+                  setRootView(view as "missions" | "foundation" | "commandHub")
+                }
+                className={`px-3 py-1.5 rounded-full border transition-colors ${
+                  rootView === view
+                    ? "border-inos-accent text-inos-accent bg-inos-accent/10"
+                    : "border-inos-border text-inos-muted hover:text-inos-text hover:border-inos-accent"
+                }`}
+              >
+                {view === "missions"
+                  ? "Missions"
+                  : view === "foundation"
+                  ? "Foundation"
+                  : "Command Hub"}

@@ -1,0 +1,14 @@
+                    ? "border-inos-accent text-inos-accent bg-inos-accent/10"
+                    : "border-inos-border text-inos-muted hover:text-inos-text hover:border-inos-accent"
+                }`}
+              >
+                {view === "foundation"
+                  ? "Foundation"
+                  : view === "commandHub"
+                  ? "Command Hub"
+                  : "WAR · Missions"}
+              </button>
+            ))}
+          </div>
+        </div>
+

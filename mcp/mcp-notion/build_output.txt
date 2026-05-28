@@ -1,0 +1,5 @@
+
+> mcp-notion@0.1.0 build
+> tsc
+
+src/llmClient.ts(66,17): error TS2503: Cannot find namespace 'google'.

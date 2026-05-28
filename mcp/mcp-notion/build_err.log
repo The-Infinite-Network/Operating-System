@@ -1,0 +1,6 @@
+
+> mcp-notion@0.1.0 build
+> tsc
+
+src/client.ts(946,9): error TS2393: Duplicate function implementation.
+src/client.ts(1219,9): error TS2393: Duplicate function implementation.

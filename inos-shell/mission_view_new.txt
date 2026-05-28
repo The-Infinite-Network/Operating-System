@@ -1,0 +1,186 @@
+        {rootView === "missions" && (
+          <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] h-[calc(100vh-140px)]">
+            {/* Left Column: Mission List */}
+            <MissionList
+              missions={filteredMissions}
+              selectedMissionId={selectedMissionId}
+              onSelectMission={setSelectedMissionId}
+              filters={missionFilters}
+              onFilterChange={(key, val) =>
+                setMissionFilters((prev) => ({ ...prev, [key]: val }))
+              }
+              options={{
+                entities: distinctEntities,
+                rooms: distinctRooms,
+                owners: distinctOwners,
+                statuses: MISSION_STATUSES as unknown as string[],
+              }}
+              showAll={showAllMissions}
+              onToggleShowAll={() => setShowAllMissions(!showAllMissions)}
+              isLoading={loading}
+            />
+
+            {/* Right Column: Detail & Actions */}
+            <div className="space-y-4 flex flex-col h-full overflow-hidden">
+               {/* PoLE Entry always visible at top of right col */}
+              <div className="card p-4 glass-panel shrink-0">
+                <PoleEntry
+                  activeMissionId={selectedMission?.id}
+                  activeMissionTitle={selectedMission?.title}
+                  isLoading={poleLoading}
+                  onPoleSubmit={async (data) => {
+                    setPoleLoading(true);
+                    try {
+                      const result = await api.logTimelineEventV1({
+                        event_type: data.event_type || "MISSION_UPDATED",
+                        summary: data.content,
+                        mission_id: data.mission_id || selectedMission?.id,
+                        entity: data.entity || selectedMission?.entity || undefined,
+                        source: "INOS Shell",
+                        sync_key: `SHELL-${Date.now()}`
+                      });
+
+                      if (selectedMission) {
+                        const { events } = await api.queryTimelineByMission(selectedMission.id, 50);
+                        setTimelineEvents(events);
+                      }
+
+                      setLatestPole({
+                        pole_id: result.id,
+                        timestamp: new Date().toISOString(),
+                        content: { raw: data.content },
+                        entity: data.entity,
+                        mission_id: data.mission_id
+                      });
+                      setLastPoleId(result.id);
+                      push("PoLE Logged Successfully", "success");
+                    } catch (err: any) {
+                      push(err?.message || "PoLE Failed", "error");
+                    } finally {
+                      setPoleLoading(false);
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Detail or Create */}
+              {selectedMission ? (
+                <div className="flex-1 overflow-hidden h-full flex flex-col">
+                  <div className="flex-1 overflow-y-auto">
+                      <MissionDetail
+                        mission={selectedMission}
+                        tasks={tasks}
+                        timelineEvents={timelineEvents}
+                        activeTab={missionDetailTab as DetailTab}
+                        onTabChange={(tab) => setMissionDetailTab(tab)}
+                        isLoading={taskLoading}
+                        onTaskCreate={async (data) => {
+                          await api.createTaskForMission({
+                            missionId: selectedMission.id,
+                            title: data.title,
+                            status: data.status,
+                            due_date: data.due_date,
+                          });
+                          // Refresh
+                          const { tasks: t } = await api.listTasks(
+                            selectedMission.id
+                          );
+                          setTasks(t);
+                          push("Task created");
+                        }}
+                        onRunStart={async () => {
+                          try {
+                            const { run, aar } = await api.createRun({
+                              missionId: selectedMission.id,
+                              runTitle: selectedMission.title,
+                              notes: "",
+                            });
+                            setSelectedRun({
+                              id: run.id,
+                              title: selectedMission.title,
+                              status: "Active",
+                              startDate: new Date().toISOString(),
+                              endDate: null,
+                              notes: null,
+                              missionId: selectedMission.id,
+                            });
+                            push("Run Initialized");
+                            if ((run as any).url)
+                              window.open((run as any).url, "_blank");
+                          } catch (err: any) {
+                            push(err?.message || "Run failed", "error");
+                          }
+                        }}
+                      />
+                  </div>
+                  <div className="pt-2 text-right">
+                    <button
+                      onClick={() => setSelectedMissionId(null)}
+                      className="text-xs text-inos-muted hover:text-inos-text underline"
+                    >
+                      Close / Create New
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+                    <div className="card p-4 space-y-3 shrink-0">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-inos-muted">
+                          Command
+                        </p>
+                        <h3 className="text-lg font-semibold">Create Mission</h3>
+                      </div>
+                      <form className="space-y-3" onSubmit={submitMission}>
+                        <div>
+                          <label className="text-xs text-inos-muted">Title</label>
+                          <input
+                            className="mt-1 w-full rounded-lg border border-inos-border bg-[#0f172a] px-3 py-2 text-sm outline-none focus:border-inos-accent"
+                            value={missionForm.title}
+                            onChange={(e) =>
+                              setMissionForm({ ...missionForm, title: e.target.value })
+                            }
+                            required
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs text-inos-muted">Status</label>
+                            <select
+                              className="mt-1 w-full rounded-lg border border-inos-border bg-[#0f172a] px-3 py-2 text-sm outline-none focus:border-inos-accent"
+                              value={missionForm.status}
+                              onChange={(e) =>
+                                setMissionForm({ ...missionForm, status: e.target.value })
+                              }
+                            >
+                              {MISSION_STATUSES.map((s) => (
+                                <option key={s}>{s}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs text-inos-muted">Entity</label>
+                            <select
+                              className="mt-1 w-full rounded-lg border border-inos-border bg-[#0f172a] px-3 py-2 text-sm outline-none focus:border-inos-accent"
+                              value={missionForm.entity}
+                              onChange={(e) =>
+                                setMissionForm({ ...missionForm, entity: e.target.value })
+                              }
+                            >
+                              <option value="">Select...</option>
+                              {distinctEntities.map((e) => (
+                                <option key={e}>{e}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        <button type="submit" className="w-full btn-primary">
+                          Initialize Mission
+                        </button>
+                      </form>
+                    </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}

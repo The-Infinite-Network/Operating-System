@@ -1,0 +1,3365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Earth // HoldCo Spine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+        html { overflow-x: hidden; }
+        body { overflow-x: hidden; max-width: 100vw; }
+    </style>
+</head>
+<body>
+
+<div id="ie-e0-app" class="w-screen h-screen flex flex-col overflow-hidden font-sans" style="background:var(--bg-primary);color:var(--text-primary);">
+
+  <!-- PWA META (hidden for builder compatibility) -->
+  <div style="display:none">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Infinite Earth Spine">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🌎</text></svg>">
+    <link rel="manifest" href="data:application/json,{'name':'Infinite Earth Spine','short_name':'IE Spine','start_url':'.','display':'standalone','background_color':'%23020617','theme_color':'%23f97316','icons':[{'src':'data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%2775%27 font-size=%2775%27>🌎</text></svg>','sizes':'512x512','type':'image/svg+xml'}]}">
+  </div>
+
+  <!-- THEME STYLES -->
+  <style>
+    :root {
+      --bg-primary: #020617;
+      --bg-secondary: #020617;
+      --bg-tertiary: #020617;
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --border-color: #1f2937;
+    }
+    body.light-mode {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    #ie-e0-app {
+      background: radial-gradient(circle at top, #0f172a 0, var(--bg-primary) 45%, #000000 100%);
+      color: var(--text-primary);
+    }
+
+    .ie-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(18px);
+    }
+    body.light-mode .ie-card {
+      background: rgba(248, 250, 252, 0.96);
+      box-shadow: 0 18px 45px rgba(148, 163, 184, 0.35);
+      border-color: rgba(148, 163, 184, 0.35);
+    }
+
+    .ie-input {
+      background: var(--bg-tertiary);
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 0.55rem 0.75rem;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      width: 100%;
+      outline: none;
+      transition: all 0.18s ease;
+    }
+    .ie-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+    .ie-input:focus {
+      border-color: #f97316;
+      box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.65);
+      background: var(--bg-secondary);
+    }
+
+    .ie-select {
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      padding: 0.45rem 1.75rem 0.45rem 0.85rem;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+      background-position: calc(100% - 9px) calc(50% - 3px), calc(100% - 4px) calc(50% - 3px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      transition: all 0.16s ease;
+    }
+    .ie-select:focus {
+      border-color: #f97316;
+      box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.5);
+    }
+    .ie-select option {
+      background: #020617;
+      color: #e2e8f0;
+    }
+    body.light-mode .ie-select option {
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    .ie-btn-primary {
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      color: #0f172a;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.55rem 1.2rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.38);
+      transition: all 0.18s ease;
+    }
+    .ie-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 35px rgba(249, 115, 22, 0.5);
+      filter: brightness(1.03);
+    }
+    .ie-btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 16px rgba(249, 115, 22, 0.45);
+    }
+
+    .ie-badge {
+      border-radius: 999px;
+      padding: 0.08rem 0.55rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .ie-badge-green {
+      background: rgba(22, 163, 74, 0.12);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.4);
+    }
+    .ie-badge-amber {
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.45);
+    }
+    .ie-badge-slate {
+      background: rgba(148, 163, 184, 0.1);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .ie-table-header {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+    }
+
+    .ie-table-row {
+      font-size: 0.78rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      cursor: pointer;
+      transition: background 0.16s ease, transform 0.1s ease;
+    }
+    .ie-table-row:hover {
+      background: rgba(15, 23, 42, 0.9);
+      transform: translateY(-1px);
+    }
+    body.light-mode .ie-table-row:hover {
+      background: rgba(226, 232, 240, 0.8);
+    }
+
+    .ie-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    .ie-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .ie-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 999px;
+    }
+    .ie-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.7);
+    }
+
+    .ie-tab-btn {
+      border-radius: 999px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: all 0.16s ease;
+      white-space: nowrap;
+    }
+    .ie-tab-btn-active {
+      background: rgba(15, 23, 42, 0.92);
+      color: #e5e7eb;
+      border-color: rgba(148, 163, 184, 0.7);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+    }
+    body.light-mode .ie-tab-btn-active {
+      background: rgba(226, 232, 240, 0.92);
+      color: #0f172a;
+      box-shadow: 0 12px 30px rgba(148, 163, 184, 0.4);
+    }
+
+    .ie-subtab-btn {
+      border-radius: 0.5rem;
+      padding: 0.3rem 0.55rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: all 0.16s ease;
+      white-space: nowrap;
+    }
+    .ie-subtab-btn-active {
+      background: rgba(15, 23, 42, 0.92);
+      color: #e5e7eb;
+      border-color: rgba(148, 163, 184, 0.7);
+    }
+    body.light-mode .ie-subtab-btn-active {
+      background: rgba(226, 232, 240, 0.96);
+      color: #0f172a;
+    }
+
+    .ie-pill-filter {
+      border-radius: 999px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-secondary);
+      background: var(--bg-tertiary);
+      transition: all 0.16s ease;
+      white-space: nowrap;
+    }
+    .ie-pill-filter-active {
+      border-color: #f97316;
+      color: #fed7aa;
+      background: rgba(30, 64, 175, 0.45);
+      box-shadow: 0 10px 25px rgba(30, 64, 175, 0.8);
+    }
+
+    .ie-tag {
+      border-radius: 999px;
+      padding: 0.16rem 0.6rem;
+      font-size: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+    }
+
+    header.ie-header {
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(2, 6, 23, 0.9);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+    }
+    body.light-mode header.ie-header {
+      background: rgba(248, 250, 252, 0.9);
+      box-shadow: 0 18px 45px rgba(148, 163, 184, 0.4);
+    }
+
+    aside.ie-sidebar {
+      border-right: 1px solid var(--border-color);
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+    }
+    body.light-mode aside.ie-sidebar {
+      background: rgba(248, 250, 252, 0.96);
+    }
+
+    .ie-border-panel {
+      border: 1px solid var(--border-color);
+      background: linear-gradient(to bottom, rgba(15,23,42,0.6), rgba(15,23,42,0.2));
+    }
+    body.light-mode .ie-border-panel {
+      background: linear-gradient(to bottom, rgba(248,250,252,0.95), rgba(241,245,249,0.7));
+    }
+
+    /* Venture section styling */
+    .ie-venture-pill {
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.68rem;
+      border: 1px solid rgba(148,163,184,0.5);
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+    }
+
+    .ie-venture-card {
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+      border-radius: 0.9rem;
+      border-width: 1px;
+      border-style: solid;
+      border-color: rgba(148,163,184,0.25);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.08), transparent 55%), rgba(15,23,42,0.92);
+    }
+    .ie-venture-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(15,23,42,0.95);
+      border-color: rgba(56,189,248,0.6);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.16), transparent 55%), rgba(15,23,42,0.98);
+    }
+    body.light-mode .ie-venture-card {
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.06), transparent 55%), rgba(248,250,252,0.96);
+      border-color: rgba(148,163,184,0.5);
+    }
+    body.light-mode .ie-venture-card:hover {
+      box-shadow: 0 16px 40px rgba(148,163,184,0.45);
+      border-color: rgba(59,130,246,0.6);
+    }
+
+    .ie-venture-detail-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .ie-venture-detail-tagline {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 767px) {
+      main {
+        padding-top: 0.75rem;
+      }
+      .ie-card {
+        border-radius: 0.9rem;
+      }
+    }
+  </style>
+
+  <!-- TOP NAVIGATION -->
+  <header class="ie-header flex items-center justify-between px-4 sm:px-6 md:px-10 py-3 md:py-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-400 via-sky-400 to-fuchsia-500 flex items-center justify-center shadow-[0_0_0_1px_rgba(148,163,184,0.45),0_12px_30px_rgba(45,212,191,0.75)]">
+        <span class="text-xl font-semibold text-slate-950">∞</span>
+      </div>
+      <div>
+        <div class="text-[0.7rem] sm:text-xs uppercase tracking-[0.22em] text-sky-300/80 font-semibold">Infinite Earth</div>
+        <div class="text-[0.78rem] sm:text-[0.8rem] text-slate-300 font-medium flex items-center gap-1.5">
+          HoldCo &amp; Entity Spine
+          <span class="ie-badge ie-badge-slate">E0 · Foundation</span>
+        </div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-2 text-[0.78rem]" style="color:var(--text-primary);">
+      <div class="px-2.5 py-1 rounded-full bg-slate-900/70 border border-slate-700/70 flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Spine: <span class="font-semibold text-emerald-300">IE_E0</span></span>
+      </div>
+      <div class="px-2.5 py-1 rounded-full bg-slate-900/70 border border-slate-700/70">
+        Version <span class="font-semibold text-sky-300">IE_E0_v1.0</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="themeToggle" class="ie-pill-filter !px-2.5 !py-1.5 flex items-center gap-1.5">
+        <span id="themeIcon" class="text-xs">🌙</span>
+        <span class="text-[0.72rem] font-medium">Theme</span>
+      </button>
+      <button id="accentToggle" class="ie-pill-filter !px-2.5 !py-1.5 flex items-center gap-1.5">
+        <span class="w-3 h-3 rounded-full" id="accentSwatch" style="background:linear-gradient(135deg,#f97316,#fb923c);"></span>
+        <span class="text-[0.72rem] font-medium">Accent</span>
+      </button>
+      <!-- Settings button: opens settings modal -->
+      <button id="settingsOpen" class="ie-pill-filter !px-2.5 !py-1.5 flex items-center gap-1.5">
+        <span class="text-xs">⚙️</span>
+        <span class="text-[0.72rem] font-medium">Settings</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- LEFT SIDEBAR NAV -->
+    <aside class="ie-sidebar hidden md:flex flex-col w-60 lg:w-64">
+      <div class="px-4 pt-4 pb-2">
+        <div class="text-[0.7rem] uppercase tracking-[0.22em] text-slate-500 mb-2">Maps &amp; Registries</div>
+        <nav class="flex flex-col gap-1.5">
+          <button data-main-tab="entities" class="main-tab-btn ie-tab-btn ie-tab-btn-active justify-between">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_0_3px_rgba(56,189,248,0.25)]"></span>
+              <span>Entity Map</span>
+            </span>
+            <span class="text-[0.65rem] px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/40">LegalEntity</span>
+          </button>
+          <button data-main-tab="trusts" class="main-tab-btn ie-tab-btn justify-between">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>Trust &amp; Vehicle Map</span>
+            </span>
+            <span class="text-[0.65rem] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">TrustVehicle</span>
+          </button>
+          <button data-main-tab="assets" class="main-tab-btn ie-tab-btn justify-between">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <span>Asset Registry</span>
+            </span>
+            <span class="text-[0.65rem] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/40">Asset</span>
+          </button>
+          <button data-main-tab="agreements" class="main-tab-btn ie-tab-btn justify-between">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-fuchsia-400"></span>
+              <span>Agreements &amp; Docs</span>
+            </span>
+            <span class="text-[0.65rem] px-1.5 py-0.5 rounded-full bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/40">Agreement</span>
+          </button>
+          <button data-main-tab="accounts" class="main-tab-btn ie-tab-btn justify-between">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-sky-300"></span>
+              <span>Bank &amp; Accounts</span>
+            </span>
+            <span class="text-[0.65rem] px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/40">BankAccount</span>
+          </button>
+          <!-- Ventures main tab -->
+          <button data-main-tab="ventures" class="main-tab-btn ie-tab-btn justify-between">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-violet-400"></span>
+              <span>Ventures</span>
+            </span>
+            <span class="text-[0.65rem] px-1.5 py-0.5 rounded-full bg-violet-500/10 text-violet-200 border border-violet-500/40">Venture</span>
+          </button>
+        </nav>
+      </div>
+      <div class="mt-auto p-4 border-t" style="border-color:var(--border-color);">
+        <div class="flex items-center justify-between text-[0.72rem]" style="color:var(--text-secondary);">
+          <span class="uppercase tracking-[0.18em] text-slate-500">Foundation</span>
+          <span class="px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700/70 text-[0.65rem] text-slate-300">Locked</span>
+        </div>
+        <p class="text-[0.72rem] text-slate-500 leading-snug mt-1.5">
+          IE_E0 is install-only. Future changes must be additive; entity and field names are stable.
+        </p>
+      </div>
+    </aside>
+
+    <!-- MOBILE TOP TABS -->
+    <div class="md:hidden flex-none border-b" style="border-color:var(--border-color);background:rgba(2,6,23,0.96);backdrop-filter:blur(18px);">
+      <div class="px-3 py-2 flex gap-1 overflow-x-auto ie-scrollbar">
+        <button data-main-tab="entities" class="main-tab-btn ie-tab-btn ie-tab-btn-active">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400 mr-1"></span>Entities
+        </button>
+        <button data-main-tab="trusts" class="main-tab-btn ie-tab-btn">Trusts</button>
+        <button data-main-tab="assets" class="main-tab-btn ie-tab-btn">Assets</button>
+        <button data-main-tab="agreements" class="main-tab-btn ie-tab-btn">Agreements</button>
+        <button data-main-tab="accounts" class="main-tab-btn ie-tab-btn">Accounts</button>
+        <button data-main-tab="ventures" class="main-tab-btn ie-tab-btn">Ventures</button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 overflow-hidden px-3 md:px-6 lg:px-8 py-3 md:py-6 space-y-3 md:space-y-5 ie-scrollbar">
+
+      <!-- SUMMARY BAR -->
+      <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3">
+        <div class="ie-card px-3 py-2.5 flex flex-col gap-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[0.7rem] uppercase tracking-[0.18em] text-slate-400">Entities</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+          </div>
+          <div class="text-lg md:text-xl font-semibold text-slate-50" id="metricLegalEntityCount">0</div>
+          <div class="text-[0.7rem] text-slate-400">LegalEntity records</div>
+        </div>
+        <div class="ie-card px-3 py-2.5 flex flex-col gap-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[0.7rem] uppercase tracking-[0.18em] text-slate-400">Trusts</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          </div>
+          <div class="text-lg md:text-xl font-semibold text-slate-50" id="metricTrustCount">0</div>
+          <div class="text-[0.7rem] text-slate-400">TrustVehicle records</div>
+        </div>
+        <div class="ie-card px-3 py-2.5 flex flex-col gap-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[0.7rem] uppercase tracking-[0.18em] text-slate-400">Assets</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          </div>
+          <div class="text-lg md:text-xl font-semibold text-slate-50" id="metricAssetCount">0</div>
+          <div class="text-[0.7rem] text-slate-400">Registered</div>
+        </div>
+        <div class="ie-card px-3 py-2.5 flex flex-col gap-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[0.7rem] uppercase tracking-[0.18em] text-slate-400">Agreements</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400"></span>
+          </div>
+          <div class="text-lg md:text-xl font-semibold text-slate-50" id="metricAgreementCount">0</div>
+          <div class="text-[0.7rem] text-slate-400">Governing docs</div>
+        </div>
+        <div class="ie-card px-3 py-2.5 flex flex-col gap-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[0.7rem] uppercase tracking-[0.18em] text-slate-400">Bank</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-300"></span>
+          </div>
+          <div class="text-lg md:text-xl font-semibold text-slate-50" id="metricBankCount">0</div>
+          <div class="text-[0.7rem] text-slate-400">Accounts</div>
+        </div>
+        <div class="ie-card px-3 py-2.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[0.7rem] uppercase tracking-[0.18em] text-slate-400">Config</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          </div>
+          <div class="text-[0.78rem] text-slate-300 leading-snug">
+            <div><span class="text-slate-500">Epoch:</span> <span id="metricEpoch" class="font-medium">–</span></div>
+            <div><span class="text-slate-500">Currency:</span> <span id="metricCurrency" class="font-medium">–</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ENTITY MAP APP -->
+      <section id="view-entities" class="space-y-3 md:space-y-4">
+        <div class="flex flex-col lg:flex-row gap-3 md:gap-4">
+          <!-- ENTITY DIRECTORY -->
+          <div class="flex-1 ie-card p-3 md:p-4 flex flex-col overflow-hidden min-h-[260px]">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2 md:mb-3">
+              <div>
+                <div class="text-[0.75rem] uppercase tracking-[0.22em] text-sky-300 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                  Entity Directory
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  LegalEntity spine for HoldCos, OpCos, SPVs, trusts, and related vehicles.
+                </div>
+              </div>
+              <button id="btnNewLegalEntity" class="ie-btn-primary text-[0.78rem] self-start sm:self-auto">
+                <span>＋</span>
+                <span>New Entity</span>
+              </button>
+            </div>
+            <!-- Filters -->
+            <div class="flex flex-wrap gap-2 items-center mb-2 md:mb-3">
+              <input id="filterEntitySearch" class="ie-input max-w-[180px]" placeholder="Search code / name" />
+              <select id="filterEntityType" class="ie-select text-[0.75rem]">
+                <option value="">All Types</option>
+              </select>
+              <select id="filterEntityStatus" class="ie-select text-[0.75rem]">
+                <option value="">All Status</option>
+              </select>
+              <div class="hidden sm:flex flex-1"></div>
+              <div class="hidden sm:flex items-center gap-1.5 text-[0.7rem] text-slate-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span> Forming/Other
+              </div>
+            </div>
+            <!-- Table -->
+            <div class="flex-1 overflow-auto ie-scrollbar ie-border-panel rounded-xl">
+              <table class="min-w-full text-left">
+                <thead class="sticky top-0 bg-slate-950/90 backdrop-blur-xl ie-table-header">
+                  <tr>
+                    <th class="px-3 py-2">Code</th>
+                    <th class="px-3 py-2">Legal Name</th>
+                    <th class="px-3 py-2">Type</th>
+                    <th class="px-3 py-2">Status</th>
+                    <th class="px-3 py-2">Jurisdiction</th>
+                    <th class="px-3 py-2">Parent</th>
+                  </tr>
+                </thead>
+                <tbody id="legalEntityTableBody"></tbody>
+              </table>
+              <div id="legalEntityEmptyState" class="p-4 text-center text-[0.8rem] text-slate-400 hidden">
+                No LegalEntity records yet. IE_HOLDCO will be created automatically as the spine root.
+              </div>
+            </div>
+          </div>
+
+          <!-- ENTITY DETAIL -->
+          <div class="w-full lg:w-[390px] xl:w-[430px] flex flex-col gap-3">
+            <div class="ie-card p-3 md:p-4 flex flex-col gap-2 min-h-[180px]">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[0.72rem] uppercase tracking-[0.22em] text-slate-400">
+                    Entity Detail
+                  </div>
+                  <div id="entityDetailTitle" class="text-sm font-semibold text-slate-100 mt-0.5 truncate">
+                    Select an entity
+                  </div>
+                  <div id="entityDetailSubtitle" class="text-[0.74rem] text-slate-400 line-clamp-2">
+                    Legal name, code, type, status, jurisdiction.
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span id="entityDetailStatusBadge" class="ie-badge ie-badge-slate">–</span>
+                  <span id="entityDetailTypeBadge" class="ie-tag text-[0.68rem]">–</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 mt-1">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Code</div>
+                  <div id="entityDetailCode" class="text-[0.8rem] text-slate-100 break-all">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Jurisdiction</div>
+                  <div id="entityDetailJurisdiction" class="text-[0.8rem] text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Formed</div>
+                  <div id="entityDetailFormed" class="text-[0.8rem] text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Operating State</div>
+                  <div id="entityDetailOpState" class="text-[0.8rem] text-slate-100">–</div>
+                </div>
+              </div>
+              <div class="mt-2 border-t border-slate-800/80 pt-2 space-y-1.5">
+                <div class="text-[0.7rem] text-slate-400" id="entityDetailDescription">–</div>
+                <div class="text-[0.7rem] text-slate-500" id="entityDetailNotes">–</div>
+              </div>
+            </div>
+
+            <!-- ENTITY DETAIL SUBTABS -->
+            <div class="ie-card p-3 md:p-3.5 flex flex-col gap-2 min-h-[260px]">
+              <div class="flex items-center justify-between mb-1.5 gap-2">
+                <div class="flex flex-wrap gap-1">
+                  <button data-entity-subtab="overview" class="entity-subtab-btn ie-subtab-btn ie-subtab-btn-active">
+                    Overview
+                  </button>
+                  <button data-entity-subtab="ownership" class="entity-subtab-btn ie-subtab-btn">
+                    Ownership
+                  </button>
+                  <button data-entity-subtab="assets" class="entity-subtab-btn ie-subtab-btn">
+                    Assets
+                  </button>
+                  <button data-entity-subtab="agreements" class="entity-subtab-btn ie-subtab-btn">
+                    Agreements
+                  </button>
+                  <button data-entity-subtab="accounts" class="entity-subtab-btn ie-subtab-btn">
+                    Bank
+                  </button>
+                </div>
+                <div class="text-[0.68rem] text-slate-500 flex-shrink-0">
+                  <span id="entityDetailCodeMini">–</span>
+                </div>
+              </div>
+
+              <!-- OVERVIEW SUBTAB -->
+              <div id="entitySubtab-overview" class="space-y-1.5 text-[0.78rem]">
+                <div class="grid grid-cols-2 gap-1.5">
+                  <div>
+                    <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Short Name</div>
+                    <div id="entityDetailShortName" class="text-slate-100">–</div>
+                  </div>
+                  <div>
+                    <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Registered Agent</div>
+                    <div id="entityDetailAgent" class="text-slate-100">–</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- OWNERSHIP SUBTAB -->
+              <div id="entitySubtab-ownership" class="hidden flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-1 gap-2">
+                  <div class="text-[0.7rem] text-slate-400">Ownership Units</div>
+                  <button id="btnNewOwnershipUnit" class="ie-pill-filter text-[0.7rem]">＋ Add Holder</button>
+                </div>
+                <div class="flex-1 overflow-auto ie-scrollbar border border-slate-800/80 rounded-lg bg-slate-950/60">
+                  <table class="min-w-full text-left">
+                    <thead class="ie-table-header bg-slate-950/90 sticky top-0">
+                      <tr>
+                        <th class="px-2.5 py-1.5">Holder</th>
+                        <th class="px-2.5 py-1.5">% Equity</th>
+                        <th class="px-2.5 py-1.5">% Voting</th>
+                        <th class="px-2.5 py-1.5">Class</th>
+                        <th class="px-2.5 py-1.5">Effective</th>
+                      </tr>
+                    </thead>
+                    <tbody id="entityOwnershipTableBody" class="text-[0.75rem]"></tbody>
+                  </table>
+                  <div id="entityOwnershipEmpty" class="p-3 text-center text-[0.75rem] text-slate-500">
+                    No OwnershipUnit records linked to this entity yet.
+                  </div>
+                </div>
+              </div>
+
+              <!-- ASSETS SUBTAB -->
+              <div id="entitySubtab-assets" class="hidden flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-1 gap-2">
+                  <div class="text-[0.7rem] text-slate-400">Assets held by entity</div>
+                  <button id="btnNewAssetForEntity" class="ie-pill-filter text-[0.7rem]">＋ Add Asset</button>
+                </div>
+                <div class="flex-1 overflow-auto ie-scrollbar border border-slate-800/80 rounded-lg bg-slate-950/60">
+                  <table class="min-w-full text-left">
+                    <thead class="ie-table-header bg-slate-950/90 sticky top-0">
+                      <tr>
+                        <th class="px-2.5 py-1.5">Code</th>
+                        <th class="px-2.5 py-1.5">Name</th>
+                        <th class="px-2.5 py-1.5">Type</th>
+                        <th class="px-2.5 py-1.5">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="entityAssetsTableBody" class="text-[0.75rem]"></tbody>
+                  </table>
+                  <div id="entityAssetsEmpty" class="p-3 text-center text-[0.75rem] text-slate-500">
+                    No Asset records held by this entity yet.
+                  </div>
+                </div>
+              </div>
+
+              <!-- AGREEMENTS SUBTAB -->
+              <div id="entitySubtab-agreements" class="hidden flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-1 gap-2">
+                  <div class="text-[0.7rem] text-slate-400">Agreements linked to entity</div>
+                  <button id="btnNewAgreementForEntity" class="ie-pill-filter text-[0.7rem]">＋ Add Agreement</button>
+                </div>
+                <div class="flex-1 overflow-auto ie-scrollbar border border-slate-800/80 rounded-lg bg-slate-950/60">
+                  <table class="min-w-full text-left">
+                    <thead class="ie-table-header bg-slate-950/90 sticky top-0">
+                      <tr>
+                        <th class="px-2.5 py-1.5">Code</th>
+                        <th class="px-2.5 py-1.5">Title</th>
+                        <th class="px-2.5 py-1.5">Type</th>
+                        <th class="px-2.5 py-1.5">Role</th>
+                      </tr>
+                    </thead>
+                    <tbody id="entityAgreementsTableBody" class="text-[0.75rem]"></tbody>
+                  </table>
+                  <div id="entityAgreementsEmpty" class="p-3 text-center text-[0.75rem] text-slate-500">
+                    No Agreement records where this entity is primary or counterparty.
+                  </div>
+                </div>
+              </div>
+
+              <!-- ACCOUNTS SUBTAB -->
+              <div id="entitySubtab-accounts" class="hidden flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-1 gap-2">
+                  <div class="text-[0.7rem] text-slate-400">Bank &amp; brokerage accounts</div>
+                  <button id="btnNewAccountForEntity" class="ie-pill-filter text-[0.7rem]">＋ Add Account</button>
+                </div>
+                <div class="flex-1 overflow-auto ie-scrollbar border border-slate-800/80 rounded-lg bg-slate-950/60">
+                  <table class="min-w-full text-left">
+                    <thead class="ie-table-header bg-slate-950/90 sticky top-0">
+                      <tr>
+                        <th class="px-2.5 py-1.5">Code</th>
+                        <th class="px-2.5 py-1.5">Institution</th>
+                        <th class="px-2.5 py-1.5">Type</th>
+                        <th class="px-2.5 py-1.5">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="entityAccountsTableBody" class="text-[0.75rem]"></tbody>
+                  </table>
+                  <div id="entityAccountsEmpty" class="p-3 text-center text-[0.75rem] text-slate-500">
+                    No BankAccount records owned by this entity yet.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRUST & VEHICLE MAP -->
+      <section id="view-trusts" class="space-y-3 md:space-y-4 hidden">
+        <div class="flex flex-col lg:flex-row gap-3 md:gap-4">
+          <!-- TRUST REGISTRY -->
+          <div class="flex-1 ie-card p-3 md:p-4 flex flex-col overflow-hidden min-h-[260px]">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2 md:mb-3">
+              <div>
+                <div class="text-[0.75rem] uppercase tracking-[0.22em] text-emerald-300 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Trust Registry
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Dynasty, grantor, revocable, and related trust vehicles.
+                </div>
+              </div>
+              <button id="btnNewTrust" class="ie-btn-primary text-[0.78rem] self-start sm:self-auto" style="background:linear-gradient(135deg,#22c55e,#38bdf8);color:#020617;box-shadow:0 10px 25px rgba(34,197,94,0.55);">
+                <span>＋</span>
+                <span>New Trust</span>
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2 items-center mb-2 md:mb-3">
+              <input id="filterTrustSearch" class="ie-input max-w-[180px]" placeholder="Search code / name" />
+              <select id="filterTrustType" class="ie-select text-[0.75rem]">
+                <option value="">All Types</option>
+              </select>
+              <select id="filterTrustStatus" class="ie-select text-[0.75rem]">
+                <option value="">All Status</option>
+              </select>
+            </div>
+            <div class="flex-1 overflow-auto ie-scrollbar ie-border-panel rounded-xl">
+              <table class="min-w-full text-left">
+                <thead class="sticky top-0 bg-slate-950/90 backdrop-blur-xl ie-table-header">
+                  <tr>
+                    <th class="px-3 py-2">Code</th>
+                    <th class="px-3 py-2">Name</th>
+                    <th class="px-3 py-2">Type</th>
+                    <th class="px-3 py-2">Status</th>
+                    <th class="px-3 py-2">Jurisdiction</th>
+                    <th class="px-3 py-2">Effective</th>
+                  </tr>
+                </thead>
+                <tbody id="trustTableBody"></tbody>
+              </table>
+              <div id="trustEmptyState" class="p-4 text-center text-[0.8rem] text-slate-400 hidden">
+                No TrustVehicle records yet. Use "New Trust" to add the first trust vehicle.
+              </div>
+            </div>
+          </div>
+
+          <!-- TRUST DETAIL -->
+          <div class="w-full lg:w-[390px] xl:w-[430px] flex flex-col gap-3">
+            <div class="ie-card p-3 md:p-4 flex flex-col gap-2 min-h-[180px]">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[0.72rem] uppercase tracking-[0.22em] text-slate-400">
+                    Trust Detail
+                  </div>
+                  <div id="trustDetailTitle" class="text-sm font-semibold text-slate-100 mt-0.5 truncate">
+                    Select a trust
+                  </div>
+                  <div id="trustDetailSubtitle" class="text-[0.74rem] text-slate-400 line-clamp-2">
+                    Parties, jurisdiction, type, beneficiaries overview.
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span id="trustDetailStatusBadge" class="ie-badge ie-badge-slate">–</span>
+                  <span id="trustDetailTypeBadge" class="ie-tag text-[0.68rem]">–</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 mt-1 text-[0.78rem]">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Code</div>
+                  <div id="trustDetailCode" class="text-slate-100 break-all">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Jurisdiction</div>
+                  <div id="trustDetailJurisdiction" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Effective</div>
+                  <div id="trustDetailEffective" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Termination</div>
+                  <div id="trustDetailTermination" class="text-slate-100">–</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ie-card p-3 md:p-3.5 flex flex-col gap-2 min-h-[260px] text-[0.78rem]">
+              <div class="flex items-center justify-between mb-1 gap-2">
+                <div class="flex flex-wrap gap-1">
+                  <button data-trust-subtab="parties" class="trust-subtab-btn ie-subtab-btn ie-subtab-btn-active">Parties</button>
+                  <button data-trust-subtab="assets" class="trust-subtab-btn ie-subtab-btn">Assets</button>
+                  <button data-trust-subtab="agreements" class="trust-subtab-btn ie-subtab-btn">Agreements</button>
+                  <button data-trust-subtab="accounts" class="trust-subtab-btn ie-subtab-btn">Accounts</button>
+                  <button data-trust-subtab="notes" class="trust-subtab-btn ie-subtab-btn">Notes</button>
+                </div>
+                <div class="text-[0.68rem] text-slate-500 flex-shrink-0">
+                  <span id="trustDetailCodeMini">–</span>
+                </div>
+              </div>
+
+              <!-- PARTIES -->
+              <div id="trustSubtab-parties" class="space-y-1.5">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Settlor</div>
+                  <div id="trustDetailSettlor" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Primary Trustee</div>
+                  <div id="trustDetailTrustee" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Protector</div>
+                  <div id="trustDetailProtector" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Admin Entity</div>
+                  <div id="trustDetailAdminEntity" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em] mb-0.5">Beneficiary Summary</div>
+                  <div id="trustDetailBeneficiarySummary" class="text-slate-100 text-[0.76rem] leading-snug">
+                    –
+                  </div>
+                </div>
+              </div>
+
+              <!-- TRUST ASSETS -->
+              <div id="trustSubtab-assets" class="hidden flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-1 gap-2">
+                  <div class="text-[0.7rem] text-slate-400">Assets held by trust</div>
+                  <button id="btnNewAssetForTrust" class="ie-pill-filter text-[0.7rem]">＋ Add Asset</button>
+                </div>
+                <div class="flex-1 overflow-auto ie-scrollbar border border-slate-800/80 rounded-lg bg-slate-950/60">
+                  <table class="min-w-full text-left">
+                    <thead class="ie-table-header bg-slate-950/90 sticky top-0">
+                      <tr>
+                        <th class="px-2.5 py-1.5">Code</th>
+                        <th class="px-2.5 py-1.5">Name</th>
+                        <th class="px-2.5 py-1.5">Type</th>
+                        <th class="px-2.5 py-1.5">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="trustAssetsTableBody" class="text-[0.75rem]"></tbody>
+                  </table>
+                  <div id="trustAssetsEmpty" class="p-3 text-center text-[0.75rem] text-slate-500">
+                    No Asset records held by this trust yet.
+                  </div>
+                </div>
+              </div>
+
+              <!-- TRUST AGREEMENTS -->
+              <div id="trustSubtab-agreements" class="hidden flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-1 gap-2">
+                  <div class="text-[0.7rem] text-slate-400">Agreements related to trust</div>
+                  <button id="btnNewAgreementForTrust" class="ie-pill-filter text-[0.7rem]">＋ Add Agreement</button>
+                </div>
+                <div class="flex-1 overflow-auto ie-scrollbar border border-slate-800/80 rounded-lg bg-slate-950/60">
+                  <table class="min-w-full text-left">
+                    <thead class="ie-table-header bg-slate-950/90 sticky top-0">
+                      <tr>
+                        <th class="px-2.5 py-1.5">Code</th>
+                        <th class="px-2.5 py-1.5">Title</th>
+                        <th class="px-2.5 py-1.5">Type</th>
+                        <th class="px-2.5 py-1.5">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="trustAgreementsTableBody" class="text-[0.75rem]"></tbody>
+                  </table>
+                  <div id="trustAgreementsEmpty" class="p-3 text-center text-[0.75rem] text-slate-500">
+                    No Agreement records linked to this trust yet.
+                  </div>
+                </div>
+              </div>
+
+              <!-- TRUST ACCOUNTS -->
+              <div id="trustSubtab-accounts" class="hidden flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-1 gap-2">
+                  <div class="text-[0.7rem] text-slate-400">Bank &amp; brokerage accounts</div>
+                  <button id="btnNewAccountForTrust" class="ie-pill-filter text-[0.7rem]">＋ Add Account</button>
+                </div>
+                <div class="flex-1 overflow-auto ie-scrollbar border border-slate-800/80 rounded-lg bg-slate-950/60">
+                  <table class="min-w-full text-left">
+                    <thead class="ie-table-header bg-slate-950/90 sticky top-0">
+                      <tr>
+                        <th class="px-2.5 py-1.5">Code</th>
+                        <th class="px-2.5 py-1.5">Institution</th>
+                        <th class="px-2.5 py-1.5">Type</th>
+                        <th class="px-2.5 py-1.5">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="trustAccountsTableBody" class="text-[0.75rem]"></tbody>
+                  </table>
+                  <div id="trustAccountsEmpty" class="p-3 text-center text-[0.75rem] text-slate-500">
+                    No BankAccount records owned by this trust yet.
+                  </div>
+                </div>
+              </div>
+
+              <!-- TRUST NOTES -->
+              <div id="trustSubtab-notes" class="hidden">
+                <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em] mb-0.5">
+                  Notes
+                </div>
+                <div id="trustDetailNotes" class="text-slate-100 text-[0.78rem] leading-snug">
+                  –
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ASSET REGISTRY -->
+      <section id="view-assets" class="space-y-3 md:space-y-4 hidden">
+        <div class="flex flex-col lg:flex-row gap-3 md:gap-4">
+          <!-- ASSETS TABLE -->
+          <div class="flex-1 ie-card p-3 md:p-4 flex flex-col overflow-hidden min-h-[260px]">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2 md:mb-3">
+              <div>
+                <div class="text-[0.75rem] uppercase tracking-[0.22em] text-amber-300 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  Assets
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Registry of operating businesses, IP, real estate, equipment, and other assets.
+                </div>
+              </div>
+              <button id="btnNewAsset" class="ie-btn-primary text-[0.78rem] self-start sm:self-auto" style="background:linear-gradient(135deg,#fbbf24,#fb923c);color:#020617;box-shadow:0 10px 25px rgba(251,191,36,0.5);">
+                <span>＋</span>
+                <span>New Asset</span>
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2 items-center mb-2 md:mb-3 text-[0.78rem]">
+              <input id="filterAssetSearch" class="ie-input max-w-[190px]" placeholder="Search code / name" />
+              <select id="filterAssetType" class="ie-select text-[0.75rem]">
+                <option value="">All Types</option>
+              </select>
+              <select id="filterAssetStatus" class="ie-select text-[0.75rem]">
+                <option value="">All Status</option>
+              </select>
+              <select id="filterAssetHolderEntity" class="ie-select text-[0.75rem]">
+                <option value="">All Entities</option>
+              </select>
+              <select id="filterAssetHolderTrust" class="ie-select text-[0.75rem]">
+                <option value="">All Trusts</option>
+              </select>
+            </div>
+            <div class="flex-1 overflow-auto ie-scrollbar ie-border-panel rounded-xl">
+              <table class="min-w-full text-left">
+                <thead class="sticky top-0 bg-slate-950/90 backdrop-blur-xl ie-table-header">
+                  <tr>
+                    <th class="px-3 py-2">Code</th>
+                    <th class="px-3 py-2">Name</th>
+                    <th class="px-3 py-2">Type</th>
+                    <th class="px-3 py-2">Holder Entity</th>
+                    <th class="px-3 py-2">Holder Trust</th>
+                    <th class="px-3 py-2">Value</th>
+                    <th class="px-3 py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="assetTableBody"></tbody>
+              </table>
+              <div id="assetEmptyState" class="p-4 text-center text-[0.8rem] text-slate-400 hidden">
+                No Asset records yet. Use "New Asset" or add from an entity / trust.
+              </div>
+            </div>
+          </div>
+
+          <!-- ASSET DETAIL -->
+          <div class="w-full lg:w-[390px] xl:w-[430px] flex flex-col gap-3">
+            <div class="ie-card p-3 md:p-4 flex flex-col gap-2 min-h-[180px]">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[0.72rem] uppercase tracking-[0.22em] text-slate-400">
+                    Asset Detail
+                  </div>
+                  <div id="assetDetailTitle" class="text-sm font-semibold text-slate-100 mt-0.5 truncate">
+                    Select an asset
+                  </div>
+                  <div id="assetDetailSubtitle" class="text-[0.74rem] text-slate-400 line-clamp-2">
+                    Overview, holder, current value, and status.
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span id="assetDetailStatusBadge" class="ie-badge ie-badge-slate">–</span>
+                  <span id="assetDetailTypeBadge" class="ie-tag text-[0.68rem]">–</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 mt-1 text-[0.78rem]">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Code</div>
+                  <div id="assetDetailCode" class="text-slate-100 break-all">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Location</div>
+                  <div id="assetDetailLocation" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Value</div>
+                  <div id="assetDetailValue" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Value as of</div>
+                  <div id="assetDetailValueAsOf" class="text-slate-100">–</div>
+                </div>
+              </div>
+              <div class="mt-2 border-t border-slate-800/80 pt-2 text-[0.78rem] space-y-1.5">
+                <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Description</div>
+                <div id="assetDetailDescription" class="text-slate-100 leading-snug">–</div>
+              </div>
+            </div>
+
+            <div class="ie-card p-3 md:p-3.5 flex flex-col gap-2 min-h-[260px] text-[0.78rem]">
+              <div class="flex items-center justify-between mb-1 gap-2">
+                <div class="flex flex-wrap gap-1">
+                  <button data-asset-subtab="ownership" class="asset-subtab-btn ie-subtab-btn ie-subtab-btn-active">Ownership</button>
+                  <button data-asset-subtab="agreements" class="asset-subtab-btn ie-subtab-btn">Agreements (v1 manual)</button>
+                  <button data-asset-subtab="notes" class="asset-subtab-btn ie-subtab-btn">Notes</button>
+                </div>
+                <div class="text-[0.68rem] text-slate-500 flex-shrink-0">
+                  <span id="assetDetailCodeMini">–</span>
+                </div>
+              </div>
+
+              <!-- ASSET OWNERSHIP -->
+              <div id="assetSubtab-ownership" class="space-y-1.5">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Holder Entity</div>
+                  <div id="assetDetailHolderEntity" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Holder Trust</div>
+                  <div id="assetDetailHolderTrust" class="text-slate-100">–</div>
+                </div>
+              </div>
+
+              <!-- ASSET AGREEMENTS -->
+              <div id="assetSubtab-agreements" class="hidden flex-1 flex flex-col">
+                <div class="text-[0.7rem] text-slate-400 mb-1">
+                  Agreements referencing this asset (notes/code search, v1).
+                </div>
+                <div class="flex-1 overflow-auto ie-scrollbar border border-slate-800/80 rounded-lg bg-slate-950/60">
+                  <table class="min-w-full text-left">
+                    <thead class="ie-table-header bg-slate-950/90 sticky top-0">
+                      <tr>
+                        <th class="px-2.5 py-1.5">Code</th>
+                        <th class="px-2.5 py-1.5">Title</th>
+                        <th class="px-2.5 py-1.5">Type</th>
+                      </tr>
+                    </thead>
+                    <tbody id="assetAgreementsTableBody" class="text-[0.75rem]"></tbody>
+                  </table>
+                  <div id="assetAgreementsEmpty" class="p-3 text-center text-[0.75rem] text-slate-500">
+                    No Agreement records with this asset mentioned in code/summary/notes.
+                  </div>
+                </div>
+              </div>
+
+              <!-- ASSET NOTES -->
+              <div id="assetSubtab-notes" class="hidden">
+                <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em] mb-0.5">
+                  Notes
+                </div>
+                <div id="assetDetailNotes" class="text-slate-100 text-[0.78rem] leading-snug">
+                  –
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AGREEMENTS & DOCS -->
+      <section id="view-agreements" class="space-y-3 md:space-y-4 hidden">
+        <div class="flex flex-col lg:flex-row gap-3 md:gap-4">
+          <!-- AGREEMENTS TABLE -->
+          <div class="flex-1 ie-card p-3 md:p-4 flex flex-col overflow-hidden min-h-[260px]">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2 md:mb-3">
+              <div>
+                <div class="text-[0.75rem] uppercase tracking-[0.22em] text-fuchsia-300 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400"></span>
+                  Agreements &amp; Docs
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Operating agreements, trust deeds, LPAs, leases, vendor contracts, and more.
+                </div>
+              </div>
+              <button id="btnNewAgreement" class="ie-btn-primary text-[0.78rem] self-start sm:self-auto" style="background:linear-gradient(135deg,#e879f9,#38bdf8);color:#020617;box-shadow:0 10px 25px rgba(244,114,182,0.5);">
+                <span>＋</span>
+                <span>New Agreement</span>
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2 items-center mb-2 md:mb-3">
+              <input id="filterAgreementSearch" class="ie-input max-w-[190px]" placeholder="Search code / title" />
+              <select id="filterAgreementType" class="ie-select text-[0.75rem]">
+                <option value="">All Types</option>
+              </select>
+              <select id="filterAgreementStatus" class="ie-select text-[0.75rem]">
+                <option value="">All Status</option>
+              </select>
+              <select id="filterAgreementPrimaryEntity" class="ie-select text-[0.75rem]">
+                <option value="">All Primary Entities</option>
+              </select>
+            </div>
+            <div class="flex-1 overflow-auto ie-scrollbar ie-border-panel rounded-xl">
+              <table class="min-w-full text-left">
+                <thead class="sticky top-0 bg-slate-950/90 backdrop-blur-xl ie-table-header">
+                  <tr>
+                    <th class="px-3 py-2">Code</th>
+                    <th class="px-3 py-2">Title</th>
+                    <th class="px-3 py-2">Type</th>
+                    <th class="px-3 py-2">Primary Entity</th>
+                    <th class="px-3 py-2">Related Trust</th>
+                    <th class="px-3 py-2">Status</th>
+                    <th class="px-3 py-2">Effective</th>
+                    <th class="px-3 py-2">Renewal</th>
+                  </tr>
+                </thead>
+                <tbody id="agreementTableBody"></tbody>
+              </table>
+              <div id="agreementEmptyState" class="p-4 text-center text-[0.8rem] text-slate-400 hidden">
+                No Agreement records yet. Use "New Agreement" to register governing documents.
+              </div>
+            </div>
+          </div>
+
+          <!-- AGREEMENT DETAIL -->
+          <div class="w-full lg:w-[390px] xl:w-[430px] flex flex-col gap-3">
+            <div class="ie-card p-3 md:p-4 flex flex-col gap-2 min-h-[180px]">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[0.72rem] uppercase tracking-[0.22em] text-slate-400">
+                    Agreement Detail
+                  </div>
+                  <div id="agreementDetailTitle" class="text-sm font-semibold text-slate-100 mt-0.5 truncate">
+                    Select an agreement
+                  </div>
+                  <div id="agreementDetailSubtitle" class="text-[0.74rem] text-slate-400 line-clamp-2">
+                    Parties, terms, and document links.
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span id="agreementDetailStatusBadge" class="ie-badge ie-badge-slate">–</span>
+                  <span id="agreementDetailTypeBadge" class="ie-tag text-[0.68rem]">–</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 mt-1 text-[0.78rem]">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Code</div>
+                  <div id="agreementDetailCode" class="text-slate-100 break-all">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Governing Law</div>
+                  <div id="agreementDetailLaw" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Effective</div>
+                  <div id="agreementDetailEffective" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Termination</div>
+                  <div id="agreementDetailTermination" class="text-slate-100">–</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ie-card p-3 md:p-3.5 flex flex-col gap-2 min-h-[260px] text-[0.78rem]">
+              <div class="flex items-center justify-between mb-1 gap-2">
+                <div class="flex flex-wrap gap-1">
+                  <button data-agreement-subtab="parties" class="agreement-subtab-btn ie-subtab-btn ie-subtab-btn-active">Parties</button>
+                  <button data-agreement-subtab="terms" class="agreement-subtab-btn ie-subtab-btn">Terms</button>
+                  <button data-agreement-subtab="content" class="agreement-subtab-btn ie-subtab-btn">Content</button>
+                </div>
+                <div class="text-[0.68rem] text-slate-500 flex-shrink-0">
+                  <span id="agreementDetailCodeMini">–</span>
+                </div>
+              </div>
+
+              <!-- PARTIES -->
+              <div id="agreementSubtab-parties" class="space-y-1.5">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Primary Entity</div>
+                  <div id="agreementDetailPrimaryEntity" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Related Trust</div>
+                  <div id="agreementDetailRelatedTrust" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Counterparty Entity</div>
+                  <div id="agreementDetailCounterpartyEntity" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Counterparty Person</div>
+                  <div id="agreementDetailCounterpartyPerson" class="text-slate-100">–</div>
+                </div>
+              </div>
+
+              <!-- TERMS -->
+              <div id="agreementSubtab-terms" class="hidden space-y-1.5">
+                <div class="grid grid-cols-2 gap-1.5">
+                  <div>
+                    <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Effective</div>
+                    <div id="agreementDetailEffective2" class="text-slate-100">–</div>
+                  </div>
+                  <div>
+                    <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Renewal</div>
+                    <div id="agreementDetailRenewal" class="text-slate-100">–</div>
+                  </div>
+                  <div>
+                    <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Termination</div>
+                    <div id="agreementDetailTermination2" class="text-slate-100">–</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CONTENT -->
+              <div id="agreementSubtab-content" class="hidden space-y-1.5">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Summary</div>
+                  <div id="agreementDetailSummary" class="text-slate-100 leading-snug">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">File Link</div>
+                  <div id="agreementDetailFile" class="text-slate-100">
+                    –
+                  </div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Notes</div>
+                  <div id="agreementDetailNotes" class="text-slate-100 leading-snug">–</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BANK & ACCOUNTS -->
+      <section id="view-accounts" class="space-y-3 md:space-y-4 hidden">
+        <div class="flex flex-col lg:flex-row gap-3 md:gap-4">
+          <!-- ACCOUNTS TABLE -->
+          <div class="flex-1 ie-card p-3 md:p-4 flex flex-col overflow-hidden min-h-[260px]">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2 md:mb-3">
+              <div>
+                <div class="text-[0.75rem] uppercase tracking-[0.22em] text-sky-300 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-sky-300"></span>
+                  Bank &amp; Accounts
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">
+                  Bank and brokerage accounts tied to entities and trusts.
+                </div>
+              </div>
+              <button id="btnNewAccount" class="ie-btn-primary text-[0.78rem] self-start sm:self-auto" style="background:linear-gradient(135deg,#38bdf8,#22c55e);color:#020617;box-shadow:0 10px 25px rgba(56,189,248,0.5);">
+                <span>＋</span>
+                <span>New Account</span>
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2 items-center mb-2 md:mb-3">
+              <input id="filterAccountSearch" class="ie-input max-w-[190px]" placeholder="Search code / institution" />
+              <select id="filterAccountStatus" class="ie-select text-[0.75rem]">
+                <option value="">All Status</option>
+              </select>
+              <select id="filterAccountType" class="ie-select text-[0.75rem]">
+                <option value="">All Types</option>
+              </select>
+              <select id="filterAccountOwnerEntity" class="ie-select text-[0.75rem]">
+                <option value="">All Entities</option>
+              </select>
+              <select id="filterAccountOwnerTrust" class="ie-select text-[0.75rem]">
+                <option value="">All Trusts</option>
+              </select>
+            </div>
+            <div class="flex-1 overflow-auto ie-scrollbar ie-border-panel rounded-xl">
+              <table class="min-w-full text-left">
+                <thead class="sticky top-0 bg-slate-950/90 backdrop-blur-xl ie-table-header">
+                  <tr>
+                    <th class="px-3 py-2">Code</th>
+                    <th class="px-3 py-2">Institution</th>
+                    <th class="px-3 py-2">Type</th>
+                    <th class="px-3 py-2">Owner Entity</th>
+                    <th class="px-3 py-2">Owner Trust</th>
+                    <th class="px-3 py-2">Status</th>
+                    <th class="px-3 py-2">Opened</th>
+                  </tr>
+                </thead>
+                <tbody id="accountTableBody"></tbody>
+              </table>
+              <div id="accountEmptyState" class="p-4 text-center text-[0.8rem] text-slate-400 hidden">
+                No BankAccount records yet. Use "New Account" or add from an entity / trust.
+              </div>
+            </div>
+          </div>
+
+          <!-- ACCOUNT DETAIL -->
+          <div class="w-full lg:w-[390px] xl:w-[430px] flex flex-col gap-3">
+            <div class="ie-card p-3 md:p-4 flex flex-col gap-2 min-h-[180px]">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[0.72rem] uppercase tracking-[0.22em] text-slate-400">
+                    Account Detail
+                  </div>
+                  <div id="accountDetailTitle" class="text-sm font-semibold text-slate-100 mt-0.5 truncate">
+                    Select an account
+                  </div>
+                  <div id="accountDetailSubtitle" class="text-[0.74rem] text-slate-400 line-clamp-2">
+                    Institution, owner, type, status, and key dates.
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span id="accountDetailStatusBadge" class="ie-badge ie-badge-slate">–</span>
+                  <span id="accountDetailTypeBadge" class="ie-tag text-[0.68rem]">–</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 mt-1 text-[0.78rem]">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Code</div>
+                  <div id="accountDetailCode" class="text-slate-100 break-all">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Last 4</div>
+                  <div id="accountDetailLast4" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Opened</div>
+                  <div id="accountDetailOpened" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Closed</div>
+                  <div id="accountDetailClosed" class="text-slate-100">–</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ie-card p-3 md:p-3.5 flex flex-col gap-2 min-h-[260px] text-[0.78rem]">
+              <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em] mb-0.5">
+                Owner &amp; Notes
+              </div>
+              <div class="space-y-1.5">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Owner Entity</div>
+                  <div id="accountDetailOwnerEntity" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Owner Trust</div>
+                  <div id="accountDetailOwnerTrust" class="text-slate-100">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Notes</div>
+                  <div id="accountDetailNotes" class="text-slate-100 leading-snug">–</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VENTURES: LIST + DETAIL -->
+      <section id="view-ventures" class="space-y-3 md:space-y-4 hidden">
+        <div class="ie-card p-3 md:p-4 flex flex-col gap-2">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <div class="text-[0.75rem] uppercase tracking-[0.22em] text-violet-300 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span>
+                Venture Map
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">
+                Infinite Earth ventures across advisory, bakery, and food lab operations.
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 md:gap-3 mt-2">
+            <!-- Venture cards injected here -->
+            <div id="venturesList" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2.5 md:gap-3"></div>
+            <!-- Venture detail -->
+            <div id="ventureDetail" class="ie-border-panel rounded-xl p-3 md:p-4 flex flex-col gap-2 text-[0.8rem]">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[0.72rem] uppercase tracking-[0.22em] text-slate-400">
+                    Venture Detail
+                  </div>
+                  <div id="ventureDetailName" class="ie-venture-detail-title mt-0.5 truncate">
+                    Select a venture
+                  </div>
+                  <div id="ventureDetailTagline" class="ie-venture-detail-tagline mt-0.5">
+                    Ventures and operating labs aligned with the Infinite Earth spine.
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span id="ventureDetailStatus" class="ie-badge ie-badge-slate">–</span>
+                  <span id="ventureDetailCategory" class="ie-tag text-[0.68rem]">–</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-1.5 mt-1.5">
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Code</div>
+                  <div id="ventureDetailCode" class="text-[0.8rem]">–</div>
+                </div>
+                <div>
+                  <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">Region</div>
+                  <div id="ventureDetailRegion" class="text-[0.8rem]">–</div>
+                </div>
+              </div>
+
+              <div id="ventureDetailOverview" class="mt-2 text-[0.78rem] text-slate-200 leading-snug">
+                –
+              </div>
+
+              <div id="ventureDetailPillarsWrapper" class="mt-2 space-y-1.5 hidden">
+                <div class="text-[0.65rem] text-slate-500 uppercase tracking-[0.16em]">
+                  Focus Areas
+                </div>
+                <ul id="ventureDetailPillars" class="list-disc list-inside text-[0.78rem] space-y-0.5 text-slate-200"></ul>
+              </div>
+
+              <!-- CNGI Guest App section – sh
+ows only if venture has guest_app_export_filename -->
+              <div id="ventureGuestAppSection" class="mt-3 pt-3 border-t border-slate-800/80 hidden">
+                <div class="flex items-center justify-between gap-2 mb-1.5">
+                  <div>
+                    <div class="text-[0.72rem] uppercase tracking-[0.16em] text-slate-400">
+                      Guest App
+                    </div>
+                    <div id="ventureGuestAppDescription" class="text-[0.78rem] text-slate-300 mt-0.5">
+                    </div>
+                  </div>
+                </div>
+                <a id="ventureGuestAppLink"
+                   href="./cngi_winter_menu.html"
+                   target="_blank"
+                   rel="noopener"
+                   class="ie-btn-primary text-[0.8rem] mt-1 inline-flex items-center">
+                  <span>🧺</span>
+                  <span id="ventureGuestAppLabel">Open guest app</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-4 right-4 max-w-xs px-3 py-2.5 rounded-xl bg-slate-900/95 border border-slate-700/80 text-[0.8rem] text-slate-50 shadow-[0_18px_45px_rgba(15,23,42,1)] opacity-0 pointer-events-none transform translate-y-3 transition-all duration-200 z-50">
+    <div id="toastMessage"></div>
+  </div>
+
+  <!-- SIMPLE MODAL FOR QUICK CREATES -->
+  <div id="quickModalBackdrop" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-40 opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="ie-card w-[95vw] max-w-md max-h-[85vh] overflow-hidden flex flex-col" style="background:var(--bg-secondary);">
+      <div class="px-4 py-3 border-b flex items-center justify-between" style="border-color:var(--border-color);">
+        <div>
+          <div id="quickModalTitle" class="text-sm font-semibold" style="color:var(--text-primary);">Quick Create</div>
+          <div id="quickModalSubtitle" class="text-[0.74rem]" style="color:var(--text-secondary);">Create record</div>
+        </div>
+        <button id="quickModalClose" class="ie-pill-filter !px-2 !py-1 text-[0.7rem]">✕</button>
+      </div>
+      <div id="quickModalBody" class="p-3.5 overflow-auto ie-scrollbar text-[0.8rem] space-y-2">
+        <!-- Dynamic form fields -->
+      </div>
+      <div class="px-4 py-3 border-t flex items-center justify-between gap-2" style="border-color:var(--border-color);">
+        <div class="text-[0.7rem]" style="color:var(--text-secondary);">Fields are foundation-safe; edits are additive only.</div>
+        <button id="quickModalSave" class="ie-btn-primary text-[0.8rem] px-3 py-1.5">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsModalBackdrop" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-40 opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="ie-card w-[95vw] max-w-md max-h-[80vh] overflow-hidden flex flex-col" style="background:var(--bg-secondary);">
+      <div class="px-4 py-3 border-b flex items-center justify-between" style="border-color:var(--border-color);">
+        <div>
+          <div class="text-sm font-semibold" style="color:var(--text-primary);">Spine Settings</div>
+          <div class="text-[0.74rem]" style="color:var(--text-secondary);">Local preferences for this device.</div>
+        </div>
+        <button id="settingsClose" class="ie-pill-filter !px-2 !py-1 text-[0.7rem]">✕</button>
+      </div>
+      <div class="p-3.5 overflow-auto ie-scrollbar text-[0.8rem] space-y-3">
+        <div>
+          <div class="text-[0.72rem] font-semibold mb-1" style="color:var(--text-primary);">Appearance</div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[0.75rem]" style="color:var(--text-secondary);">Theme:</span>
+            <button id="settingsThemeToggle" class="ie-pill-filter !px-2.5 !py-1.5 text-[0.72rem]">Toggle Theme</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[0.75rem]" style="color:var(--text-secondary);">Accent Cycle:</span>
+            <button id="settingsAccentToggle" class="ie-pill-filter !px-2.5 !py-1.5 text-[0.72rem]">Cycle Accent</button>
+          </div>
+        </div>
+        <div class="border-t pt-2" style="border-color:var(--border-color);">
+          <div class="text-[0.72rem] font-semibold mb-1" style="color:var(--text-primary);">Config (view-only)</div>
+          <div class="text-[0.75rem]" style="color:var(--text-secondary);">
+            Version and base currency are defined via <code>SystemConfigIE</code> and used across the spine.
+          </div>
+        </div>
+      </div>
+      <div class="px-4 py-3 border-t flex items-center justify-end gap-2" style="border-color:var(--border-color);">
+        <button id="settingsCloseBottom" class="ie-pill-filter !px-3 !py-1.5 text-[0.75rem]">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA & LOGIC SCRIPT -->
+  <script>
+    const Storage = {
+      get(key, defaultValue) {
+        try {
+          const value = localStorage.getItem(key);
+          return value ? JSON.parse(value) : defaultValue;
+        } catch {
+          return defaultValue;
+        }
+      },
+      set(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch {}
+      }
+    };
+
+    const DB = {
+      persons: [],
+      legalEntities: [],
+      trustVehicles: [],
+      ownershipUnits: [],
+      assets: [],
+      agreements: [],
+      bankAccounts: [],
+      systemConfigIE: [],
+      ventures: [] // venture registry
+    };
+
+    function genId() {
+      return 'id-' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+    }
+
+    const ENUMS = {
+      personStatus: ["Active", "Dormant", "Archived"],
+      legalEntityType: ["HoldCo", "OpCo", "Trust", "SPV", "JV", "Foundation", "Other"],
+      legalEntityStatus: ["Active", "Forming", "Dormant", "Dissolved"],
+      trustType: ["Dynasty", "Revocable", "Irrevocable", "Grantor", "Other"],
+      trustStatus: ["Draft", "Active", "Dormant", "Terminated"],
+      holderType: ["Person", "LegalEntity", "TrustVehicle", "Other"],
+      assetType: ["OperatingBusiness", "RealEstate", "Equipment", "IP", "Security", "Cash", "Other"],
+      assetStatus: ["Active", "Pending", "Sold", "Retired"],
+      agreementType: [
+        "OperatingAgreement", "TrustDeed", "ShareholdersAgreement",
+        "LPA", "Lease", "Vendor", "Employment", "IPLicense",
+        "Loan", "Policy", "Other"
+      ],
+      agreementStatus: ["Draft", "Active", "Expired", "Terminated"],
+      accountType: ["Checking", "Savings", "Brokerage", "CreditCard", "Loan", "Other"],
+      accountStatus: ["Open", "Closed", "Pending"]
+    };
+
+    // Venture registry seeds (Step 1)
+    const VENTURE_SEEDS = [
+      {
+        id: "ffc",
+        code: "FFC",
+        slug: "fulcrum-fortress-consulting",
+        name: "Fulcrum Fortress Consulting",
+        category: "Advisory / Systems Design",
+        status: "Active",
+        region: "Oklahoma / Remote",
+        tagline: "Sovereignty-first operating systems and fortress-grade business design.",
+        pillars: [
+          "Infinite Network OS design",
+          "Governance & legal choreography",
+          "Systems-driven business architecture",
+          "Operating playbooks and training systems"
+        ]
+      },
+      {
+        id: "cngi_bakery",
+        code: "CNGI",
+        slug: "crumb-n-get-it-bakery",
+        name: "Crumb n Get It Bakery",
+        category: "Bakery Venture",
+        status: "Live testbed",
+        region: "Oklahoma",
+        tagline: "Freedom-baked goods; Oklahoma Homemade Food Freedom proving ground.",
+        pillars: [
+          "Homemade Food Freedom Act operations",
+          "Brand & guest experience lab",
+          "Menu and production system sandbox"
+        ],
+        guest_app_export_filename: "cngi_winter_menu.html",
+        guest_app_label: "CNGI Winter Menu guest app"
+      },
+      {
+        id: "grumpy_goat_pizza",
+        code: "GGP",
+        slug: "grumpy-goat-pizza",
+        name: "Grumpy Goat Pizza",
+        category: "Food Venture",
+        status: "In development",
+        region: "Oklahoma",
+        tagline: "Neapolitan-ish pies; culture & ops sandbox.",
+        pillars: [
+          "Pizza concept development",
+          "Service and culture lab",
+          "Systems testbed for Infinite Earth food ventures"
+        ]
+      }
+    ];
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msg = document.getElementById('toastMessage');
+      msg.textContent = message;
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+      }, 2100);
+    }
+
+    function applyAccent(accent) {
+      const swatch = document.getElementById('accentSwatch');
+      if (!swatch) return;
+      if (accent === 'warm') {
+        swatch.style.background = 'linear-gradient(135deg,#f97316,#fb923c)';
+      } else if (accent === 'cool') {
+        swatch.style.background = 'linear-gradient(135deg,#38bdf8,#6366f1)';
+      } else {
+        swatch.style.background = 'linear-gradient(135deg,#22c55e,#eab308)';
+      }
+      Storage.set('ie_accent', accent);
+    }
+
+    function initTheme() {
+      const saved = Storage.get('ie_theme', 'dark');
+      if (saved === 'light') {
+        document.body.classList.add('light-mode');
+        document.getElementById('themeIcon').textContent = '☀️';
+      } else {
+        document.body.classList.remove('light-mode');
+        document.getElementById('themeIcon').textContent = '🌙';
+      }
+      document.getElementById('themeToggle').addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-mode');
+        Storage.set('ie_theme', isLight ? 'light' : 'dark');
+        document.getElementById('themeIcon').textContent = isLight ? '☀️' : '🌙';
+      });
+
+      const accentSaved = Storage.get('ie_accent', 'warm');
+      applyAccent(accentSaved);
+      document.getElementById('accentToggle').addEventListener('click', () => {
+        const current = Storage.get('ie_accent', 'warm');
+        const next = current === 'warm' ? 'cool' : current === 'cool' ? 'solar' : 'warm';
+        applyAccent(next);
+        showToast('Accent switched to ' + next);
+      });
+    }
+
+    function loadDB() {
+      Object.keys(DB).forEach(key => {
+        DB[key] = Storage.get('ie_e0_' + key, DB[key] || []);
+      });
+    }
+    function saveDB() {
+      Object.keys(DB).forEach(key => {
+        Storage.set('ie_e0_' + key, DB[key]);
+      });
+    }
+
+    function ensureSystemConfigSeeds() {
+      const keysNeeded = [
+        { key: "IE_EPOCH", value: "Epoch 0", description: "Initial epoch for Infinite Earth spine." },
+        { key: "IE_VERSION", value: "IE_E0_v1.0", description: "Infinite Earth HoldCo spine foundation version." },
+        { key: "BASE_CURRENCY", value: "USD", description: "Default reporting currency." }
+      ];
+      keysNeeded.forEach(item => {
+        if (!DB.systemConfigIE.find(c => c.key === item.key)) {
+          DB.systemConfigIE.push({
+            id: genId(),
+            key: item.key,
+            value: item.value,
+            description: item.description,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        }
+      });
+    }
+
+    function ensureHoldCoSeed() {
+      if (!DB.legalEntities.find(e => e.code === 'IE_HOLDCO')) {
+        DB.legalEntities.push({
+          id: genId(),
+          code: "IE_HOLDCO",
+          legal_name: "Infinite Earth Holdings, LLC",
+          short_name: "Infinite Earth",
+          jurisdiction: "WY",
+          entity_type: "HoldCo",
+          status: "Active",
+          parent_entity: null,
+          primary_contact: null,
+          ein_or_tax_id: "",
+          formed_date: null,
+          dissolved_date: null,
+          registered_agent: "",
+          operating_state: "WY",
+          description: "Top-level holding company for the Infinite Earth / Fulcrum Fortress ventures.",
+          notes: "",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+    }
+
+    // Ensure venture seeds exist (id/slug unique)
+    function ensureVentureSeeds() {
+      if (!Array.isArray(DB.ventures)) DB.ventures = [];
+      VENTURE_SEEDS.forEach(seed => {
+        let existing = DB.ventures.find(v => v.id === seed.id || v.slug === seed.slug || v.code === seed.code);
+        if (existing) {
+          // Normalize / update core descriptive fields without removing any user-added fields
+          existing.id = seed.id;
+          existing.slug = seed.slug;
+          existing.code = seed.code;
+          existing.name = seed.name;
+          existing.category = seed.category;
+          existing.status = seed.status;
+          existing.region = seed.region;
+          existing.tagline = seed.tagline;
+          existing.pillars = seed.pillars;
+          if (seed.guest_app_export_filename) {
+            existing.guest_app_export_filename = seed.guest_app_export_filename;
+            existing.guest_app_label = seed.guest_app_label;
+          }
+        } else {
+          DB.ventures.push(Object.assign({}, seed, {
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }));
+        }
+      });
+    }
+
+    function updateMetricsAndConfigDisplay() {
+      document.getElementById('metricLegalEntityCount').textContent = DB.legalEntities.length;
+      document.getElementById('metricTrustCount').textContent = DB.trustVehicles.length;
+      document.getElementById('metricAssetCount').textContent = DB.assets.length;
+      document.getElementById('metricAgreementCount').textContent = DB.agreements.length;
+      document.getElementById('metricBankCount').textContent = DB.bankAccounts.length;
+
+      const epoch = DB.systemConfigIE.find(c => c.key === 'IE_EPOCH');
+      const currency = DB.systemConfigIE.find(c => c.key === 'BASE_CURRENCY');
+      document.getElementById('metricEpoch').textContent = epoch ? epoch.value : '–';
+      document.getElementById('metricCurrency').textContent = currency ? currency.value : '–';
+    }
+
+    function formatDate(dt) {
+      if (!dt) return '–';
+      try {
+        const d = new Date(dt);
+        if (isNaN(d.getTime())) return '–';
+        return d.toISOString().substring(0, 10);
+      } catch {
+        return '–';
+      }
+    }
+    function fmtCurrency(v, currency) {
+      if (v === null || v === undefined || v === '') return '–';
+      const num = Number(v);
+      if (isNaN(num)) return '–';
+      return (currency || 'USD') + ' ' + num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function populateStaticEnums() {
+      const entityTypeSel = document.getElementById('filterEntityType');
+      ENUMS.legalEntityType.forEach(v => {
+        const o = document.createElement('option'); o.value = v; o.textContent = v; entityTypeSel.appendChild(o);
+      });
+      const entityStatusSel = document.getElementById('filterEntityStatus');
+      ENUMS.legalEntityStatus.forEach(v => {
+        const o = document.createElement('option'); o.value = v; o.textContent = v; entityStatusSel.appendChild(o);
+      });
+
+      const trustTypeSel = document.getElementById('filterTrustType');
+      ENUMS.trustType.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; trustTypeSel.appendChild(o); });
+      const trustStatusSel = document.getElementById('filterTrustStatus');
+      ENUMS.trustStatus.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; trustStatusSel.appendChild(o); });
+
+      const assetTypeSel = document.getElementById('filterAssetType');
+      ENUMS.assetType.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; assetTypeSel.appendChild(o); });
+      const assetStatusSel = document.getElementById('filterAssetStatus');
+      ENUMS.assetStatus.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; assetStatusSel.appendChild(o); });
+
+      const agrTypeSel = document.getElementById('filterAgreementType');
+      ENUMS.agreementType.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; agrTypeSel.appendChild(o); });
+      const agrStatusSel = document.getElementById('filterAgreementStatus');
+      ENUMS.agreementStatus.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; agrStatusSel.appendChild(o); });
+
+      const accTypeSel = document.getElementById('filterAccountType');
+      ENUMS.accountType.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; accTypeSel.appendChild(o); });
+      const accStatusSel = document.getElementById('filterAccountStatus');
+      ENUMS.accountStatus.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; accStatusSel.appendChild(o); });
+    }
+
+    function refreshRelationalFilters() {
+      const entitySelectIds = ['filterAssetHolderEntity', 'filterAgreementPrimaryEntity', 'filterAccountOwnerEntity'];
+      entitySelectIds.forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        while (sel.options.length > 1) sel.remove(1);
+        DB.legalEntities.forEach(e => {
+          const o = document.createElement('option');
+          o.value = e.id;
+          o.textContent = e.code + ' · ' + e.legal_name;
+          sel.appendChild(o);
+        });
+      });
+
+      const trustSelectIds = ['filterAssetHolderTrust', 'filterAccountOwnerTrust'];
+      trustSelectIds.forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        while (sel.options.length > 1) sel.remove(1);
+        DB.trustVehicles.forEach(t => {
+          const o = document.createElement('option');
+          o.value = t.id;
+          o.textContent = t.code + ' · ' + t.name;
+          sel.appendChild(o);
+        });
+      });
+    }
+
+    let selectedEntityId = null;
+    let selectedTrustId = null;
+    let selectedAssetId = null;
+    let selectedAgreementId = null;
+    let selectedAccountId = null;
+    let selectedVentureId = null;
+
+    function setBadge(el, status) {
+      if (!el) return;
+      el.textContent = status || '–';
+      el.classList.remove('ie-badge-green', 'ie-badge-amber', 'ie-badge-slate');
+      if (!status) {
+        el.classList.add('ie-badge-slate');
+        return;
+      }
+      const s = String(status).toLowerCase();
+      if (['active', 'open', 'live testbed'].some(x => s.includes(x))) el.classList.add('ie-badge-green');
+      else if (['draft', 'pending', 'forming', 'in development'].some(x => s.includes(x))) el.classList.add('ie-badge-amber');
+      else el.classList.add('ie-badge-slate');
+    }
+
+    function renderLegalEntityTable() {
+      const tbody = document.getElementById('legalEntityTableBody');
+      tbody.innerHTML = '';
+      const search = (document.getElementById('filterEntitySearch').value || '').toLowerCase();
+      const type = document.getElementById('filterEntityType').value;
+      const status = document.getElementById('filterEntityStatus').value;
+
+      const filtered = DB.legalEntities.filter(e => {
+        if (type && e.entity_type !== type) return false;
+        if (status && e.status !== status) return false;
+        if (search) {
+          const s = (e.code + ' ' + e.legal_name).toLowerCase();
+          if (!s.includes(search)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('legalEntityEmptyState').classList.toggle('hidden', filtered.length !== 0);
+
+      filtered.sort((a, b) => a.code.localeCompare(b.code)).forEach(e => {
+        const tr = document.createElement('tr');
+        tr.className = 'ie-table-row';
+        tr.innerHTML = `
+          <td class="px-3 py-1.5 whitespace-nowrap text-[0.8rem] text-sky-200">${e.code}</td>
+          <td class="px-3 py-1.5 text-[0.8rem]">${e.legal_name}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${e.entity_type || '–'}</td>
+          <td class="px-3 py-1.5">
+            <span class="ie-badge ${e.status === 'Active' ? 'ie-badge-green' : 'ie-badge-amber'}">${e.status || '–'}</span>
+          </td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${e.jurisdiction || '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">
+            ${(() => {
+              if (!e.parent_entity) return '–';
+              const p = DB.legalEntities.find(pe => pe.id === e.parent_entity);
+              return p ? p.code : '–';
+            })()}
+          </td>
+        `;
+        tr.addEventListener('click', () => {
+          selectedEntityId = e.id;
+          renderEntityDetail();
+        });
+        tbody.appendChild(tr);
+      });
+
+      if (!selectedEntityId && filtered.length) {
+        selectedEntityId = filtered[0].id;
+        renderEntityDetail();
+      } else if (selectedEntityId && !DB.legalEntities.find(e => e.id === selectedEntityId)) {
+        selectedEntityId = filtered.length ? filtered[0].id : null;
+        renderEntityDetail();
+      }
+    }
+
+    function renderEntityDetail() {
+      const e = DB.legalEntities.find(x => x.id === selectedEntityId);
+      const titleEl = document.getElementById('entityDetailTitle');
+      const subtitleEl = document.getElementById('entityDetailSubtitle');
+      const codeMini = document.getElementById('entityDetailCodeMini');
+      if (!e) {
+        titleEl.textContent = 'Select an entity';
+        subtitleEl.textContent = 'Legal name, code, type, status, jurisdiction.';
+        document.getElementById('entityDetailStatusBadge').textContent = '–';
+        document.getElementById('entityDetailTypeBadge').textContent = '–';
+        document.getElementById('entityDetailCode').textContent = '–';
+        document.getElementById('entityDetailJurisdiction').textContent = '–';
+        document.getElementById('entityDetailFormed').textContent = '–';
+        document.getElementById('entityDetailOpState').textContent = '–';
+        document.getElementById('entityDetailDescription').textContent = '–';
+        document.getElementById('entityDetailNotes').textContent = '–';
+        document.getElementById('entityDetailShortName').textContent = '–';
+        document.getElementById('entityDetailAgent').textContent = '–';
+        codeMini.textContent = '–';
+        ['entityOwnershipTableBody', 'entityAssetsTableBody', 'entityAgreementsTableBody', 'entityAccountsTableBody']
+          .forEach(id => document.getElementById(id).innerHTML = '');
+        ['entityOwnershipEmpty', 'entityAssetsEmpty', 'entityAgreementsEmpty', 'entityAccountsEmpty']
+          .forEach(id => document.getElementById(id).classList.remove('hidden'));
+        return;
+      }
+      titleEl.textContent = e.legal_name;
+      subtitleEl.textContent = e.code + ' · ' + (e.entity_type || 'Entity') + ' · ' + (e.jurisdiction || 'Jurisdiction N/A');
+      codeMini.textContent = e.code;
+
+      setBadge(document.getElementById('entityDetailStatusBadge'), e.status);
+      const typeBadge = document.getElementById('entityDetailTypeBadge');
+      typeBadge.textContent = e.entity_type || '–';
+
+      document.getElementById('entityDetailCode').textContent = e.code;
+      document.getElementById('entityDetailJurisdiction').textContent = e.jurisdiction || '–';
+      document.getElementById('entityDetailFormed').textContent = formatDate(e.formed_date);
+      document.getElementById('entityDetailOpState').textContent = e.operating_state || '–';
+      document.getElementById('entityDetailDescription').textContent = e.description || '–';
+      document.getElementById('entityDetailNotes').textContent = e.notes || '–';
+      document.getElementById('entityDetailShortName').textContent = e.short_name || '–';
+      document.getElementById('entityDetailAgent').textContent = e.registered_agent || '–';
+
+      const ownershipRows = DB.ownershipUnits.filter(o => o.entity === e.id);
+      const owBody = document.getElementById('entityOwnershipTableBody');
+      owBody.innerHTML = '';
+      if (!ownershipRows.length) {
+        document.getElementById('entityOwnershipEmpty').classList.remove('hidden');
+      } else {
+        document.getElementById('entityOwnershipEmpty').classList.add('hidden');
+        ownershipRows.forEach(o => {
+          let holderName = o.holder_name_manual || '–';
+          if (o.holder_type === 'Person' && o.holder_person) {
+            const p = DB.persons.find(pp => pp.id === o.holder_person);
+            if (p) holderName = p.full_name;
+          } else if (o.holder_type === 'LegalEntity' && o.holder_entity) {
+            const le = DB.legalEntities.find(ll => ll.id === o.holder_entity);
+            if (le) holderName = le.code + ' · ' + le.legal_name;
+          } else if (o.holder_type === 'TrustVehicle' && o.holder_trust) {
+            const t = DB.trustVehicles.find(tt => tt.id === o.holder_trust);
+            if (t) holderName = t.code + ' · ' + t.name;
+          }
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/80 text-[0.75rem]';
+          tr.innerHTML = `
+            <td class="px-2.5 py-1.5">
+              <div class="font-medium text-slate-100">${holderName}</div>
+              <div class="text-[0.68rem] text-slate-500">${o.holder_type || '–'}</div>
+            </td>
+            <td class="px-2.5 py-1.5">${o.percent_ownership != null ? o.percent_ownership + '%' : '–'}</td>
+            <td class="px-2.5 py-1.5">${o.voting_percent != null ? o.voting_percent + '%' : '–'}</td>
+            <td class="px-2.5 py-1.5">${o.class_label || '–'}</td>
+            <td class="px-2.5 py-1.5">${formatDate(o.effective_date)}</td>
+          `;
+          owBody.appendChild(tr);
+        });
+      }
+
+      const assets = DB.assets.filter(a => a.holder_entity === e.id);
+      const aBody = document.getElementById('entityAssetsTableBody');
+      aBody.innerHTML = '';
+      if (!assets.length) {
+        document.getElementById('entityAssetsEmpty').classList.remove('hidden');
+      } else {
+        document.getElementById('entityAssetsEmpty').classList.add('hidden');
+        assets.forEach(a => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/80 text-[0.75rem]';
+          tr.innerHTML = `
+            <td class="px-2.5 py-1.5 text-sky-200">${a.code}</td>
+            <td class="px-2.5 py-1.5">${a.name}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${a.asset_type || '–'}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${a.status || '–'}</td>
+          `;
+          tr.addEventListener('click', () => {
+            selectedAssetId = a.id;
+            renderAssetDetail();
+            switchMainTab('assets');
+          });
+          aBody.appendChild(tr);
+        });
+      }
+
+      const agreements = DB.agreements.filter(ag => ag.primary_entity === e.id || ag.counterparty_entity === e.id);
+      const gBody = document.getElementById('entityAgreementsTableBody');
+      gBody.innerHTML = '';
+      if (!agreements.length) {
+        document.getElementById('entityAgreementsEmpty').classList.remove('hidden');
+      } else {
+        document.getElementById('entityAgreementsEmpty').classList.add('hidden');
+        agreements.forEach(ag => {
+          const role = ag.primary_entity === e.id ? 'Primary' : 'Counterparty';
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/80 text-[0.75rem]';
+          tr.innerHTML = `
+            <td class="px-2.5 py-1.5 text-fuchsia-200">${ag.code}</td>
+            <td class="px-2.5 py-1.5">${ag.title}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${ag.agreement_type || '–'}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${role}</td>
+          `;
+          tr.addEventListener('click', () => {
+            selectedAgreementId = ag.id;
+            renderAgreementDetail();
+            switchMainTab('agreements');
+          });
+          gBody.appendChild(tr);
+        });
+      }
+
+      const accounts = DB.bankAccounts.filter(ac => ac.owner_entity === e.id);
+      const acBody = document.getElementById('entityAccountsTableBody');
+      acBody.innerHTML = '';
+      if (!accounts.length) {
+        document.getElementById('entityAccountsEmpty').classList.remove('hidden');
+      } else {
+        document.getElementById('entityAccountsEmpty').classList.add('hidden');
+        accounts.forEach(ac => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/80 text-[0.75rem]';
+          tr.innerHTML = `
+            <td class="px-2.5 py-1.5 text-sky-200">${ac.code}</td>
+            <td class="px-2.5 py-1.5">${ac.institution_name}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${ac.account_type || '–'}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${ac.status || '–'}</td>
+          `;
+          tr.addEventListener('click', () => {
+            selectedAccountId = ac.id;
+            renderAccountDetail();
+            switchMainTab('accounts');
+          });
+          acBody.appendChild(tr);
+        });
+      }
+    }
+
+    function renderTrustTable() {
+      const tbody = document.getElementById('trustTableBody');
+      tbody.innerHTML = '';
+      const search = (document.getElementById('filterTrustSearch').value || '').toLowerCase();
+      const type = document.getElementById('filterTrustType').value;
+      const status = document.getElementById('filterTrustStatus').value;
+
+      const filtered = DB.trustVehicles.filter(t => {
+        if (type && t.trust_type !== type) return false;
+        if (status && t.status !== status) return false;
+        if (search) {
+          const s = (t.code + ' ' + t.name).toLowerCase();
+          if (!s.includes(search)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('trustEmptyState').classList.toggle('hidden', filtered.length !== 0);
+
+      filtered.sort((a, b) => a.code.localeCompare(b.code)).forEach(t => {
+        const tr = document.createElement('tr');
+        tr.className = 'ie-table-row';
+        tr.innerHTML = `
+          <td class="px-3 py-1.5 whitespace-nowrap text-[0.8rem] text-emerald-200">${t.code}</td>
+          <td class="px-3 py-1.5 text-[0.8rem]">${t.name}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${t.trust_type || '–'}</td>
+          <td class="px-3 py-1.5">
+            <span class="ie-badge ${t.status === 'Active' ? 'ie-badge-green' : 'ie-badge-amber'}">${t.status || '–'}</span>
+          </td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${t.jurisdiction || '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${formatDate(t.effective_date)}</td>
+        `;
+        tr.addEventListener('click', () => {
+          selectedTrustId = t.id;
+          renderTrustDetail();
+        });
+        tbody.appendChild(tr);
+      });
+
+      if (!selectedTrustId && filtered.length) {
+        selectedTrustId = filtered[0].id;
+        renderTrustDetail();
+      } else if (selectedTrustId && !DB.trustVehicles.find(t => t.id === selectedTrustId)) {
+        selectedTrustId = filtered.length ? filtered[0].id : null;
+        renderTrustDetail();
+      }
+    }
+
+    function renderTrustDetail() {
+      const t = DB.trustVehicles.find(x => x.id === selectedTrustId);
+      const titleEl = document.getElementById('trustDetailTitle');
+      const subtitleEl = document.getElementById('trustDetailSubtitle');
+      const codeMini = document.getElementById('trustDetailCodeMini');
+      if (!t) {
+        titleEl.textContent = 'Select a trust';
+        subtitleEl.textContent = 'Parties, jurisdiction, type, beneficiaries overview.';
+        document.getElementById('trustDetailStatusBadge').textContent = '–';
+        document.getElementById('trustDetailTypeBadge').textContent = '–';
+        document.getElementById('trustDetailCode').textContent = '–';
+        document.getElementById('trustDetailJurisdiction').textContent = '–';
+        document.getElementById('trustDetailEffective').textContent = '–';
+        document.getElementById('trustDetailTermination').textContent = '–';
+        document.getElementById('trustDetailSettlor').textContent = '–';
+        document.getElementById('trustDetailTrustee').textContent = '–';
+        document.getElementById('trustDetailProtector').textContent = '–';
+        document.getElementById('trustDetailAdminEntity').textContent = '–';
+        document.getElementById('trustDetailBeneficiarySummary').textContent = '–';
+        document.getElementById('trustDetailNotes').textContent = '–';
+        codeMini.textContent = '–';
+        ['trustAssetsTableBody', 'trustAgreementsTableBody', 'trustAccountsTableBody']
+          .forEach(id => document.getElementById(id).innerHTML = '');
+        ['trustAssetsEmpty', 'trustAgreementsEmpty', 'trustAccountsEmpty']
+          .forEach(id => document.getElementById(id).classList.remove('hidden'));
+        return;
+      }
+      titleEl.textContent = t.name;
+      subtitleEl.textContent = t.code + ' · ' + (t.trust_type || 'Trust') + ' · ' + (t.jurisdiction || 'Jurisdiction N/A');
+      codeMini.textContent = t.code;
+      setBadge(document.getElementById('trustDetailStatusBadge'), t.status);
+      const typeBadge = document.getElementById('trustDetailTypeBadge');
+      typeBadge.textContent = t.trust_type || '–';
+
+      document.getElementById('trustDetailCode').textContent = t.code;
+      document.getElementById('trustDetailJurisdiction').textContent = t.jurisdiction || '–';
+      document.getElementById('trustDetailEffective').textContent = formatDate(t.effective_date);
+      document.getElementById('trustDetailTermination').textContent = formatDate(t.termination_date);
+
+      const settlor = t.settlor ? DB.persons.find(p => p.id === t.settlor) : null;
+      const trustee = t.primary_trustee ? DB.persons.find(p => p.id === t.primary_trustee) : null;
+      const protector = t.protector ? DB.persons.find(p => p.id === t.protector) : null;
+      const adminEntity = t.admin_entity ? DB.legalEntities.find(e => e.id === t.admin_entity) : null;
+
+      document.getElementById('trustDetailSettlor').textContent = settlor ? settlor.full_name : '–';
+      document.getElementById('trustDetailTrustee').textContent = trustee ? trustee.full_name : '–';
+      document.getElementById('trustDetailProtector').textContent = protector ? protector.full_name : '–';
+      document.getElementById('trustDetailAdminEntity').textContent = adminEntity ? (adminEntity.code + ' · ' + adminEntity.legal_name) : '–';
+      document.getElementById('trustDetailBeneficiarySummary').textContent = t.beneficiary_summary || '–';
+      document.getElementById('trustDetailNotes').textContent = t.notes || '–';
+
+      const assets = DB.assets.filter(a => a.holder_trust === t.id);
+      const aBody = document.getElementById('trustAssetsTableBody');
+      aBody.innerHTML = '';
+      if (!assets.length) {
+        document.getElementById('trustAssetsEmpty').classList.remove('hidden');
+      } else {
+        document.getElementById('trustAssetsEmpty').classList.add('hidden');
+        assets.forEach(a => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/80 text-[0.75rem]';
+          tr.innerHTML = `
+            <td class="px-2.5 py-1.5 text-amber-200">${a.code}</td>
+            <td class="px-2.5 py-1.5">${a.name}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${a.asset_type || '–'}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${a.status || '–'}</td>
+          `;
+          tr.addEventListener('click', () => {
+            selectedAssetId = a.id;
+            renderAssetDetail();
+            switchMainTab('assets');
+          });
+          aBody.appendChild(tr);
+        });
+      }
+
+      const agreements = DB.agreements.filter(ag => ag.related_trust === t.id);
+      const gBody = document.getElementById('trustAgreementsTableBody');
+      gBody.innerHTML = '';
+      if (!agreements.length) {
+        document.getElementById('trustAgreementsEmpty').classList.remove('hidden');
+      } else {
+        document.getElementById('trustAgreementsEmpty').classList.add('hidden');
+        agreements.forEach(ag => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/80 text-[0.75rem]';
+          tr.innerHTML = `
+            <td class="px-2.5 py-1.5 text-fuchsia-200">${ag.code}</td>
+            <td class="px-2.5 py-1.5">${ag.title}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${ag.agreement_type || '–'}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${ag.status || '–'}</td>
+          `;
+          tr.addEventListener('click', () => {
+            selectedAgreementId = ag.id;
+            renderAgreementDetail();
+            switchMainTab('agreements');
+          });
+          gBody.appendChild(tr);
+        });
+      }
+
+      const accounts = DB.bankAccounts.filter(ac => ac.owner_trust === t.id);
+      const acBody = document.getElementById('trustAccountsTableBody');
+      acBody.innerHTML = '';
+      if (!accounts.length) {
+        document.getElementById('trustAccountsEmpty').classList.remove('hidden');
+      } else {
+        document.getElementById('trustAccountsEmpty').classList.add('hidden');
+        accounts.forEach(ac => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/80 text-[0.75rem]';
+          tr.innerHTML = `
+            <td class="px-2.5 py-1.5 text-sky-200">${ac.code}</td>
+            <td class="px-2.5 py-1.5">${ac.institution_name}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${ac.account_type || '–'}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${ac.status || '–'}</td>
+          `;
+          tr.addEventListener('click', () => {
+            selectedAccountId = ac.id;
+            renderAccountDetail();
+            switchMainTab('accounts');
+          });
+          acBody.appendChild(tr);
+        });
+      }
+    }
+
+    function renderAssetTable() {
+      const tbody = document.getElementById('assetTableBody');
+      tbody.innerHTML = '';
+      const search = (document.getElementById('filterAssetSearch').value || '').toLowerCase();
+      const type = document.getElementById('filterAssetType').value;
+      const status = document.getElementById('filterAssetStatus').value;
+      const holderEntity = document.getElementById('filterAssetHolderEntity').value;
+      const holderTrust = document.getElementById('filterAssetHolderTrust').value;
+
+      const filtered = DB.assets.filter(a => {
+        if (type && a.asset_type !== type) return false;
+        if (status && a.status !== status) return false;
+        if (holderEntity && a.holder_entity !== holderEntity) return false;
+        if (holderTrust && a.holder_trust !== holderTrust) return false;
+        if (search) {
+          const s = (a.code + ' ' + a.name).toLowerCase();
+          if (!s.includes(search)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('assetEmptyState').classList.toggle('hidden', filtered.length !== 0);
+
+      filtered.sort((a, b) => a.code.localeCompare(b.code)).forEach(a => {
+        const holderEntityObj = a.holder_entity ? DB.legalEntities.find(e => e.id === a.holder_entity) : null;
+        const holderTrustObj = a.holder_trust ? DB.trustVehicles.find(t => t.id === a.holder_trust) : null;
+        const tr = document.createElement('tr');
+        tr.className = 'ie-table-row';
+        tr.innerHTML = `
+          <td class="px-3 py-1.5 whitespace-nowrap text-[0.8rem] text-amber-200">${a.code}</td>
+          <td class="px-3 py-1.5 text-[0.8rem]">${a.name}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${a.asset_type || '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${holderEntityObj ? holderEntityObj.code : '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${holderTrustObj ? holderTrustObj.code : '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${fmtCurrency(a.current_value, a.currency)}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${a.status || '–'}</td>
+        `;
+        tr.addEventListener('click', () => {
+          selectedAssetId = a.id;
+          renderAssetDetail();
+        });
+        tbody.appendChild(tr);
+      });
+
+      if (!selectedAssetId && filtered.length) {
+        selectedAssetId = filtered[0].id;
+        renderAssetDetail();
+      } else if (selectedAssetId && !DB.assets.find(a => a.id === selectedAssetId)) {
+        selectedAssetId = filtered.length ? filtered[0].id : null;
+        renderAssetDetail();
+      }
+    }
+
+    function renderAssetDetail() {
+      const a = DB.assets.find(x => x.id === selectedAssetId);
+      const titleEl = document.getElementById('assetDetailTitle');
+      const subtitleEl = document.getElementById('assetDetailSubtitle');
+      const codeMini = document.getElementById('assetDetailCodeMini');
+      if (!a) {
+        titleEl.textContent = 'Select an asset';
+        subtitleEl.textContent = 'Overview, holder, current value, and status.';
+        document.getElementById('assetDetailStatusBadge').textContent = '–';
+        document.getElementById('assetDetailTypeBadge').textContent = '–';
+        document.getElementById('assetDetailCode').textContent = '–';
+        document.getElementById('assetDetailLocation').textContent = '–';
+        document.getElementById('assetDetailValue').textContent = '–';
+        document.getElementById('assetDetailValueAsOf').textContent = '–';
+        document.getElementById('assetDetailDescription').textContent = '–';
+        document.getElementById('assetDetailHolderEntity').textContent = '–';
+        document.getElementById('assetDetailHolderTrust').textContent = '–';
+        document.getElementById('assetDetailNotes').textContent = '–';
+        codeMini.textContent = '–';
+        document.getElementById('assetAgreementsTableBody').innerHTML = '';
+        document.getElementById('assetAgreementsEmpty').classList.remove('hidden');
+        return;
+      }
+      titleEl.textContent = a.name;
+      subtitleEl.textContent = a.code + ' · ' + (a.asset_type || 'Asset') + ' · ' + (a.status || 'Status');
+      codeMini.textContent = a.code;
+      setBadge(document.getElementById('assetDetailStatusBadge'), a.status);
+      document.getElementById('assetDetailTypeBadge').textContent = a.asset_type || '–';
+
+      document.getElementById('assetDetailCode').textContent = a.code;
+      document.getElementById('assetDetailLocation').textContent = a.location_note || '–';
+      document.getElementById('assetDetailValue').textContent = fmtCurrency(a.current_value, a.currency);
+      document.getElementById('assetDetailValueAsOf').textContent = formatDate(a.value_as_of);
+      document.getElementById('assetDetailDescription').textContent = a.description || '–';
+
+      const holderEntity = a.holder_entity ? DB.legalEntities.find(e => e.id === a.holder_entity) : null;
+      const holderTrust = a.holder_trust ? DB.trustVehicles.find(t => t.id === a.holder_trust) : null;
+      document.getElementById('assetDetailHolderEntity').textContent = holderEntity ? (holderEntity.code + ' · ' + holderEntity.legal_name) : '–';
+      document.getElementById('assetDetailHolderTrust').textContent = holderTrust ? (holderTrust.code + ' · ' + holderTrust.name) : '–';
+      document.getElementById('assetDetailNotes').textContent = a.notes || '–';
+
+      const agreements = DB.agreements.filter(ag => {
+        const text = ((ag.code || '') + ' ' + (ag.summary || '') + ' ' + (ag.notes || '')).toLowerCase();
+        return text.includes((a.code || '').toLowerCase()) || text.includes((a.name || '').toLowerCase());
+      });
+      const gBody = document.getElementById('assetAgreementsTableBody');
+      gBody.innerHTML = '';
+      if (!agreements.length) {
+        document.getElementById('assetAgreementsEmpty').classList.remove('hidden');
+      } else {
+        document.getElementById('assetAgreementsEmpty').classList.add('hidden');
+        agreements.forEach(ag => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/80 text-[0.75rem]';
+          tr.innerHTML = `
+            <td class="px-2.5 py-1.5 text-fuchsia-200">${ag.code}</td>
+            <td class="px-2.5 py-1.5">${ag.title}</td>
+            <td class="px-2.5 py-1.5 text-slate-300">${ag.agreement_type || '–'}</td>
+          `;
+          tr.addEventListener('click', () => {
+            selectedAgreementId = ag.id;
+            renderAgreementDetail();
+            switchMainTab('agreements');
+          });
+          gBody.appendChild(tr);
+        });
+      }
+    }
+
+    function renderAgreementTable() {
+      const tbody = document.getElementById('agreementTableBody');
+      tbody.innerHTML = '';
+      const search = (document.getElementById('filterAgreementSearch').value || '').toLowerCase();
+      const type = document.getElementById('filterAgreementType').value;
+      const status = document.getElementById('filterAgreementStatus').value;
+      const primaryEntity = document.getElementById('filterAgreementPrimaryEntity').value;
+
+      const filtered = DB.agreements.filter(a => {
+        if (type && a.agreement_type !== type) return false;
+        if (status && a.status !== status) return false;
+        if (primaryEntity && a.primary_entity !== primaryEntity) return false;
+        if (search) {
+          const s = (a.code + ' ' + a.title).toLowerCase();
+          if (!s.includes(search)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('agreementEmptyState').classList.toggle('hidden', filtered.length !== 0);
+
+      filtered.sort((a, b) => a.code.localeCompare(b.code)).forEach(ag => {
+        const primaryEntityObj = ag.primary_entity ? DB.legalEntities.find(e => e.id === ag.primary_entity) : null;
+        const relatedTrustObj = ag.related_trust ? DB.trustVehicles.find(t => t.id === ag.related_trust) : null;
+        const tr = document.createElement('tr');
+        tr.className = 'ie-table-row';
+        tr.innerHTML = `
+          <td class="px-3 py-1.5 whitespace-nowrap text-[0.8rem] text-fuchsia-200">${ag.code}</td>
+          <td class="px-3 py-1.5 text-[0.8rem]">${ag.title}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${ag.agreement_type || '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${primaryEntityObj ? primaryEntityObj.code : '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${relatedTrustObj ? relatedTrustObj.code : '–'}</td>
+          <td class="px-3 py-1.5">
+            <span class="ie-badge ${ag.status === 'Active' ? 'ie-badge-green' : 'ie-badge-amber'}">${ag.status || '–'}</span>
+          </td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${formatDate(ag.effective_date)}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${formatDate(ag.renewal_date)}</td>
+        `;
+        tr.addEventListener('click', () => {
+          selectedAgreementId = ag.id;
+          renderAgreementDetail();
+        });
+        tbody.appendChild(tr);
+      });
+
+      if (!selectedAgreementId && filtered.length) {
+        selectedAgreementId = filtered[0].id;
+        renderAgreementDetail();
+      } else if (selectedAgreementId && !DB.agreements.find(a => a.id === selectedAgreementId)) {
+        selectedAgreementId = filtered.length ? filtered[0].id : null;
+        renderAgreementDetail();
+      }
+    }
+
+    function renderAgreementDetail() {
+      const ag = DB.agreements.find(x => x.id === selectedAgreementId);
+      const titleEl = document.getElementById('agreementDetailTitle');
+      const subtitleEl = document.getElementById('agreementDetailSubtitle');
+      const codeMini = document.getElementById('agreementDetailCodeMini');
+      if (!ag) {
+        titleEl.textContent = 'Select an agreement';
+        subtitleEl.textContent = 'Parties, terms, and document links.';
+        document.getElementById('agreementDetailStatusBadge').textContent = '–';
+        document.getElementById('agreementDetailTypeBadge').textContent = '–';
+        document.getElementById('agreementDetailCode').textContent = '–';
+        document.getElementById('agreementDetailLaw').textContent = '–';
+        document.getElementById('agreementDetailEffective').textContent = '–';
+        document.getElementById('agreementDetailTermination').textContent = '–';
+        document.getElementById('agreementDetailPrimaryEntity').textContent = '–';
+        document.getElementById('agreementDetailRelatedTrust').textContent = '–';
+        document.getElementById('agreementDetailCounterpartyEntity').textContent = '–';
+        document.getElementById('agreementDetailCounterpartyPerson').textContent = '–';
+        document.getElementById('agreementDetailEffective2').textContent = '–';
+        document.getElementById('agreementDetailRenewal').textContent = '–';
+        document.getElementById('agreementDetailTermination2').textContent = '–';
+        document.getElementById('agreementDetailSummary').textContent = '–';
+        document.getElementById('agreementDetailFile').textContent = '–';
+        document.getElementById('agreementDetailNotes').textContent = '–';
+        codeMini.textContent = '–';
+        return;
+      }
+      titleEl.textContent = ag.title;
+      subtitleEl.textContent = ag.code + ' · ' + (ag.agreement_type || 'Agreement') + ' · ' + (ag.status || 'Status');
+      codeMini.textContent = ag.code;
+      setBadge(document.getElementById('agreementDetailStatusBadge'), ag.status);
+      document.getElementById('agreementDetailTypeBadge').textContent = ag.agreement_type || '–';
+
+      document.getElementById('agreementDetailCode').textContent = ag.code;
+      document.getElementById('agreementDetailLaw').textContent = ag.governing_law || '–';
+      document.getElementById('agreementDetailEffective').textContent = formatDate(ag.effective_date);
+      document.getElementById('agreementDetailTermination').textContent = formatDate(ag.termination_date);
+
+      const primaryEntityObj = ag.primary_entity ? DB.legalEntities.find(e => e.id === ag.primary_entity) : null;
+      const relatedTrustObj = ag.related_trust ? DB.trustVehicles.find(t => t.id === ag.related_trust) : null;
+      const counterpartyEntityObj = ag.counterparty_entity ? DB.legalEntities.find(e => e.id === ag.counterparty_entity) : null;
+      const counterpartyPersonObj = ag.counterparty_person ? DB.persons.find(p => p.id === ag.counterparty_person) : null;
+
+      document.getElementById('agreementDetailPrimaryEntity').textContent = primaryEntityObj ? (primaryEntityObj.code + ' · ' + primaryEntityObj.legal_name) : '–';
+      document.getElementById('agreementDetailRelatedTrust').textContent = relatedTrustObj ? (relatedTrustObj.code + ' · ' + relatedTrustObj.name) : '–';
+      document.getElementById('agreementDetailCounterpartyEntity').textContent = counterpartyEntityObj ? (counterpartyEntityObj.code + ' · ' + counterpartyEntityObj.legal_name) : '–';
+      document.getElementById('agreementDetailCounterpartyPerson').textContent = counterpartyPersonObj ? counterpartyPersonObj.full_name : '–';
+
+      document.getElementById('agreementDetailEffective2').textContent = formatDate(ag.effective_date);
+      document.getElementById('agreementDetailRenewal').textContent = formatDate(ag.renewal_date);
+      document.getElementById('agreementDetailTermination2').textContent = formatDate(ag.termination_date);
+
+      document.getElementById('agreementDetailSummary').textContent = ag.summary || '–';
+      const fileEl = document.getElementById('agreementDetailFile');
+      fileEl.innerHTML = '';
+      if (ag.file_link) {
+        const aEl = document.createElement('a');
+        aEl.href = ag.file_link;
+        aEl.target = '_blank';
+        aEl.rel = 'noopener noreferrer';
+        aEl.textContent = ag.file_link;
+        aEl.className = 'text-sky-300 hover:text-sky-200 underline';
+        fileEl.appendChild(aEl);
+      } else {
+        fileEl.textContent = '–';
+      }
+      document.getElementById('agreementDetailNotes').textContent = ag.notes || '–';
+    }
+
+    function renderAccountTable() {
+      const tbody = document.getElementById('accountTableBody');
+      tbody.innerHTML = '';
+      const search = (document.getElementById('filterAccountSearch').value || '').toLowerCase();
+      const status = document.getElementById('filterAccountStatus').value;
+      const type = document.getElementById('filterAccountType').value;
+      const ownerEntity = document.getElementById('filterAccountOwnerEntity').value;
+      const ownerTrust = document.getElementById('filterAccountOwnerTrust').value;
+
+      const filtered = DB.bankAccounts.filter(a => {
+        if (status && a.status !== status) return false;
+        if (type && a.account_type !== type) return false;
+        if (ownerEntity && a.owner_entity !== ownerEntity) return false;
+        if (ownerTrust && a.owner_trust !== ownerTrust) return false;
+        if (search) {
+          const s = (a.code + ' ' + a.institution_name).toLowerCase();
+          if (!s.includes(search)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('accountEmptyState').classList.toggle('hidden', filtered.length !== 0);
+
+      filtered.sort((a, b) => a.code.localeCompare(b.code)).forEach(ac => {
+        const ownerEntityObj = ac.owner_entity ? DB.legalEntities.find(e => e.id === ac.owner_entity) : null;
+        const ownerTrustObj = ac.owner_trust ? DB.trustVehicles.find(t => t.id === ac.owner_trust) : null;
+        const tr = document.createElement('tr');
+        tr.className = 'ie-table-row';
+        tr.innerHTML = `
+          <td class="px-3 py-1.5 whitespace-nowrap text-[0.8rem] text-sky-200">${ac.code}</td>
+          <td class="px-3 py-1.5 text-[0.8rem]">${ac.institution_name}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${ac.account_type || '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${ownerEntityObj ? ownerEntityObj.code : '–'}</td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${ownerTrustObj ? ownerTrustObj.code : '–'}</td>
+          <td class="px-3 py-1.5">
+            <span class="ie-badge ${ac.status === 'Open' ? 'ie-badge-green' : 'ie-badge-amber'}">${ac.status || '–'}</span>
+          </td>
+          <td class="px-3 py-1.5 text-[0.75rem] text-slate-300">${formatDate(ac.opened_date)}</td>
+        `;
+        tr.addEventListener('click', () => {
+          selectedAccountId = ac.id;
+          renderAccountDetail();
+        });
+        tbody.appendChild(tr);
+      });
+
+      if (!selectedAccountId && filtered.length) {
+        selectedAccountId = filtered[0].id;
+        renderAccountDetail();
+      } else if (selectedAccountId && !DB.bankAccounts.find(a => a.id === selectedAccountId)) {
+        selectedAccountId = filtered.length ? filtered[0].id : null;
+        renderAccountDetail();
+      }
+    }
+
+    function renderAccountDetail() {
+      const ac = DB.bankAccounts.find(x => x.id === selectedAccountId);
+      const titleEl = document.getElementById('accountDetailTitle');
+      const subtitleEl = document.getElementById('accountDetailSubtitle');
+      if (!ac) {
+        titleEl.textContent = 'Select an account';
+        subtitleEl.textContent = 'Institution, owner, type, status, and key dates.';
+        document.getElementById('accountDetailStatusBadge').textContent = '–';
+        document.getElementById('accountDetailTypeBadge').textContent = '–';
+        document.getElementById('accountDetailCode').textContent = '–';
+        document.getElementById('accountDetailLast4').textContent = '–';
+        document.getElementById('accountDetailOpened').textContent = '–';
+        document.getElementById('accountDetailClosed').textContent = '–';
+        document.getElementById('accountDetailOwnerEntity').textContent = '–';
+        document.getElementById('accountDetailOwnerTrust').textContent = '–';
+        document.getElementById('accountDetailNotes').textContent = '–';
+        return;
+      }
+      titleEl.textContent = ac.institution_name;
+      subtitleEl.textContent = ac.code + ' · ' + (ac.account_type || 'Account') + ' · ' + (ac.status || 'Status');
+      setBadge(document.getElementById('accountDetailStatusBadge'), ac.status);
+      document.getElementById('accountDetailTypeBadge').textContent = ac.account_type || '–';
+
+      document.getElementById('accountDetailCode').textContent = ac.code;
+      document.getElementById('accountDetailLast4').textContent = ac.account_last4 || '–';
+      document.getElementById('accountDetailOpened').textContent = formatDate(ac.opened_date);
+      document.getElementById('accountDetailClosed').textContent = formatDate(ac.closed_date);
+
+      const ownerEntityObj = ac.owner_entity ? DB.legalEntities.find(e => e.id === ac.owner_entity) : null;
+      const ownerTrustObj = ac.owner_trust ? DB.trustVehicles.find(t => t.id === ac.owner_trust) : null;
+      document.getElementById('accountDetailOwnerEntity').textContent = ownerEntityObj ? (ownerEntityObj.code + ' · ' + ownerEntityObj.legal_name) : '–';
+      document.getElementById('accountDetailOwnerTrust').textContent = ownerTrustObj ? (ownerTrustObj.code + ' · ' + ownerTrustObj.name) : '–';
+      document.getElementById('accountDetailNotes').textContent = ac.notes || '–';
+    }
+
+    function switchMainTab(tab) {
+      const sections = {
+        entities: 'view-entities',
+        trusts: 'view-trusts',
+        assets: 'view-assets',
+        agreements: 'view-agreements',
+        accounts: 'view-accounts',
+        ventures: 'view-ventures'
+      };
+      Object.keys(sections).forEach(k => {
+        const el = document.getElementById(sections[k]);
+        if (el) el.classList.toggle('hidden', k !== tab);
+      });
+      document.querySelectorAll('.main-tab-btn').forEach(btn => {
+        if (btn.getAttribute('data-main-tab') === tab) {
+          btn.classList.add('ie-tab-btn-active');
+        } else {
+          btn.classList.remove('ie-tab-btn-active');
+        }
+      });
+    }
+
+    function initSubtabs() {
+      document.querySelectorAll('.entity-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-entity-subtab');
+          document.querySelectorAll('.entity-subtab-btn').forEach(b => b.classList.remove('ie-subtab-btn-active'));
+          btn.classList.add('ie-subtab-btn-active');
+          ['overview', 'ownership', 'assets', 'agreements', 'accounts'].forEach(id => {
+            document.getElementById('entitySubtab-' + id).classList.toggle('hidden', id !== target);
+          });
+        });
+      });
+      document.querySelectorAll('.trust-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-trust-subtab');
+          document.querySelectorAll('.trust-subtab-btn').forEach(b => b.classList.remove('ie-subtab-btn-active'));
+          btn.classList.add('ie-subtab-btn-active');
+          ['parties', 'assets', 'agreements', 'accounts', 'notes'].forEach(id => {
+            document.getElementById('trustSubtab-' + id).classList.toggle('hidden', id !== target);
+          });
+        });
+      });
+      document.querySelectorAll('.asset-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-asset-subtab');
+          document.querySelectorAll('.asset-subtab-btn').forEach(b => b.classList.remove('ie-subtab-btn-active'));
+          btn.classList.add('ie-subtab-btn-active');
+          ['ownership', 'agreements', 'notes'].forEach(id => {
+            document.getElementById('assetSubtab-' + id).classList.toggle('hidden', id !== target);
+          });
+        });
+      });
+      document.querySelectorAll('.agreement-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-agreement-subtab');
+          document.querySelectorAll('.agreement-subtab-btn').forEach(b => b.classList.remove('ie-subtab-btn-active'));
+          btn.classList.add('ie-subtab-btn-active');
+          ['parties', 'terms', 'content'].forEach(id => {
+            document.getElementById('agreementSubtab-' + id).classList.toggle('hidden', id !== target);
+          });
+        });
+      });
+    }
+
+    let quickModalContext = null;
+
+    function openQuickModal(ctx) {
+      quickModalContext = ctx;
+      const backdrop = document.getElementById('quickModalBackdrop');
+      const title = document.getElementById('quickModalTitle');
+      const subtitle = document.getElementById('quickModalSubtitle');
+      const body = document.getElementById('quickModalBody');
+      body.innerHTML = '';
+
+      if (ctx.type === 'legalEntity') {
+        title.textContent = 'New LegalEntity';
+        subtitle.textContent = 'Create a new LegalEntity record (foundation-safe fields).';
+        body.appendChild(buildInputField('code', 'Code (required)', 'text', true));
+        body.appendChild(buildInputField('legal_name', 'Legal Name (required)', 'text', true));
+        body.appendChild(buildSelectField('entity_type', 'Entity Type', ENUMS.legalEntityType));
+        body.appendChild(buildSelectField('status', 'Status', ENUMS.legalEntityStatus, 'Active'));
+        body.appendChild(buildInputField('jurisdiction', 'Jurisdiction (e.g., WY, DE)', 'text'));
+        body.appendChild(buildInputField('short_name', 'Short Name', 'text'));
+        body.appendChild(buildInputField('operating_state', 'Operating State', 'text'));
+        body.appendChild(buildTextareaField('description', 'Description'));
+        body.appendChild(buildTextareaField('notes', 'Notes'));
+      } else if (ctx.type === 'trust') {
+        title.textContent = 'New TrustVehicle';
+        subtitle.textContent = 'Create a new TrustVehicle record.';
+        body.appendChild(buildInputField('code', 'Code (required)', 'text', true));
+        body.appendChild(buildInputField('name', 'Name (required)', 'text', true));
+        body.appendChild(buildSelectField('trust_type', 'Trust Type', ENUMS.trustType));
+        body.appendChild(buildSelectField('status', 'Status', ENUMS.trustStatus, 'Draft'));
+        body.appendChild(buildInputField('jurisdiction', 'Jurisdiction', 'text'));
+        body.appendChild(buildInputField('effective_date', 'Effective Date (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildTextareaField('beneficiary_summary', 'Beneficiary Summary'));
+        body.appendChild(buildTextareaField('notes', 'Notes'));
+      } else if (ctx.type === 'asset') {
+        title.textContent = 'New Asset';
+        subtitle.textContent = 'Register an asset.';
+        body.appendChild(buildInputField('code', 'Code (required)', 'text', true, ctx.prefill && ctx.prefill.code));
+        body.appendChild(buildInputField('name', 'Name (required)', 'text', true));
+        body.appendChild(buildSelectField('asset_type', 'Asset Type', ENUMS.assetType));
+        body.appendChild(buildSelectField('status', 'Status', ENUMS.assetStatus, 'Active'));
+        body.appendChild(buildInputField('current_value', 'Current Value', 'number'));
+        const baseCurrency = (DB.systemConfigIE.find(c => c.key === 'BASE_CURRENCY') || { value: 'USD' }).value;
+        body.appendChild(buildInputField('currency', 'Currency', 'text', false, baseCurrency));
+        body.appendChild(buildInputField('value_as_of', 'Value As Of (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildInputField('location_note', 'Location Note', 'text'));
+        body.appendChild(buildTextareaField('description', 'Description'));
+        body.appendChild(buildTextareaField('notes', 'Notes'));
+      } else if (ctx.type === 'agreement') {
+        title.textContent = 'New Agreement';
+        subtitle.textContent = 'Register a new Agreement record.';
+        body.appendChild(buildInputField('code', 'Code (required)', 'text', true));
+        body.appendChild(buildInputField('title', 'Title (required)', 'text', true));
+        body.appendChild(buildSelectField('agreement_type', 'Agreement Type', ENUMS.agreementType));
+        body.appendChild(buildSelectField('status', 'Status', ENUMS.agreementStatus, 'Draft'));
+        body.appendChild(buildInputField('governing_law', 'Governing Law', 'text'));
+        body.appendChild(buildInputField('effective_date', 'Effective Date (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildInputField('renewal_date', 'Renewal Date (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildInputField('termination_date', 'Termination Date (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildTextareaField('summary', 'Summary'));
+        body.appendChild(buildInputField('file_link', 'File Link (URL)', 'text'));
+        body.appendChild(buildTextareaField('notes', 'Notes'));
+      } else if (ctx.type === 'account') {
+        title.textContent = 'New BankAccount';
+        subtitle.textContent = 'Register a bank or brokerage account.';
+        body.appendChild(buildInputField('code', 'Code (required)', 'text', true));
+        body.appendChild(buildInputField('institution_name', 'Institution Name (required)', 'text', true));
+        body.appendChild(buildSelectField('account_type', 'Account Type', ENUMS.accountType));
+        body.appendChild(buildSelectField('status', 'Status', ENUMS.accountStatus, 'Open'));
+        body.appendChild(buildInputField('account_last4', 'Account Last 4', 'text'));
+        body.appendChild(buildInputField('opened_date', 'Opened Date (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildInputField('closed_date', 'Closed Date (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildTextareaField('notes', 'Notes'));
+      } else if (ctx.type === 'ownership') {
+        title.textContent = 'New OwnershipUnit';
+        subtitle.textContent = 'Create a cap table / ownership entry.';
+        body.appendChild(buildSelectField('holder_type', 'Holder Type', ENUMS.holderType));
+        body.appendChild(buildInputField('holder_name_manual', 'Holder Name (manual, if not linked)', 'text'));
+        body.appendChild(buildInputField('class_label', 'Class Label', 'text'));
+        body.appendChild(buildInputField('units', 'Units', 'number'));
+        body.appendChild(buildInputField('percent_ownership', 'Percent Ownership', 'number'));
+        body.appendChild(buildInputField('voting_percent', 'Voting Percent', 'number'));
+        body.appendChild(buildInputField('effective_date', 'Effective Date (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildInputField('end_date', 'End Date (YYYY-MM-DD)', 'date'));
+        body.appendChild(buildInputField('source_doc', 'Source Doc Code', 'text'));
+        body.appendChild(buildTextareaField('notes', 'Notes'));
+      }
+
+      backdrop.classList.remove('pointer-events-none', 'opacity-0');
+      backdrop.classList.add('opacity-100');
+    }
+
+    function closeQuickModal() {
+      const backdrop = document.getElementById('quickModalBackdrop');
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+      quickModalContext = null;
+    }
+
+    function buildInputField(name, label, type, required = false, defaultValue = '') {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = `
+        <label class="block text-[0.72rem] mb-0.5" style="color:var(--text-primary);">
+          ${label}${required ? ' *' : ''}
+        </label>
+      `;
+      const input = document.createElement('input');
+      input.type = type === 'date' ? 'date' : type;
+      input.className = 'ie-input text-[0.8rem]';
+      input.dataset.field = name;
+      if (defaultValue) input.value = defaultValue;
+      wrapper.appendChild(input);
+      return wrapper;
+    }
+
+    function buildTextareaField(name, label) {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = `
+        <label class="block text-[0.72rem] mb-0.5" style="color:var(--text-primary);">
+          ${label}
+        </label>
+      `;
+      const ta = document.createElement('textarea');
+      ta.rows = 2;
+      ta.className = 'ie-input text-[0.8rem]';
+      ta.dataset.field = name;
+      wrapper.appendChild(ta);
+      return wrapper;
+    }
+
+    function buildSelectField(name, label, options, defaultValue = '') {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = `
+        <label class="block text-[0.72rem] mb-0.5" style="color:var(--text-primary);">
+          ${label}
+        </label>
+      `;
+      const select = document.createElement('select');
+      select.className = 'ie-select w-full text-[0.8rem]';
+      select.dataset.field = name;
+      const empty = document.createElement('option');
+      empty.value = '';
+      empty.textContent = '--';
+      select.appendChild(empty);
+      options.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o;
+        opt.textContent = o;
+        if (defaultValue && defaultValue === o) opt.selected = true;
+        select.appendChild(opt);
+      });
+      wrapper.appendChild(select);
+      return wrapper;
+    }
+
+    function saveQuickModal() {
+      if (!quickModalContext) return;
+      const fields = {};
+      document.querySelectorAll('#quickModalBody [data-field]').forEach(el => {
+        fields[el.dataset.field] = el.value || '';
+      });
+
+      const now = new Date().toISOString();
+
+      if (quickModalContext.type === 'legalEntity') {
+        if (!fields.code || !fields.legal_name) {
+          showToast('Code and Legal Name are required.');
+          return;
+        }
+        if (DB.legalEntities.find(e => e.code === fields.code)) {
+          showToast('LegalEntity with this code already exists.');
+          return;
+        }
+        DB.legalEntities.push({
+          id: genId(),
+          code: fields.code,
+          legal_name: fields.legal_name,
+          short_name: fields.short_name || '',
+          jurisdiction: fields.jurisdiction || '',
+          entity_type: fields.entity_type || 'Other',
+          status: fields.status || 'Active',
+          parent_entity: null,
+          primary_contact: null,
+          ein_or_tax_id: '',
+          formed_date: null,
+          dissolved_date: null,
+          registered_agent: '',
+          operating_state: fields.operating_state || '',
+          description: fields.description || '',
+          notes: fields.notes || '',
+          created_at: now,
+          updated_at: now
+        });
+        saveDB();
+        updateMetricsAndConfigDisplay();
+        refreshRelationalFilters();
+        renderLegalEntityTable();
+        showToast('LegalEntity created.');
+        closeQuickModal();
+      } else if (quickModalContext.type === 'trust') {
+        if (!fields.code || !fields.name) {
+          showToast('Code and Name are required.');
+          return;
+        }
+        if (DB.trustVehicles.find(t => t.code === fields.code)) {
+          showToast('TrustVehicle with this code already exists.');
+          return;
+        }
+        DB.trustVehicles.push({
+          id: genId(),
+          code: fields.code,
+          name: fields.name,
+          trust_type: fields.trust_type || 'Other',
+          jurisdiction: fields.jurisdiction || '',
+          settlor: null,
+          primary_trustee: null,
+          protector: null,
+          admin_entity: null,
+          status: fields.status || 'Draft',
+          effective_date: fields.effective_date || null,
+          termination_date: null,
+          beneficiary_summary: fields.beneficiary_summary || '',
+          notes: fields.notes || '',
+          created_at: now,
+          updated_at: now
+        });
+        saveDB();
+        updateMetricsAndConfigDisplay();
+        refreshRelationalFilters();
+        renderTrustTable();
+        showToast('TrustVehicle created.');
+        closeQuickModal();
+      } else if (quickModalContext.type === 'asset') {
+        if (!fields.code || !fields.name) {
+          showToast('Code and Name are required.');
+          return;
+        }
+        if (DB.assets.find(a => a.code === fields.code)) {
+          showToast('Asset with this code already exists.');
+          return;
+        }
+        const asset = {
+          id: genId(),
+          code: fields.code,
+          name: fields.name,
+          asset_type: fields.asset_type || 'Other',
+          holder_entity: quickModalContext.prefill && quickModalContext.prefill.holder_entity ? quickModalContext.prefill.holder_entity : null,
+          holder_trust: quickModalContext.prefill && quickModalContext.prefill.holder_trust ? quickModalContext.prefill.holder_trust : null,
+          description: fields.description || '',
+          location_note: fields.location_note || '',
+          current_value: fields.current_value ? Number(fields.current_value) : null,
+          currency: fields.currency || 'USD',
+          value_as_of: fields.value_as_of || null,
+          status: fields.status || 'Active',
+          notes: fields.notes || '',
+          created_at: now,
+          updated_at: now
+        };
+        DB.assets.push(asset);
+        saveDB();
+        updateMetricsAndConfigDisplay();
+        renderAssetTable();
+        if (asset.holder_entity) renderEntityDetail();
+        if (asset.holder_trust) renderTrustDetail();
+        showToast('Asset created.');
+        closeQuickModal();
+      } else if (quickModalContext.type === 'agreement') {
+        if (!fields.code || !fields.title) {
+          showToast('Code and Title are required.');
+          return;
+        }
+        if (DB.agreements.find(a => a.code === fields.code)) {
+          showToast('Agreement with this code already exists.');
+          return;
+        }
+        const ag = {
+          id: genId(),
+          code: fields.code,
+          title: fields.title,
+          agreement_type: fields.agreement_type || 'Other',
+          primary_entity: quickModalContext.prefill && quickModalContext.prefill.primary_entity ? quickModalContext.prefill.primary_entity : null,
+          related_trust: quickModalContext.prefill && quickModalContext.prefill.related_trust ? quickModalContext.prefill.related_trust : null,
+          counterparty_entity: null,
+          counterparty_person: null,
+          effective_date: fields.effective_date || null,
+          renewal_date: fields.renewal_date || null,
+          termination_date: fields.termination_date || null,
+          status: fields.status || 'Draft',
+          governing_law: fields.governing_law || '',
+          file_link: fields.file_link || '',
+          summary: fields.summary || '',
+          notes: fields.notes || '',
+          created_at: now,
+          updated_at: now
+        };
+        DB.agreements.push(ag);
+        saveDB();
+        updateMetricsAndConfigDisplay();
+        renderAgreementTable();
+        if (ag.primary_entity) renderEntityDetail();
+        if (ag.related_trust) renderTrustDetail();
+        showToast('Agreement created.');
+        closeQuickModal();
+      } else if (quickModalContext.type === 'account') {
+        if (!fields.code || !fields.institution_name) {
+          showToast('Code and Institution Name are required.');
+          return;
+        }
+        if (DB.bankAccounts.find(a => a.code === fields.code)) {
+          showToast('BankAccount with this code already exists.');
+          return;
+        }
+        const ac = {
+          id: genId(),
+          code: fields.code,
+          institution_name: fields.institution_name,
+          account_last4: fields.account_last4 || '',
+          account_type: fields.account_type || 'Other',
+          owner_entity: quickModalContext.prefill && quickModalContext.prefill.owner_entity ? quickModalContext.prefill.owner_entity : null,
+          owner_trust: quickModalContext.prefill && quickModalContext.prefill.owner_trust ? quickModalContext.prefill.owner_trust : null,
+          status: fields.status || 'Open',
+          opened_date: fields.opened_date || null,
+          closed_date: fields.closed_date || null,
+          notes: fields.notes || '',
+          created_at: now,
+          updated_at: now
+        };
+        DB.bankAccounts.push(ac);
+        saveDB();
+        updateMetricsAndConfigDisplay();
+        renderAccountTable();
+        if (ac.owner_entity) renderEntityDetail();
+        if (ac.owner_trust) renderTrustDetail();
+        showToast('BankAccount created.');
+        closeQuickModal();
+      } else if (quickModalContext.type === 'ownership') {
+        const entityId = quickModalContext.entityId;
+        const entity = DB.legalEntities.find(e => e.id === entityId);
+        if (!entityId || !entity) {
+          showToast('No entity selected.');
+          return;
+        }
+        const owner = {
+          id: genId(),
+          entity: entityId,
+          holder_type: fields.holder_type || 'Other',
+          holder_person: null,
+          holder_entity: null,
+          holder_trust: null,
+          holder_name_manual: fields.holder_name_manual || '',
+          class_label: fields.class_label || '',
+          units: fields.units ? Number(fields.units) : null,
+          percent_ownership: fields.percent_ownership ? Number(fields.percent_ownership) : null,
+          voting_percent: fields.voting_percent ? Number(fields.voting_percent) : null,
+          effective_date: fields.effective_date || null,
+          end_date: fields.end_date || null,
+          source_doc: fields.source_doc || '',
+          notes: fields.notes || '',
+          created_at: now,
+          updated_at: now
+        };
+        DB.ownershipUnits.push(owner);
+        saveDB();
+        renderEntityDetail();
+        showToast('OwnershipUnit created.');
+        closeQuickModal();
+      }
+    }
+
+    function openSettingsModal() {
+      const backdrop = document.getElementById('settingsModalBackdrop');
+      backdrop.classList.remove('pointer-events-none', 'opacity-0');
+      backdrop.classList.add('opacity-100');
+    }
+
+    function closeSettingsModal() {
+      const backdrop = document.getElementById('settingsModalBackdrop');
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    // Ventures UI: render list & detail (Steps 2–4)
+    function renderVenturesList() {
+      const container = document.getElementById('venturesList');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!Array.isArray(DB.ventures)) DB.ventures = [];
+      // Simple sort: Active / Live first, then name
+      const sorted = DB.ventures.slice().sort((a, b) => {
+        const sa = (a.status || '').toLowerCase();
+        const sb = (b.status || '').toLowerCase();
+        const score = s => (s.includes('active') || s.includes('live')) ? 0 : s.includes('development') ? 1 : 2;
+        const diff = score(sa) - score(sb);
+        if (diff !== 0) return diff;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+
+      sorted.forEach(v => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'ie-venture-card w-full text-left px-3 py-2.5 flex flex-col gap-1';
+        card.dataset.ventureId = v.id;
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <div class="text-[0.78rem] font-semibold text-slate-100 truncate">${v.name}</div>
+              <div class="text-[0.72rem] text-slate-400 line-clamp-2 mt-0.5">${v.tagline || ''}</div>
+            </div>
+            <div class="flex flex-col items-end gap-1 flex-shrink-0">
+              <span class="ie-badge ie-badge-slate text-[0.65rem]">${v.status || '–'}</span>
+              <span class="ie-venture-pill text-[0.65rem]">${v.category || 'Venture'}</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          selectedVentureId = v.id;
+          renderVentureDetail();
+        });
+        container.appendChild(card);
+      });
+
+      if (!selectedVentureId && sorted.length) {
+        selectedVentureId = sorted[0].id;
+        renderVentureDetail();
+      } else if (selectedVentureId && !DB.ventures.find(v => v.id === selectedVentureId)) {
+        selectedVentureId = sorted.length ? sorted[0].id : null;
+        renderVentureDetail();
+      }
+    }
+
+    function renderVentureDetail() {
+      const v = Array.isArray(DB.ventures) ? DB.ventures.find(x => x.id === selectedVentureId) : null;
+      const nameEl = document.getElementById('ventureDetailName');
+      const taglineEl = document.getElementById('ventureDetailTagline');
+      const codeEl = document.getElementById('ventureDetailCode');
+      const regionEl = document.getElementById('ventureDetailRegion');
+      const statusBadge = document.getElementById('ventureDetailStatus');
+      const categoryTag = document.getElementById('ventureDetailCategory');
+      const overviewEl = document.getElementById('ventureDetailOverview');
+      const pillarsWrapper = document.getElementById('ventureDetailPillarsWrapper');
+      const pillarsList = document.getElementById('ventureDetailPillars');
+      const guestSection = document.getElementById('ventureGuestAppSection');
+      const guestDesc = document.getElementById('ventureGuestAppDescription');
+      const guestLabel = document.getElementById('ventureGuestAppLabel');
+      const guestLink = document.getElementById('ventureGuestAppLink');
+
+      if (!v) {
+        nameEl.textContent = 'Select a venture';
+        taglineEl.textContent = 'Ventures and operating labs aligned with the Infinite Earth spine.';
+        codeEl.textContent = '–';
+        regionEl.textContent = '–';
+        setBadge(statusBadge, null);
+        categoryTag.textContent = '–';
+        overviewEl.textContent = 'Select Fulcrum Fortress Consulting, Crumb n Get It Bakery, or Grumpy Goat Pizza to see its role in the Infinite Earth ecosystem.';
+        pillarsWrapper.classList.add('hidden');
+        guestSection.classList.add('hidden');
+        return;
+      }
+
+      nameEl.textContent = v.name;
+      taglineEl.textContent = v.tagline || '';
+      codeEl.textContent = v.code || '–';
+      regionEl.textContent = v.region || '–';
+      setBadge(statusBadge, v.status || '–');
+      categoryTag.textContent = v.category || 'Venture';
+
+      // Venture-specific overview copy (Step 3)
+      let overviewText = v.overview || '';
+      if (!overviewText) {
+        if (v.id === 'ffc') {
+          overviewText =
+            "Fulcrum Fortress Consulting is the systems and architecture consulting arm of Infinite Earth. " +
+            "It designs sovereignty-first operating systems, legal and governance choreography, and fortress-grade business architectures that tie back into the IE_E0 spine.";
+        } else if (v.id === 'cngi_bakery') {
+          overviewText =
+            "Crumb n Get It Bakery is Infinite Earth's bakery proving ground under the Oklahoma Homemade Food Freedom Act. " +
+            "It serves as a primary testbed for guest experience, menu and production systems, and cashflow patterns that can be lifted into future ventures.";
+        } else if (v.id === 'grumpy_goat_pizza') {
+          overviewText =
+            "Grumpy Goat Pizza is the pizza concept and culture lab within Infinite Earth. " +
+            "It explores Neapolitan-ish pies, service rituals, and front-of-house culture as an operations testbed for food ventures in the IE ecosystem.";
+        } else {
+          overviewText = v.tagline || '';
+        }
+      }
+      overviewEl.textContent = overviewText;
+
+      // Pillars / focus list
+      pillarsList.innerHTML = '';
+      if (Array.isArray(v.pillars) && v.pillars.length) {
+        v.pillars.forEach(p => {
+          const li = document.createElement('li');
+          li.textContent = p;
+          pillarsList.appendChild(li);
+        });
+        pillarsWrapper.classList.remove('hidden');
+      } else {
+        pillarsWrapper.classList.add('hidden');
+      }
+
+      // Guest app entry point – specifically for ventures that declare guest_app_export_filename (CNGI)
+      if (v.guest_app_export_filename) {
+        guestSection.classList.remove('hidden');
+        guestLabel.textContent = v.guest_app_label || 'Open guest app';
+        guestLink.href = './' + v.guest_app_export_filename;
+        // Static-export safe relative file reference
+        if (v.id === 'cngi_bakery') {
+          guestDesc.textContent =
+            "The CNGI Winter Menu guest app is a static-exported KODE app that guests can use to browse the winter menu, " +
+            "add items to a cart, and submit an order request. It runs as a sibling HTML file to this spine.";
+        } else {
+          guestDesc.textContent =
+            "This venture exposes a guest-facing static-exported KODE app aligned with the Infinite Earth spine.";
+        }
+      } else {
+        guestSection.classList.add('hidden');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadDB();
+      ensureSystemConfigSeeds();
+      ensureHoldCoSeed();
+      ensureVentureSeeds();
+      saveDB();
+      populateStaticEnums();
+      refreshRelationalFilters();
+
+      document.querySelectorAll('.main-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-main-tab');
+          switchMainTab(tab);
+        });
+      });
+
+      initSubtabs();
+
+      [
+        'filterEntitySearch','filterEntityType','filterEntityStatus',
+        'filterTrustSearch','filterTrustType','filterTrustStatus',
+        'filterAssetSearch','filterAssetType','filterAssetStatus','filterAssetHolderEntity','filterAssetHolderTrust',
+        'filterAgreementSearch','filterAgreementType','filterAgreementStatus','filterAgreementPrimaryEntity',
+        'filterAccountSearch','filterAccountStatus','filterAccountType','filterAccountOwnerEntity','filterAccountOwnerTrust'
+      ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', handleFilterChange);
+          el.addEventListener('change', handleFilterChange);
+        }
+      });
+
+      function handleFilterChange(e) {
+        const id = e.target.id;
+        if (id.startsWith('filterEntity')) renderLegalEntityTable();
+        else if (id.startsWith('filterTrust')) renderTrustTable();
+        else if (id.startsWith('filterAsset')) renderAssetTable();
+        else if (id.startsWith('filterAgreement')) renderAgreementTable();
+        else if (id.startsWith('filterAccount')) renderAccountTable();
+      }
+
+      document.getElementById('btnNewLegalEntity').addEventListener('click', () => openQuickModal({ type: 'legalEntity' }));
+      document.getElementById('btnNewTrust').addEventListener('click', () => openQuickModal({ type: 'trust' }));
+      document.getElementById('btnNewAsset').addEventListener('click', () => openQuickModal({ type: 'asset', prefill: {} }));
+      document.getElementById('btnNewAgreement').addEventListener('click', () => openQuickModal({ type: 'agreement', prefill: {} }));
+      document.getElementById('btnNewAccount').addEventListener('click', () => openQuickModal({ type: 'account', prefill: {} }));
+
+      document.getElementById('btnNewOwnershipUnit').addEventListener('click', () => {
+        if (!selectedEntityId) {
+          showToast('Select an entity first.');
+          return;
+        }
+        openQuickModal({ type: 'ownership', entityId: selectedEntityId });
+      });
+      document.getElementById('btnNewAssetForEntity').addEventListener('click', () => {
+        if (!selectedEntityId) {
+          showToast('Select an entity first.');
+          return;
+        }
+        openQuickModal({ type: 'asset', prefill: { holder_entity: selectedEntityId } });
+      });
+      document.getElementById('btnNewAgreementForEntity').addEventListener('click', () => {
+        if (!selectedEntityId) {
+          showToast('Select an entity first.');
+          return;
+        }
+        openQuickModal({ type: 'agreement', prefill: { primary_entity: selectedEntityId } });
+      });
+      document.getElementById('btnNewAccountForEntity').addEventListener('click', () => {
+        if (!selectedEntityId) {
+          showToast('Select an entity first.');
+          return;
+        }
+        openQuickModal({ type: 'account', prefill: { owner_entity: selectedEntityId } });
+      });
+      document.getElementById('btnNewAssetForTrust').addEventListener('click', () => {
+        if (!selectedTrustId) {
+          showToast('Select a trust first.');
+          return;
+        }
+        openQuickModal({ type: 'asset', prefill: { holder_trust: selectedTrustId } });
+      });
+      document.getElementById('btnNewAgreementForTrust').addEventListener('click', () => {
+        if (!selectedTrustId) {
+          showToast('Select a trust first.');
+          return;
+        }
+        openQuickModal({ type: 'agreement', prefill: { related_trust: selectedTrustId } });
+      });
+      document.getElementById('btnNewAccountForTrust').addEventListener('click', () => {
+        if (!selectedTrustId) {
+          showToast('Select a trust first.');
+          return;
+        }
+        openQuickModal({ type: 'account', prefill: { owner_trust: selectedTrustId } });
+      });
+
+      document.getElementById('quickModalClose').addEventListener('click', closeQuickModal);
+      document.getElementById('quickModalBackdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'quickModalBackdrop') closeQuickModal();
+      });
+      document.getElementById('quickModalSave').addEventListener('click', saveQuickModal);
+
+      // Settings modal handlers
+      document.getElementById('settingsOpen').addEventListener('click', openSettingsModal);
+      document.getElementById('settingsClose').addEventListener('click', closeSettingsModal);
+      document.getElementById('settingsCloseBottom').addEventListener('click', closeSettingsModal);
+      document.getElementById('settingsModalBackdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'settingsModalBackdrop') closeSettingsModal();
+      });
+      document.getElementById('settingsThemeToggle').addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-mode');
+        Storage.set('ie_theme', isLight ? 'light' : 'dark');
+        const icon = document.getElementById('themeIcon');
+        if (icon) icon.textContent = isLight ? '☀️' : '🌙';
+      });
+      document.getElementById('settingsAccentToggle').addEventListener('click', () => {
+        const current = Storage.get('ie_accent', 'warm');
+        const next = current === 'warm' ? 'cool' : current === 'cool' ? 'solar' : 'warm';
+        applyAccent(next);
+        showToast('Accent switched to ' + next);
+      });
+
+      updateMetricsAndConfigDisplay();
+      renderLegalEntityTable();
+      renderTrustTable();
+      renderAssetTable();
+      renderAgreementTable();
+      renderAccountTable();
+      renderVenturesList();
+    });
+  </script>
+</div>
+
+</body>
+</html>

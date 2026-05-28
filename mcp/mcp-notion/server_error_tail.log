@@ -1,0 +1,100 @@
+﻿eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+--import 'data:text/j
+avascript,import { 
+register } from 
+"node:module"; 
+import { 
+pathToFileURL } from 
+"node:url"; register(
+"ts-node/esm", pathTo
+FileURL("./"));'
+(Use `node 
+--trace-warnings 
+...` to show where 
+the warning was 
+created)
+(node:34508) 
+[DEP0180] 
+DeprecationWarning: 
+fs.Stats constructor 
+is deprecated.
+(Use `node 
+--trace-deprecation 
+...` to show where 
+the warning was 
+created)
+[Server] INFO: Starting MCP Notion server (INOS_E0 integration) 
+[Server] INFO: Configuration validated 
+[Server] INFO: Tools initialized 
+node:events:496
+      throw er; // 
+Unhandled 'error' 
+event
+      ^
+
+Error: listen 
+EADDRINUSE: address 
+already in use 
+:::3002
+    at Server.setupLi
+stenHandle [as 
+_listen2] 
+(node:net:1940:16)
+    at 
+listenInCluster 
+(node:net:1997:12)
+    at Server.listen 
+(node:net:2102:7)
+    at 
+Function.listen (C:\~
+devantigravity-playgr
+ound\The-Infinite-Net
+owrk\mcp\mcp-notion\n
+ode_modules\express\l
+ib\application.js:635
+:24)
+    at main (file:///
+C:/%7Edevantigravity-
+playground/The-Infini
+te-Netowrk/mcp/mcp-no
+tion/src/index.ts:259
+:13)
+    at file:///C:/%7E
+devantigravity-playgr
+ound/The-Infinite-Net
+owrk/mcp/mcp-notion/s
+rc/index.ts:273:1
+    at ModuleJob.run 
+(node:internal/module
+s/esm/module_job:343:
+25)
+    at async onImport
+.tracePromise.__proto
+__ (node:internal/mod
+ules/esm/loader:647:2
+6)
+    at async asyncRun
+EntryPointWithESMLoad
+er (node:internal/mod
+ules/run_main:117:5)
+Emitted 'error' 
+event on Server 
+instance at:
+    at emitErrorNT 
+(node:net:1976:8)
+    at process.proces
+sTicksAndRejections (
+node:internal/process
+/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 3002
+}
+
+Node.js v22.18.0

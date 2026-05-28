@@ -1,0 +1,14 @@
+# Environment variables
+.env
+.env.local
+
+# Service account keys (never commit!)
+*.json
+!package.json
+!package-lock.json
+
+# Node modules
+node_modules/
+
+# Logs
+*.log

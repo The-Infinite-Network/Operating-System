@@ -1,0 +1,47 @@
+{
+  "name": "mcp-notion",
+  "version": "0.1.0",
+  "description": "MCP server for Notion database/page operations (INOS_E0 integration)",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "node scripts/dev_start.js",
+    "dev:raw": "tsx src/index.ts",
+    "dev:tsnode": "node --loader ts-node/esm src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:mcp": "node dist/scripts/mcp_smoke_all.js",
+    "smoke:mcp": "node scripts/smoke_mcp_timeline.js",
+    "start": "node dist/index.js",
+    "inbox:backfill": "tsx scripts/inbox_backfill_codes.ts"
+  },
+  "keywords": [
+    "mcp",
+    "notion",
+    "inos",
+    "team-ai"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@notionhq/client": "^2.2.0",
+    "@types/multer": "^2.0.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "googleapis": "^169.0.0",
+    "multer": "^2.0.2",
+    "openai": "^6.16.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.15"
+  }
+}
