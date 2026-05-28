@@ -19,6 +19,13 @@ dist/
 build/
 node_modules/
 **/node_modules/
+*.log
+*.tmp
+*.zip
+scripts.env
+**/scripts.env
+**/.claude/settings.local.json
+mcp/chrome-devtools-mcp/
 target/
 .idea/
 .vscode/
