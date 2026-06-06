@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import {
+  Auth,
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "",
@@ -10,15 +16,23 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID ?? ""
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+export function isCompleteFirebaseConfig(config: typeof firebaseConfig) {
+  return Object.values(config).every((value) => value.trim().length > 0);
+}
 
-googleProvider.setCustomParameters({
-  prompt: "select_account"
+const app = isCompleteFirebaseConfig(firebaseConfig) ? initializeApp(firebaseConfig) : null;
+export const auth: Auth | null = app ? getAuth(app) : null;
+export const googleProvider = auth ? new GoogleAuthProvider() : null;
+
+googleProvider?.setCustomParameters({
+  prompt: "select_account",
 });
 
 export const loginWithGoogle = async () => {
+  if (!auth || !googleProvider) {
+    throw new Error("Firebase auth is not configured for this environment.");
+  }
+
   try {
     console.log("[Firebase] Initiating Popup...");
     const result = await signInWithPopup(auth, googleProvider);
@@ -32,6 +46,6 @@ export const loginWithGoogle = async () => {
   }
 };
 
-export const logout = () => signOut(auth);
+export const logout = () => (auth ? signOut(auth) : Promise.resolve());
 
 export default app;
