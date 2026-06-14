@@ -10,6 +10,7 @@ import { PUBLIC_TOOL_NAMES, Tools } from "./tools.js";
 import { VertexGeminiClient } from "./llmClient.js";
 import { Logger, MCPError, ErrorCodes } from "./errors.js";
 import twinProfilesRouter from "./routes/twin-profiles.js";
+import fulcrumRouter from "./routes/fulcrum.js";
 import entitiesRouter from "./routes/entities.js";
 import coreRouter from "./routes/core.js";
 import timelineRouter from "./routes/timeline.js";
@@ -27,6 +28,36 @@ async function main() {
     validateConfig();
     const tools = new Tools();
     const config = getConfig();
+    const remediationWarnings: Array<{ surface: string; status: string; message: string }> = [];
+
+    if (config.NOTION_DB_RUNS_AARS || (config as any).NOTION_MISSION_RUNS_DB_ID) {
+      remediationWarnings.push({
+        surface: "MISSION_RUNS",
+        status: "BLOCKED",
+        message:
+          "Mission Runs write target is pending live target revalidation. Runtime writes are guarded and should remain halted until the target is explicitly verified.",
+      });
+    }
+
+    if (config.NOTION_DB_TASKS || (config as any).NOTION_TASKS_DB_ID) {
+      remediationWarnings.push({
+        surface: "TASKS",
+        status: "APPROVED_EXCEPTION",
+        message:
+          "Tasks still points to a legacy-parented surface. Keep writer scope frozen until the exception is retired or an approved relocation is completed.",
+      });
+    }
+
+    remediationWarnings.push({
+      surface: "SOT",
+      status: "APPROVED_EXCEPTION",
+      message:
+        "SOT remains a placement exception under IN — Control Tower. No runtime writer is active here in this repo, but ownership normalization is still pending.",
+    });
+
+    for (const warning of remediationWarnings) {
+      logger.warn(`Remediation state: ${warning.surface}`, warning);
+    }
 
     // --- MCP SERVER SETUP ---
     const server = new Server(
@@ -78,11 +109,19 @@ async function main() {
 
     // --- REST ROUTES ---
     app.use("/api/v1/twin-profiles", twinProfilesRouter);
+    app.use("/api/v1", fulcrumRouter);
     app.use("/tool", entitiesRouter);
     app.use("/tool", coreRouter);
     app.use("/tool", timelineRouter);
 
-    app.get("/health", (req, res) => res.json({ ok: true, status: "operational", mcp: "sse_ready" }));
+    app.get("/health", (req, res) =>
+      res.json({
+        ok: true,
+        status: "operational",
+        mcp: "sse_ready",
+        remediation_warnings: remediationWarnings,
+      })
+    );
 
     const serverPort = Number(config.PORT) || 3002;
     app.listen(serverPort, "0.0.0.0", () => {
@@ -99,4 +138,3 @@ main().catch((error) => {
   logger.error("Unhandled error in main", error);
   process.exit(1);
 });
-

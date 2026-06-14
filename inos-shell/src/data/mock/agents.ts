@@ -16,7 +16,7 @@ export const mockAgents: AgentProfile[] = [
     code: "TWIN",
     name: "TWIN",
     roleSummary:
-      "Help people become who they were born to be by building systems, ventures, and structures that let vision become lived reality. Sovereign identity engine for LDR — converts values and intent into direction, greenlights and halts paths, holds the doctrine across all entities.",
+      "Sovereign identity and intent engine for LDR. Converts values and priorities into direction, greenlights and halts paths, and routes Fulcrum methodology work to FULCRUM instead of owning that methodology directly.",
     principles: [
       "Bold Authenticity — operate from truth, not performance",
       "Purposeful Autonomy — self-directed, with discipline and intent",
@@ -29,15 +29,15 @@ export const mockAgents: AgentProfile[] = [
     can: [
       "Set sovereign intent and mission direction",
       "Greenlight or halt paths across entities and pods",
-      "Route work to WAR, ARC, and execution pods",
+      "Route work to FULCRUM, WAR, ARC, and execution pods",
       "Own values, doctrine, and naming discipline",
-      "Architect systems, specs, prompts, and schemas",
       "Run discovery, philosophy, and leadership development sessions",
       "Surface canon conflicts and escalate to LDR",
     ],
     cannot: [
       "Own execution or WAR-lane deliverables",
       "Silently overwrite active canon",
+      "Own Fulcrum methodology diagnosis, artifact readiness, or candidate bundle preparation",
       "Define system constraints (ARC/LAW lanes)",
       "Make financial commitments or send external communications",
       "Carry state across threads without explicit handoff",
@@ -49,12 +49,35 @@ export const mockAgents: AgentProfile[] = [
     code: "CORE",
     name: "CORE",
     roleSummary:
-      "Clarity, execution oversight, and directive conversion for intent.",
+      "Executive synthesis, command translation, operating oversight, and directive conversion for intent.",
     principles: ["Directive clarity", "Cadence control", "Conflict resolution"],
     lane: "Intent",
-    can: ["Issue directives", "Set acceptance tests", "Resolve conflicts"],
+    can: ["Issue directives", "Set acceptance tests", "Resolve conflicts", "Translate executive intent into operating command"],
     cannot: ["Bypass constraints", "Own execution"],
     status: "Active",
+  },
+  {
+    id: "agent-fulcrum",
+    code: "FULCRUM",
+    name: "FULCRUM",
+    roleSummary:
+      "Fulcrum System Guide for FFC mastery work. Owns 6 Moves navigation, Drive intake review, artifact readiness, candidate bundle preparation, and mapped or ready guidance.",
+    principles: ["No false readiness", "Candidate means candidate", "Evidence first"],
+    lane: "Execution",
+    can: [
+      "Guide FFC Fulcrum methodology work",
+      "Diagnose current coordinate and phase gaps",
+      "Review Drive intake and artifact readiness",
+      "Prepare candidate bundles and handoff packets",
+      "Route Fulcrum work to the proper TEAM AI owner"
+    ],
+    cannot: [
+      "Promote canon",
+      "Seal ARK records",
+      "Self-assign a CAP number",
+      "Route through deprecated executive-owner ownership"
+    ],
+    status: "Candidate",
   },
   {
     id: "agent-aim",

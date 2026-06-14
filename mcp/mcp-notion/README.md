@@ -31,6 +31,8 @@ NOTION_DB_BUILD_TASKS=optional_build_tasks_db_id
 NOTION_DB_ARK_ASSETS=optional_ark_assets_db_id
 NOTION_DB_TIMELINE=optional_timeline_db_id
 NOTION_DB_INBOX=optional_inbox_db_id
+# Leave Mission Runs unset until the target is revalidated as live:
+# NOTION_DB_RUNS_AARS=
 PORT=3002
 NODE_ENV=development
 GEMINI_API_KEY=optional_ai_studio_key
@@ -52,6 +54,8 @@ CANON_ROOT_NAME=INFINITE_NETWORK_CANON
 **Optional:**
 
 - `NOTION_DB_BUILD_TASKS` - Database for mission task lookups
+- `NOTION_DB_TASKS` - Current Tasks write target; controlled legacy-parent exception for this wave
+- `NOTION_DB_RUNS_AARS` - Leave unset until the Mission Runs target is explicitly revalidated as live
 - `NOTION_DB_ARK_ASSETS` - Asset registry for ARK seal logging
 - `NOTION_DB_TIMELINE` - Timeline / PoLE events database
 - `NOTION_DB_INBOX` - Inbox capture database

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { MissionList } from "./MissionList";
 import { MissionDetail, DetailTab } from "./MissionDetail";
-import { POLEEntry } from "./POLEEntry";
+import { POLEEntry } from "./PoleEntry";
 import { api } from "../api";
 import { Mission, MissionTask, TimelineEvent, MissionRun } from "../types";
 

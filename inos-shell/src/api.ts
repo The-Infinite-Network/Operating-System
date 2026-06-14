@@ -108,6 +108,46 @@ export interface CoreDirective {
   date: string;
 }
 
+export type FulcrumEnvelope = {
+  current_coordinate: {
+    move: string;
+    stage: string;
+    status: string;
+    confidence: string;
+    evidence: string[];
+  };
+  diagnosis: {
+    what_is_true: string[];
+    what_is_missing: string[];
+    what_is_blocked: string[];
+    what_is_assumed: string[];
+  };
+  next_move: {
+    action: string;
+    owner: string;
+    eta: string;
+    acceptance: {
+      pass: string[];
+      fail: string[];
+    };
+  };
+  artifact_check: Array<{
+    artifact: string;
+    required: boolean;
+    present: boolean;
+    status: string;
+    notes: string;
+  }>;
+  review_promotion_gate: {
+    gate: string;
+    blockers: string[];
+    warnings: string[];
+    promotion_rule: string;
+  };
+  routing: Record<string, string>;
+  json_state: Record<string, unknown>;
+};
+
 async function patchJson<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: "PATCH",
@@ -927,5 +967,74 @@ export const api = {
     }>("/tool/core.list_directives", { params: { status } });
 
     return { directives: data.data?.directives || [] };
+  },
+
+  fulcrum: {
+    intakeDocument: async (file: File): Promise<{
+      intake_id: string;
+      intake_mode: string;
+      status: string;
+      compatibility_alias?: string;
+    } & FulcrumEnvelope> => {
+      const formData = new FormData();
+      formData.append("document", file);
+
+      const res = await fetch(`${API_BASE}/api/v1/fulcrum/intake`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.error?.message || "FULCRUM intake failed");
+      }
+      return data.data;
+    },
+
+    intakeDialogue: async (raw_dialogue: string, user_id: string): Promise<{
+      intake_id: string;
+      intake_mode: string;
+      status: string;
+    } & FulcrumEnvelope> => {
+      const data = await postJson<{ ok: boolean; data: any }>(
+        "/api/v1/fulcrum/intake",
+        { raw_dialogue, user_id }
+      );
+      return data.data;
+    },
+
+    coordinate: async (): Promise<FulcrumEnvelope> => {
+      const data = await postJson<{ ok: boolean; data: FulcrumEnvelope }>(
+        "/api/v1/fulcrum/coordinate",
+        {}
+      );
+      return data.data;
+    },
+
+    artifactCheck: async (): Promise<{
+      artifact_check: FulcrumEnvelope["artifact_check"];
+      review_promotion_gate: FulcrumEnvelope["review_promotion_gate"];
+      json_state: FulcrumEnvelope["json_state"];
+    }> => {
+      const data = await postJson<{ ok: boolean; data: any }>(
+        "/api/v1/fulcrum/artifact-check",
+        {}
+      );
+      return data.data;
+    },
+
+    nextMove: async (): Promise<{
+      current_coordinate: FulcrumEnvelope["current_coordinate"];
+      diagnosis: FulcrumEnvelope["diagnosis"];
+      next_move: FulcrumEnvelope["next_move"];
+      routing: FulcrumEnvelope["routing"];
+      json_state: FulcrumEnvelope["json_state"];
+    }> => {
+      const data = await postJson<{ ok: boolean; data: any }>(
+        "/api/v1/fulcrum/next-move",
+        {}
+      );
+      return data.data;
+    },
   },
 };

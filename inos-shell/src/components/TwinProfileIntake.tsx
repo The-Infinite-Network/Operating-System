@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, FileText, MessageSquare, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { api } from "../api";
 
 interface IntakeMethod {
     type: 'upload' | 'questionnaire';
@@ -22,18 +23,10 @@ export const TwinProfileIntake: React.FC = () => {
     if (!uploadedFile) return;
     setProcessing(true);
 
-    const formData = new FormData();
-    formData.append("document", uploadedFile);
-
     try {
-      const response = await fetch("/api/v1/twin-profiles/intake", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
+      const result = await api.fulcrum.intakeDocument(uploadedFile);
       console.log("Profile created:", result);
-      alert(`Twin Profile Draft Created: ${result.twin_id || "MOCK-ID"}`);
+      alert(`FULCRUM Candidate Created: ${result.intake_id || "FULCRUM-MOCK-ID"}`);
     } catch (error) {
       console.error("Upload failed:", error);
       setTimeout(() => {
@@ -54,13 +47,12 @@ export const TwinProfileIntake: React.FC = () => {
             <div className="space-y-2">
                 <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
-                        Fulcrum System
+                        FULCRUM
                     </span>
                     <span className="text-inos-muted font-light">Twin Profile Builder</span>
                 </h1>
                 <p className="text-inos-muted text-lg max-w-2xl">
-                    Your Twin Profile is the operational doctrine for your digital counterpart.
-                    Defines identity, values, and decision protocols.
+                    Candidate-only intake surface for guided extraction, Drive review, and routed Fulcrum readiness.
                 </p>
             </div>
 
@@ -83,10 +75,10 @@ export const TwinProfileIntake: React.FC = () => {
                         <Upload className="w-7 h-7 text-blue-400" />
                     </div>
 
-                    <h3 className="text-xl font-semibold text-white mb-3">Upload Philosophy Doc</h3>
+                    <h3 className="text-xl font-semibold text-white mb-3">Upload Intake Source</h3>
                     <p className="text-inos-muted text-sm leading-relaxed mb-6">
-                        Already have a manifesto, leadership principles, or user manual?
-                        Upload the raw text and we'll extract a structured Twin Profile automatically.
+                        Already have doctrine, worksheets, or Fulcrum source material?
+                        Upload it and FULCRUM will stage a candidate intake packet.
                     </p>
 
                     <div className="flex items-center gap-2 text-xs font-mono text-inos-muted/60 border-t border-white/5 pt-4">
@@ -98,7 +90,7 @@ export const TwinProfileIntake: React.FC = () => {
                         <div className="absolute inset-0 bg-[#020617]/80 backdrop-blur-sm flex items-center justify-center">
                             <div className="flex flex-col items-center gap-3">
                                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                                <span className="text-sm font-medium text-blue-200">Analyzing Doctrine...</span>
+                                <span className="text-sm font-medium text-blue-200">Staging Fulcrum Intake...</span>
                             </div>
                         </div>
                     )}
@@ -134,15 +126,15 @@ export const TwinProfileIntake: React.FC = () => {
                         <MessageSquare className="w-7 h-7 text-emerald-400" />
                     </div>
 
-                    <h3 className="text-xl font-semibold text-white mb-3">Socratic Sprints</h3>
+                    <h3 className="text-xl font-semibold text-white mb-3">Guided Dialogue</h3>
                     <p className="text-inos-muted text-sm leading-relaxed mb-6">
-                        Don't have a document? Engage in a rapid-fire Socratic dialogue.
-                        We'll audit your values, work style, and non-negotiables in 15 minutes.
+                        Don't have a document? Use the compatibility sprint flow.
+                        FULCRUM will stage a candidate coordinate from the dialogue.
                     </p>
 
                     <div className="flex items-center gap-2 text-xs font-mono text-inos-muted/60 border-t border-white/5 pt-4">
                         <CheckCircle2 className="w-3 h-3" />
-                        <span>5 Modules • 45 Questions</span>
+                        <span>Compatibility Alias</span>
                     </div>
                 </div>
             </div>
@@ -154,7 +146,7 @@ export const TwinProfileIntake: React.FC = () => {
                         Selected file: {uploadedFile.name}
                     </div>
                     <div className="text-xs text-inos-muted mt-2">
-                        Generate a draft from this file, or run Socratic Sprints for intent alignment.
+                        Generate a candidate packet from this file, or run the compatibility dialogue flow.
                     </div>
                     <div className="mt-4 flex flex-wrap gap-3">
                         <button
@@ -163,14 +155,14 @@ export const TwinProfileIntake: React.FC = () => {
                             onClick={handleGenerateDraft}
                             disabled={processing}
                         >
-                            {processing ? "Generating..." : "Generate Draft"}
+                            {processing ? "Generating..." : "Generate Candidate"}
                         </button>
                         <button
                             className="btn-secondary"
                             type="button"
                             onClick={startQuestionnaire}
                         >
-                            Start Socratic Sprints
+                            Start Compatibility Flow
                         </button>
                     </div>
                 </div>

@@ -57,6 +57,7 @@ const envSchema = z.object({
   NOTION_APPROVALS_DB_ID: z.string().optional(),
   NOTION_ARTIFACT_INDEX_DB_ID: z.string().optional(),
   NOTION_KNOWLEDGE_ARTICLES_DB_ID: z.string().optional(),
+  NOTION_FOOD_INGREDIENTS_DB_ID: z.string().optional(),
 
   // Legacy Alias Keys
   NOTION_TASKS_DB_ID: z.string().optional(),

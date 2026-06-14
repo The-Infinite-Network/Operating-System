@@ -121,7 +121,7 @@ export default function FrontDoor() {
                 onClick={() => setShowTwinIntake(true)}
                 className="text-inos-accent hover:underline text-sm font-medium"
               >
-                Start Identity Intake
+                Start FULCRUM Intake
               </button>
             </div>
           )}
@@ -148,7 +148,7 @@ export default function FrontDoor() {
           {/* Left Column: Actions & Intake Modules */}
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Twin Agent Module */}
+              {/* FULCRUM Agent Module */}
               <div
                 onClick={() => setShowTwinIntake(true)}
                 className="card p-6 border-inos-accent/20 hover:border-inos-accent/50 cursor-pointer group transition-all"
@@ -156,10 +156,10 @@ export default function FrontDoor() {
                 <div className="w-12 h-12 rounded-xl bg-inos-accent/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Fingerprint className="text-inos-accent" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Create Twin Agent</h3>
+                <h3 className="text-xl font-semibold mb-2">Open FULCRUM</h3>
                 <p className="text-xs text-inos-muted leading-relaxed">
-                  Establish your digital counterpart. Define your philosophy,
-                  decision protocols, and non-negotiables.
+                  Start candidate-only Fulcrum intake, coordinate diagnosis,
+                  and methodology routing.
                 </p>
               </div>
 

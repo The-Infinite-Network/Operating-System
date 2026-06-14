@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { POLEEntry } from "./POLEEntry";
+import { POLEEntry } from "./PoleEntry";
 import { api } from "../api";
 import { Mission } from "../types";
 

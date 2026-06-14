@@ -20,6 +20,7 @@ import {
   fulcrumMoves,
   fulcrumReviewGate,
   fulcrumSourceFolder,
+  internalProofRegistry,
 } from "./fulcrumSystem";
 
 const navItems = [
@@ -379,6 +380,45 @@ export default function FfcIntranetApp() {
                       className="rounded-md border border-amber-300/20 bg-slate-950/30 px-3 py-2 text-xs leading-5 text-amber-100/80"
                     >
                       {warning}
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-purple-300/25 bg-purple-300/10 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-purple-100">
+                  <Archive className="h-4 w-4" />
+                  Internal proof custody
+                </div>
+                <div className="mt-2 text-xs leading-5 text-purple-100/75">
+                  Preserved work-product proof stays inside the INOS/FFC review layer until public
+                  release is explicitly approved.
+                </div>
+                <div className="mt-3 space-y-2">
+                  {internalProofRegistry.map((proof) => (
+                    <div
+                      key={proof.id}
+                      className="rounded-md border border-purple-300/20 bg-slate-950/35 px-3 py-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs font-semibold text-purple-50">{proof.title}</div>
+                        <span
+                          className={`rounded-md border px-2 py-1 text-[10px] font-semibold uppercase ${stateClass(
+                            proof.state,
+                          )}`}
+                        >
+                          {proof.state}
+                        </span>
+                      </div>
+                      <div className="mt-2 text-xs leading-5 text-purple-100/75">
+                        {proof.summary}
+                      </div>
+                      <div className="mt-2 rounded bg-slate-950/50 px-2 py-1 font-mono text-[10px] text-slate-400">
+                        {proof.sourcePath}
+                      </div>
+                      <div className="mt-2 text-[11px] leading-5 text-amber-100/80">
+                        {proof.publicPolicy}
+                      </div>
                     </div>
                   ))}
                 </div>

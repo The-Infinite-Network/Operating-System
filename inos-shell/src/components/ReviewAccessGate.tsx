@@ -1,28 +1,44 @@
 import React, { useState } from "react";
 import { ShieldCheck, ArrowRight, Lock } from "lucide-react";
+import {
+  canAccessEntity,
+  getReviewSession,
+  setReviewSession,
+  validateReviewCode,
+  type ReviewEntity,
+} from "../auth/reviewAccess";
 
 interface ReviewAccessGateProps {
   children: React.ReactNode;
-  entity: string;
+  entity: ReviewEntity;
 }
 
 export default function ReviewAccessGate({ children, entity }: ReviewAccessGateProps) {
   const [accessCode, setAccessCode] = useState("");
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [session, setSession] = useState(() => getReviewSession());
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simplified logic for sandbox demo - allow 'INOS-E0' as master code
-    if (accessCode.toUpperCase() === "INOS-E0") {
-      setIsAuthorized(true);
-    } else {
-      setError("Invalid access code for " + entity);
+    const validation = validateReviewCode(accessCode, entity);
+    if (!validation.ok) {
+      setError(validation.error);
       setTimeout(() => setError(""), 3000);
+      return;
     }
+
+    const nextSession = {
+      name: "Review Operator",
+      email: "",
+      entity: validation.grant.entity,
+      access: validation.grant.access,
+      grantedAt: new Date().toISOString(),
+    };
+    setReviewSession(nextSession);
+    setSession(nextSession);
   };
 
-  if (isAuthorized) return <>{children}</>;
+  if (canAccessEntity(session, entity)) return <>{children}</>;
 
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 animate-in fade-in duration-500">
@@ -46,12 +62,12 @@ export default function ReviewAccessGate({ children, entity }: ReviewAccessGateP
               type="password"
               value={accessCode}
               onChange={(e) => setAccessCode(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Access code"
               className="w-full bg-[#0d0d0d] border border-[#222] rounded-md px-4 py-3 text-sm font-mono text-[#00f0ff] outline-none focus:border-purple-500/50 transition-all"
               autoFocus
             />
           </div>
-          
+
           {error && <p className="text-[10px] text-red-500 font-mono text-center">{error}</p>}
 
           <button

@@ -70,9 +70,10 @@ export const POLEEntry: React.FC<POLEEntryProps> = ({
 
             <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="space-y-1">
-                    <label className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Event Label / Summary</label>
+                    <label htmlFor="pole-summary" className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Event Label / Summary</label>
                     <div className="relative group">
                         <textarea
+                            id="pole-summary"
                             className="w-full min-h-[80px] rounded-xl border border-inos-border bg-[#0f172a]/50 px-4 py-3 text-sm outline-none
                            focus:border-inos-accent focus:bg-[#0f172a] focus:shadow-[0_0_20px_rgba(255,255,255,0.03)]
                            transition-all resize-y placeholder:text-inos-muted/50"
@@ -87,8 +88,10 @@ export const POLEEntry: React.FC<POLEEntryProps> = ({
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="space-y-1">
-                        <label className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Minutes</label>
+                        <label htmlFor="pole-duration" className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Minutes</label>
                         <input
+                            id="pole-duration"
+                            aria-label="Duration in minutes"
                             type="number"
                             className="w-full h-9 rounded-lg border border-inos-border bg-[#020617] px-3 text-xs outline-none focus:border-inos-accent"
                             value={duration}
@@ -97,8 +100,10 @@ export const POLEEntry: React.FC<POLEEntryProps> = ({
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Value Level</label>
+                        <label htmlFor="pole-value-level" className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Value Level</label>
                         <select
+                            id="pole-value-level"
+                            aria-label="Value level"
                             className="w-full h-9 rounded-lg border border-inos-border bg-[#020617] px-2 text-xs text-inos-muted outline-none focus:border-inos-accent"
                             value={valueLevel}
                             onChange={(e) => setValueLevel(e.target.value as any)}
@@ -111,8 +116,9 @@ export const POLEEntry: React.FC<POLEEntryProps> = ({
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Entity</label>
+                        <label htmlFor="pole-entity" className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Entity</label>
                         <input
+                            id="pole-entity"
                             className="w-full h-9 rounded-lg border border-inos-border bg-[#020617] px-3 text-xs outline-none focus:border-inos-accent placeholder:text-inos-muted/50"
                             placeholder="e.g. IE, FFC"
                             value={entity}
@@ -121,8 +127,10 @@ export const POLEEntry: React.FC<POLEEntryProps> = ({
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Type</label>
+                        <label htmlFor="pole-type" className="block text-[10px] uppercase text-inos-muted font-bold tracking-widest">Type</label>
                         <select
+                            id="pole-type"
+                            aria-label="POLE entry type"
                             className="w-full h-9 rounded-lg border border-inos-border bg-[#020617] px-2 text-xs text-inos-muted outline-none focus:border-inos-accent"
                             value={POLEType}
                             onChange={(e) => setPOLEType(e.target.value as any)}
@@ -140,6 +148,8 @@ export const POLEEntry: React.FC<POLEEntryProps> = ({
                     {!activeMissionId && (
                         <div className="flex-1">
                             <input
+                                id="pole-mission-id"
+                                aria-label="Link to Mission ID (Optional)"
                                 className="w-full h-9 rounded-lg border border-inos-border bg-[#020617] px-3 text-xs outline-none focus:border-inos-accent placeholder:text-inos-muted/50"
                                 placeholder="Link to Mission ID (Optional)"
                                 value={missionIdOverride}

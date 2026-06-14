@@ -27,6 +27,16 @@ export type CandidateBundle = {
   target: string;
 };
 
+export type InternalProof = {
+  id: string;
+  title: string;
+  state: "preserved" | "internal" | "blocked";
+  lane: "FFC" | "GGP" | "IE" | "CNGI" | "IN";
+  summary: string;
+  sourcePath: string;
+  publicPolicy: string;
+};
+
 export type ReviewGateState = {
   mode: "candidate-only";
   promotionRule: string;
@@ -196,3 +206,17 @@ export const candidateBundles: CandidateBundle[] = candidateBundleTypes.map((typ
         ? "[IN] Timeline candidate event"
         : `${type} candidate draft`,
 }));
+
+export const internalProofRegistry: InternalProof[] = [
+  {
+    id: "ggp-operating-infrastructure-build",
+    title: "Grumpy Goat Pizza - $145K Operating Infrastructure Build",
+    state: "internal",
+    lane: "GGP",
+    summary:
+      "Preserved LDR work-product proof for operating infrastructure, governance, training, financial controls, and repeatable execution systems. The dispute lane is payment for work product, not public GGP brand operations.",
+    sourcePath: "Infinite-Earth/Infinite-Earth-Holdco/FFC/case-studies.html",
+    publicPolicy:
+      "Do not publish on the public GGP placeholder site. Public FFC use requires explicit legal/brand approval and revised framing.",
+  },
+];

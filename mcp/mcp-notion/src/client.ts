@@ -62,13 +62,22 @@ export class NotionClient {
   async ["databases.list"]() {
     try {
       logger.info("Fetching list of databases");
+      const databases = [
+        {
+          id: this.config.NOTION_DB_MISSIONS || "",
+          title: "TEAM AI Missions",
+        },
+      ];
+
+      if ((this.config as any).NOTION_FOOD_INGREDIENTS_DB_ID) {
+        databases.push({
+          id: (this.config as any).NOTION_FOOD_INGREDIENTS_DB_ID,
+          title: "[FOOD] Ingredients",
+        });
+      }
+
       return {
-        databases: [
-          {
-            id: this.config.NOTION_DB_MISSIONS || "",
-            title: "TEAM AI Missions",
-          },
-        ],
+        databases,
       };
     } catch (error) {
       logger.error("Failed to list databases", error);
@@ -518,18 +527,7 @@ export class NotionClient {
   async listTasks(filters: any = {}) {
     try {
       logger.info("Starting listTasks", { filters });
-      const dbId =
-        this.config.NOTION_DB_TASKS ||
-        (this.config as any).NOTION_TASKS_DB_ID ||
-        this.config.NOTION_DB_BUILD_TASKS ||
-        this.config.NOTION_DB_BUILD;
-      if (!dbId) {
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_TASKS not configured",
-          { operation: "list_tasks" }
-        );
-      }
+      const dbId = this._getApprovedTasksDbId("list_tasks");
 
       const limit = filters.limit ? Math.min(parseInt(filters.limit, 10), 100) : 50;
       const andFilters: any[] = [];
@@ -1295,18 +1293,7 @@ export class NotionClient {
     userContext?: { userId?: string; userHandle?: string; userName?: string };
   }) {
     try {
-      const dbId =
-        this.config.NOTION_DB_TASKS ||
-        (this.config as any).NOTION_TASKS_DB_ID ||
-        this.config.NOTION_DB_BUILD_TASKS ||
-        this.config.NOTION_DB_BUILD;
-      if (!dbId) {
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_TASKS or NOTION_DB_BUILD_TASKS not configured",
-          { operation: "create_task_for_mission" }
-        );
-      }
+      const dbId = this._getApprovedTasksDbId("create_task_for_mission");
 
       // Guardrail: Validate canonical DB
       this._validateCanonicalDb(dbId);
@@ -1710,18 +1697,7 @@ export class NotionClient {
     userContext?: { userId?: string; userHandle?: string; userName?: string };
   }) {
     try {
-      const dbId =
-        this.config.NOTION_DB_TASKS ||
-        (this.config as any).NOTION_TASKS_DB_ID ||
-        this.config.NOTION_DB_BUILD_TASKS ||
-        this.config.NOTION_DB_BUILD;
-      if (!dbId) {
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_TASKS or NOTION_DB_BUILD_TASKS not configured",
-          { operation: "update_task_for_mission" }
-        );
-      }
+      const dbId = this._getApprovedTasksDbId("update_task_for_mission");
 
       // Guardrail: Validate canonical DB
       this._validateCanonicalDb(dbId);
@@ -1951,6 +1927,7 @@ export class NotionClient {
 
       // Guardrail: Validate canonical DB
       this._validateCanonicalDb(dbId);
+      await this._assertWritableDatabaseSurface(dbId, "create_run");
 
       // Get mission info
       const missions = await this.listMissions();
@@ -2152,6 +2129,7 @@ export class NotionClient {
 
       // Guardrail: Validate canonical DB
       this._validateCanonicalDb(dbId);
+      await this._assertWritableDatabaseSurface(dbId, "end_run");
 
       const now = new Date().toISOString();
 
@@ -2260,6 +2238,7 @@ export class NotionClient {
 
       // Guardrail: Validate canonical DB
       this._validateCanonicalDb(dbId);
+      await this._assertWritableDatabaseSurface(dbId, "update_aar");
 
       // Get current AAR to check if it's first save
       const currentAAR = await this.client.pages.retrieve({
@@ -2644,19 +2623,7 @@ export class NotionClient {
 
   async queryTasksByMission(missionId: string) {
     try {
-      // Use NOTION_DB_TASKS ([WAR] Tasks) per TEAM AI Canon v1.0
-      // Fallback to legacy aliases for backward compatibility
-      const dbId =
-        this.config.NOTION_DB_TASKS ||
-        (this.config as any).NOTION_TASKS_DB_ID ||
-        this.config.NOTION_DB_BUILD_TASKS ||
-        this.config.NOTION_DB_BUILD;
-      if (!dbId)
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_TASKS or NOTION_DB_BUILD_TASKS not configured",
-          { operation: "query_tasks_by_mission" }
-        );
+      const dbId = this._getApprovedTasksDbId("query_tasks_by_mission");
 
       // First, get the database schema to find the correct property name
       let missionPropertyName: string | null = null;
@@ -5150,6 +5117,7 @@ export class NotionClient {
       (this.config as any).NOTION_APPROVALS_DB_ID,
       (this.config as any).NOTION_ARTIFACT_INDEX_DB_ID,
       (this.config as any).NOTION_KNOWLEDGE_ARTICLES_DB_ID,
+      (this.config as any).NOTION_FOOD_INGREDIENTS_DB_ID,
       // Legacy DBs (still valid write targets during migration)
       this.config.NOTION_DB_MISSIONS,
       this.config.NOTION_DB_TIMELINE,
@@ -5172,6 +5140,91 @@ export class NotionClient {
         { operation: "guardrail.db_validation", dbId }
       );
     }
+  }
+
+  /**
+   * Guardrail: validates that a write-target database is still writable.
+   * This prevents runtime writes to trashed databases or databases parented
+   * under trashed legacy pages even when the env pointer still resolves.
+   */
+  private async _assertWritableDatabaseSurface(
+    dbId: string,
+    operation: string
+  ) {
+    let dbSchema: any;
+    try {
+      dbSchema = await this.client.databases.retrieve({ database_id: dbId });
+    } catch (error) {
+      throw new MCPError(
+        ErrorCodes.UPSTREAM_ERROR,
+        `Failed to verify database surface for ${operation}`,
+        { operation, dbId, originalError: String(error) }
+      );
+    }
+
+    if ((dbSchema as any).in_trash || (dbSchema as any).archived) {
+      throw new MCPError(
+        ErrorCodes.CONFIG_ERROR,
+        `Write blocked: database ${dbId} is archived or in trash.`,
+        {
+          operation,
+          dbId,
+          databaseTitle:
+            (dbSchema as any).title?.[0]?.plain_text ||
+            (dbSchema as any).title?.[0]?.text?.content ||
+            null,
+          archived: Boolean((dbSchema as any).archived),
+          in_trash: Boolean((dbSchema as any).in_trash),
+        }
+      );
+    }
+
+    const parent = (dbSchema as any).parent;
+    if (parent?.type === "page_id" && parent.page_id) {
+      try {
+        const parentPage: any = await this.client.pages.retrieve({
+          page_id: parent.page_id,
+        });
+        if (parentPage?.in_trash || parentPage?.archived) {
+          throw new MCPError(
+            ErrorCodes.CONFIG_ERROR,
+            `Write blocked: database ${dbId} is parented under an archived or trashed page.`,
+            {
+              operation,
+              dbId,
+              parentPageId: parent.page_id,
+              parentArchived: Boolean(parentPage?.archived),
+              parentInTrash: Boolean(parentPage?.in_trash),
+            }
+          );
+        }
+      } catch (error) {
+        if (error instanceof MCPError) throw error;
+        throw new MCPError(
+          ErrorCodes.UPSTREAM_ERROR,
+          `Failed to verify database parent surface for ${operation}`,
+          { operation, dbId, parentPageId: parent.page_id, originalError: String(error) }
+        );
+      }
+    }
+  }
+
+  /**
+   * Resolve the approved Tasks surface for this remediation wave.
+   * Tasks may use the explicit TASKS ids only; do not silently fall through
+   * to BUILD task surfaces while the legacy-parent exception is being managed.
+   */
+  private _getApprovedTasksDbId(operation: string) {
+    const dbId =
+      this.config.NOTION_DB_TASKS || (this.config as any).NOTION_TASKS_DB_ID;
+    if (!dbId) {
+      throw new MCPError(
+        ErrorCodes.CONFIG_ERROR,
+        "NOTION_DB_TASKS not configured. BUILD_TASKS/BUILD fallback is disabled during TASKS remediation.",
+        { operation }
+      );
+    }
+    return dbId;
   }
 
   async ["missions.tasks.list"](missionId: string) {

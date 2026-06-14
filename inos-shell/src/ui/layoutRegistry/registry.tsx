@@ -1,6 +1,6 @@
 import type { LayoutConfig, WidgetDefinition } from "./types";
 import { mockMissions } from "../../data/mock/missions";
-import { mockPOLEs } from "../../data/mock/POLEs";
+import { mockPOLEs } from "../../data/mock/poles";
 import { mockTimeline } from "../../data/mock/timeline";
 
 function CurrentSyncWidget() {

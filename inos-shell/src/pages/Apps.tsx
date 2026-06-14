@@ -62,11 +62,11 @@ export default function Apps() {
           </div>
           <div className="inos-card p-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold">FFC Intranet</div>
+              <div className="text-sm font-semibold">FFC / Fulcrum System</div>
               <span className="inos-pill text-[10px]">Live</span>
             </div>
             <div className="text-[11px] text-inos-muted mt-1">
-              FFC employee intranet and ops surface.
+              Fulcrum mastery system, FFC operating surface, and gated work-product proof.
             </div>
             <div className="apps-actions">
               <Link className="btn-secondary" to="/apps/ffc-intranet">
@@ -102,18 +102,17 @@ export default function Apps() {
               </Link>
             </div>
           </div>
-          {/* Twin Profile App */}
           <div className="inos-card p-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold">Twin Profile</div>
-              <span className="inos-pill text-[10px]">Active</span>
+              <div className="text-sm font-semibold">FULCRUM</div>
+              <span className="inos-pill text-[10px]">Candidate</span>
             </div>
             <div className="text-[11px] text-inos-muted mt-1">
-              Fulcrum System doctrinal intake and profile management.
+              TEAM AI Fulcrum capability surface for coordinate diagnosis, intake review, and candidate routing.
             </div>
             <div className="apps-actions">
-              <Link className="btn-secondary" to="/apps/twin-profile">
-                Open App
+              <Link className="btn-secondary" to="/apps/fulcrum">
+                Open Surface
               </Link>
             </div>
           </div>

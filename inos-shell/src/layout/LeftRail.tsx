@@ -204,7 +204,7 @@ export default function LeftRail() {
             `rail-link ${isActive ? "rail-link-active" : ""}`
           }
         >
-          FFC Intranet
+          FFC / Fulcrum
         </NavLink>
         <NavLink
           to="/apps/cngi-intranet"

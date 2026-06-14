@@ -4,6 +4,7 @@ import {
   fulcrumMoves,
   fulcrumReviewGate,
   fulcrumSourceFolder,
+  internalProofRegistry,
 } from "./fulcrumSystem";
 
 describe("fulcrum system seed contract", () => {
@@ -45,5 +46,17 @@ describe("fulcrum system seed contract", () => {
       "Timeline Payload",
       "Manifest",
     ]);
+  });
+
+  it("preserves GGP work-product proof inside the gated internal registry", () => {
+    expect(internalProofRegistry).toEqual([
+      expect.objectContaining({
+        id: "ggp-operating-infrastructure-build",
+        lane: "GGP",
+        state: "internal",
+        sourcePath: "Infinite-Earth/Infinite-Earth-Holdco/FFC/case-studies.html",
+      }),
+    ]);
+    expect(internalProofRegistry[0].publicPolicy).toContain("Do not publish");
   });
 });

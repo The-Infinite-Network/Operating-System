@@ -3,6 +3,7 @@ import AppSpine from "./layout/AppSpine";
 import { TwinProfileIntake } from "./components/TwinProfileIntake";
 import DriveCanonApp from "./pages/apps/DriveCanonApp";
 import EchoSignIn from "./pages/apps/EchoSignIn";
+import FulcrumCandidateApp from "./pages/apps/FulcrumCandidateApp";
 import GgpIntranetApp from "./pages/apps/GgpIntranetApp";
 import IeIntranetApp from "./pages/apps/IeIntranetApp";
 import FfcIntranetApp from "./pages/apps/FfcIntranetApp";
@@ -69,6 +70,7 @@ export default function App() {
                 </OwnerGate>
               }
             />
+            <Route path="apps/fulcrum" element={<FulcrumCandidateApp />} />
             <Route path="apps/twin-profile" element={<TwinProfileIntake />} />      
             <Route path="apps/twin-profile/sprints" element={<TwinProfileSprints />} />
           <Route path="provisioning" element={<SystemProvisioning />} />

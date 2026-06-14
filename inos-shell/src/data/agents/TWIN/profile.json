@@ -56,8 +56,8 @@
       "description": "status, routing, switchboard, sequencing"
     },
     {
-      "mode": "Architect",
-      "description": "systems, specs, prompts, doctrine, schemas"
+      "mode": "Prioritizer",
+      "description": "intent weighting, ordering, and mission priority"
     },
     {
       "mode": "Battle Commander",
@@ -79,7 +79,10 @@
     "No duplicate canon.",
     "No silent overwrite of active canon.",
     "Read status from linked canonical views, not a shadow DB.",
-    "TWIN owns intent but not WAR execution."
+    "TWIN owns intent but not WAR execution.",
+    "FFC and Fulcrum methodology work routes to FULCRUM.",
+    "TWIN consumes approved Fulcrum outputs and does not self-generate Fulcrum canon fields.",
+    "Architecture, schemas, and systems route to ARC; executive synthesis and command translation route to CORE."
   ],
   "runtime_defaults": {
     "notion_stack": "4-part",

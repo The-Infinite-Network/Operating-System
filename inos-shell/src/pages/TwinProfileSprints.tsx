@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Rocket, Send, Loader2, CheckCircle2 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
+import { api } from "../api";
 
 const SPRINT_MODULES = [
   {
@@ -85,18 +86,7 @@ export default function TwinProfileSprints() {
       .join("\n\n");
 
     try {
-      const response = await fetch("http://localhost:8000/api/v1/intake/extract-twin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user?.uid || "UNKNOWN",
-          raw_dialogue: rawDialogue,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Backend processing failed");
-      
-      const result = await response.json();
+      const result = await api.fulcrum.intakeDialogue(rawDialogue, user?.uid || "UNKNOWN");
       console.log("Twin Profile Extracted:", result);
       
       setComplete(true);
@@ -121,7 +111,7 @@ export default function TwinProfileSprints() {
           <div>
             <h2 className="text-2xl font-bold text-white mb-2">Profile Generated</h2>
             <p className="text-inos-muted text-sm leading-relaxed">
-              Your Twin Profile has been successfully compiled and anchored. The Core Command layer is now ready for your direction.
+              FULCRUM has staged a candidate intake packet from the compatibility dialogue flow. No canon fields were promoted.
             </p>
           </div>
           <button 
@@ -141,7 +131,7 @@ export default function TwinProfileSprints() {
         <div>
           <div className="text-xs uppercase tracking-[0.2em] text-inos-muted flex items-center gap-2">
             <Rocket className="w-3 h-3 text-inos-accent" />
-            Socratic Sprints
+            FULCRUM Compatibility Sprints
           </div>
           <div className="text-lg font-bold text-white mt-1">
             {SPRINT_MODULES[currentModule].title}
@@ -183,7 +173,7 @@ export default function TwinProfileSprints() {
           <div className="flex justify-start">
             <div className="bg-slate-800/60 border border-slate-700 rounded-2xl rounded-bl-sm px-5 py-4 flex items-center gap-3">
               <Loader2 className="w-4 h-4 text-inos-accent animate-spin" />
-              <span className="text-sm text-inos-muted">Compiling Twin Profile...</span>
+              <span className="text-sm text-inos-muted">Staging FULCRUM candidate...</span>
             </div>
           </div>
         )}

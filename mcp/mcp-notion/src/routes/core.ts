@@ -9,7 +9,7 @@ const notion = new Client({ auth: config.NOTION_API_KEY });
 
 // Constants for Lane Enforcement
 const ALLOWED_EXECUTION_OWNERS = ["WAR", "GEM", "EYE", "BOB", "BUILD", "CLASS", "MOM", "MIND", "BANK", "AIR", "FOOD", "NANO", "ARK", "HEART", "VOICE"];
-const NON_EXECUTION_LANES = ["TWIN", "CEO", "CORE", "AIM", "ARC", "LAW"];
+const NON_EXECUTION_LANES = ["TWIN", "CORE", "AIM", "ARC", "LAW"];
 
 // Helper: Validate Lane Compliance
 function validateLaneCompliance(owner: string): { pass: boolean; reason?: string } {

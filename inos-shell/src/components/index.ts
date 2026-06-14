@@ -1,4 +1,4 @@
 export { TimelineStream } from "./TimelineStream";
-export { POLEEntry } from "./POLEEntry";
+export { POLEEntry } from "./PoleEntry";
 export { MissionList } from "./MissionList";
 export { MissionDetail } from "./MissionDetail";
