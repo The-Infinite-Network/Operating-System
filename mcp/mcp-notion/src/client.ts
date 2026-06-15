@@ -2072,7 +2072,7 @@ export class NotionClient {
         },
       } as any);
 
-      // Get mission ID from run
+      // Mission resolution is relation-only on the live Mission Runs surface.
       const runMissionId =
         (runPage as any).properties?.Mission?.relation?.[0]?.id;
       if (!runMissionId) {
@@ -2269,7 +2269,7 @@ export class NotionClient {
 
   /**
    * List runs for a mission (durable query)
-   * Filters by mission_id and Run Type="Run"
+   * Filters by the persisted Mission relation on the Mission Runs row.
    */
   async ["runs.list"](params: {
     missionId: string;

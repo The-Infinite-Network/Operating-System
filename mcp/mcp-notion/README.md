@@ -31,8 +31,7 @@ NOTION_DB_ARK_ASSETS=optional_ark_assets_db_id
 NOTION_DB_TIMELINE=optional_timeline_db_id
 NOTION_DB_INBOX=optional_inbox_db_id
 NOTION_DB_TASKS=controlled_tasks_exception_db_id
-# Leave Mission Runs unset until the target is revalidated as live:
-# NOTION_DB_RUNS_AARS=
+NOTION_DB_RUNS_AARS=live_mission_runs_db_id
 PORT=3002
 NODE_ENV=development
 GEMINI_API_KEY=optional_ai_studio_key
@@ -54,7 +53,7 @@ CANON_ROOT_NAME=INFINITE_NETWORK_CANON
 **Optional:**
 
 - `NOTION_DB_TASKS` - Current Tasks database surface.
-- `NOTION_DB_RUNS_AARS` - Compatibility alias for the live Mission Runs surface; AAR content is written to the same row
+- `NOTION_DB_RUNS_AARS` - Compatibility alias for the live Mission Runs surface; AAR content is written to the same row and Mission linkage is resolved from the persisted `Mission` relation
 - `NOTION_DB_ARK_ASSETS` - Asset registry for ARK seal logging
 - `NOTION_DB_TIMELINE` - Timeline / PoLE events database
 - `NOTION_DB_INBOX` - Inbox capture database
