@@ -43,17 +43,17 @@ You can override this at runtime via `window.notionApiEndpoint` or by setting `l
 
 Basic local setup for mcp-notion:
 
-1. In `mcp-notion/.env`, set your Notion keys and DB IDs (`NOTION_API_KEY`, `NOTION_DB_MISSIONS`, etc.).
+1. In `C:\dev\The-Infinite-Network\Operating-System\mcp\mcp-notion\.env.local`, set your Notion keys and DB IDs (`NOTION_API_KEY`, `NOTION_DB_MISSIONS`, etc.).
    - Do not set `NOTION_DB_RUNS_AARS` or `NOTION_MISSION_RUNS_DB_ID` unless the Mission Runs target has been explicitly revalidated as live.
-   - `NOTION_DB_TASKS` is currently a controlled exception and should not be widened into broader automation without a boundary decision.
+   - `NOTION_DB_TASKS` is the approved Tasks surface.
 2. Set Vertex AI variables (`GCP_PROJECT_ID`, `GCP_REGION`, `VERTEX_MODEL`).
 3. Start the HTTP server:
 
    ```powershell
-   cd mcp/mcp-notion
+   cd C:\dev\The-Infinite-Network\Operating-System\mcp\mcp-notion
    npm install
    npm run build
-   npm run start
+   npm run start:clean
    ```
 
 4. Start INOS Shell (see Quick start above).

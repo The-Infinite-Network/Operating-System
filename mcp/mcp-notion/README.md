@@ -22,15 +22,15 @@ All tools follow the consistent error shape: `{ code, message, context }`.
 
 ### Environment Variables
 
-Create a `.env` file (optionally `.env.local` for overrides):
+Create a `.env.local` file for local runtime secrets and overrides:
 
 ```env
 NOTION_API_KEY=replace_with_notion_integration_token
 NOTION_DB_MISSIONS=a1b2c3d4e5f6g7h8...
-NOTION_DB_BUILD_TASKS=optional_build_tasks_db_id
 NOTION_DB_ARK_ASSETS=optional_ark_assets_db_id
 NOTION_DB_TIMELINE=optional_timeline_db_id
 NOTION_DB_INBOX=optional_inbox_db_id
+NOTION_DB_TASKS=controlled_tasks_exception_db_id
 # Leave Mission Runs unset until the target is revalidated as live:
 # NOTION_DB_RUNS_AARS=
 PORT=3002
@@ -53,8 +53,7 @@ CANON_ROOT_NAME=INFINITE_NETWORK_CANON
 
 **Optional:**
 
-- `NOTION_DB_BUILD_TASKS` - Database for mission task lookups
-- `NOTION_DB_TASKS` - Current Tasks write target; controlled legacy-parent exception for this wave
+- `NOTION_DB_TASKS` - Current Tasks database surface.
 - `NOTION_DB_RUNS_AARS` - Leave unset until the Mission Runs target is explicitly revalidated as live
 - `NOTION_DB_ARK_ASSETS` - Asset registry for ARK seal logging
 - `NOTION_DB_TIMELINE` - Timeline / PoLE events database
@@ -81,6 +80,29 @@ npm install
 npm run build
 npm run dev
 ```
+
+### Clean Runtime Cutover Path
+
+For the canonical local runtime, launch `mcp-notion` only from:
+
+```powershell
+C:\dev\The-Infinite-Network\Operating-System\mcp\mcp-notion
+```
+
+Preferred clean launch:
+
+```powershell
+npm run start:clean
+```
+
+This script:
+
+- requires the clean `Operating-System` repo path
+- requires `.env` or `.env.local` in that repo
+- builds `dist\index.js` if needed
+- starts `node .\dist\index.js` on port `3002` by default
+
+Do not launch the legacy runtime from `C:\dev\~devantigravity-playground\The-Infinite-Netowrk\mcp\mcp-notion`.
 
 ### Port Conflicts (Dev)
 
@@ -302,7 +324,8 @@ Fetch timeline events with optional filters for date range, type, mission relati
 ### Additional tools
 
 - `missions.list` - Recent missions from the configured missions DB
-- `missions.tasks.list` - Tasks related to a mission (uses `NOTION_DB_BUILD_TASKS`)
+- `missions.tasks.list` - Tasks related to a mission (uses `NOTION_DB_TASKS`)
+- `tasks.create` - Creates a task in the approved `NOTION_DB_TASKS` surface
 - `ark.sealLog` - Ensure an ARK asset and append a timeline entry
 - `inbox.capture` - Capture inbox items into `NOTION_DB_INBOX`
 
@@ -326,7 +349,8 @@ npm run test:mcp
 
 Env used by the smoke run:
 
-- Required: `NOTION_API_KEY`, `NOTION_DB_MISSIONS`, `NOTION_DB_BUILD_TASKS`, `NOTION_DB_ARK_ASSETS`, `NOTION_DB_TIMELINE`, `NOTION_DB_INBOX`
+- Required: `NOTION_API_KEY`, `NOTION_DB_MISSIONS`, `NOTION_DB_ARK_ASSETS`, `NOTION_DB_TIMELINE`, `NOTION_DB_INBOX`
+- Optional: `NOTION_DB_TASKS`
 - Optional overrides for dummy inputs: `NOTION_SMOKE_PAGE_ID`, `NOTION_SMOKE_EXISTING_PAGE_ID`, `NOTION_SMOKE_MISSION_ID`
 
 ## Architecture

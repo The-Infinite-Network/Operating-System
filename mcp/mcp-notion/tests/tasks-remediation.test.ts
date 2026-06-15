@@ -22,4 +22,16 @@ describe("Tasks remediation surface", () => {
         "NOTION_DB_TASKS not configured. BUILD_TASKS/BUILD fallback is disabled during TASKS remediation.",
     });
   });
+
+  it("rejects BUILD_TASKS fallback for mission task queries during TASKS remediation", async () => {
+    const notionClient = new NotionClient();
+
+    await expect(
+      notionClient["missions.tasks.list"]("mission-123")
+    ).rejects.toMatchObject<MCPError>({
+      code: ErrorCodes.CONFIG_ERROR,
+      message:
+        "NOTION_DB_TASKS not configured. BUILD_TASKS/BUILD fallback is disabled during TASKS remediation.",
+    });
+  });
 });

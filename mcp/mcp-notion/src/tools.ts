@@ -724,7 +724,7 @@ export class Tools {
         },
         database_policies: {
           missions: "active",
-          tasks: "approved_exception_legacy_parent_freeze_scope",
+          tasks: "active",
           timeline: "active",
           runs_aars: "blocked_pending_live_target_revalidation",
           inbox: "active_if_configured",
@@ -732,7 +732,7 @@ export class Tools {
           entities: "active_if_configured",
           agents: "active_if_configured",
           food_ingredients: "active_shared_top_level",
-          sot: "approved_exception_control_tower_parent_no_runtime_writer",
+          sot: "active_shared_top_level_no_runtime_writer",
         },
         event_types: [
           "MISSION_CREATED",

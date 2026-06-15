@@ -39,22 +39,6 @@ async function main() {
       });
     }
 
-    if (config.NOTION_DB_TASKS || (config as any).NOTION_TASKS_DB_ID) {
-      remediationWarnings.push({
-        surface: "TASKS",
-        status: "APPROVED_EXCEPTION",
-        message:
-          "Tasks still points to a legacy-parented surface. Keep writer scope frozen until the exception is retired or an approved relocation is completed.",
-      });
-    }
-
-    remediationWarnings.push({
-      surface: "SOT",
-      status: "APPROVED_EXCEPTION",
-      message:
-        "SOT remains a placement exception under IN — Control Tower. No runtime writer is active here in this repo, but ownership normalization is still pending.",
-    });
-
     for (const warning of remediationWarnings) {
       logger.warn(`Remediation state: ${warning.surface}`, warning);
     }
