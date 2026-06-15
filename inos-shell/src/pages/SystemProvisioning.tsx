@@ -3,6 +3,7 @@ import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { saveOperatorProfile } from "../services/operatorProfile";
 import { 
   Layout, Terminal, Database, Globe, Settings, ChevronRight, ArrowLeft,
   Activity, CheckCircle2, Zap, Target, Wallet, Clock, AlertCircle, Bot, ListTree
@@ -228,17 +229,13 @@ export default function SystemProvisioning() {
   const currentLayout = LAYOUTS.find(l => l.id === selectedLayout) || LAYOUTS[0];
 
   const handleDeploy = async () => {
-    if (!user?.email) return;
     setIsDeploying(true);
     try {
-      await fetch("http://localhost:8000/api/v1/profile/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: user.email,
-          selectedLayout: selectedLayout,
-          custom_grid: selectedLayout === "custom" ? customItems : null
-        })
+      await saveOperatorProfile({
+        email: user?.email || undefined,
+        selectedLayout: selectedLayout,
+        onboardingComplete: true,
+        custom_grid: selectedLayout === "custom" ? customItems : null
       });
       setTimeout(() => { navigate("/room/me"); }, 1500);
     } catch (err) {

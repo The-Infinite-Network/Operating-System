@@ -10,6 +10,7 @@ import { useAuth } from "../auth/AuthContext";
 import { POLEEntry } from "../components";
 import { api } from "../api";
 import { TimelineEvent } from "../types";
+import { fetchOperatorProfile } from "../services/operatorProfile";
 
 export default function RoomMe() {
   const { user } = useAuth();
@@ -23,17 +24,10 @@ export default function RoomMe() {
     const fetchProfileAndData = async () => {
       setLoading(true);
       try {
-        if (user?.email) {
-          const profRes = await fetch("http://localhost:8000/api/v1/profile/fetch", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: user.email })
-          });
-          const profile = await profRes.json();
-          if (profile.status !== "not_found") {
-            setLayoutMode(profile.selectedLayout);
-            setCustomGrid(profile.custom_grid);
-          }
+        const profile = await fetchOperatorProfile(user?.email);
+        if (profile.status !== "not_found") {
+          setLayoutMode(profile.selectedLayout || "unified");
+          setCustomGrid(profile.custom_grid || null);
         }
         const { events } = await api.timeline.queryByMission("global", 15);
         setRecentTimeline(events);

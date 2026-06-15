@@ -38,15 +38,25 @@ export default function AppSpine() {
         </div>
 
         <nav className="flex-1 flex justify-center gap-1">
-          {['home', 'foundation', 'guilds', 'agents', 'governance', 'logs'].map(view => (
+          {[
+            { key: "home", label: "home", to: "/home" },
+            { key: "room", label: "my room", to: "/room/me" },
+            { key: "foundation", label: "foundation", to: "/foundation" },
+            { key: "guilds", label: "guilds", to: "/guilds" },
+            { key: "agents", label: "agents", to: "/agents" },
+            { key: "governance", label: "governance", to: "/governance" },
+            { key: "logs", label: "logs", to: "/logs" },
+          ].map((view) => (
             <button 
-              key={view}
-              onClick={() => navigate(`/${view}`)}
+              key={view.key}
+              onClick={() => navigate(view.to)}
               className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-mono transition-all ${
-                location.pathname.includes(view) ? 'bg-gradient-to-br from-[#1a1a2e] to-[#0d1117] border border-[#00f0ff]/50 text-[#00f0ff] shadow-[0_0_10px_rgba(0,240,255,0.1)]' : 'text-[#555] hover:text-white'
+                (view.key === "room" ? location.pathname.startsWith("/room/") : location.pathname.includes(view.key))
+                  ? 'bg-gradient-to-br from-[#1a1a2e] to-[#0d1117] border border-[#00f0ff]/50 text-[#00f0ff] shadow-[0_0_10px_rgba(0,240,255,0.1)]'
+                  : 'text-[#555] hover:text-white'
               }`}
             >
-              {view}
+              {view.label}
             </button>
           ))}
         </nav>
