@@ -44,7 +44,8 @@ You can override this at runtime via `window.notionApiEndpoint` or by setting `l
 Basic local setup for mcp-notion:
 
 1. In `C:\dev\The-Infinite-Network\Operating-System\mcp\mcp-notion\.env.local`, set your Notion keys and DB IDs (`NOTION_API_KEY`, `NOTION_DB_MISSIONS`, etc.).
-   - Do not set `NOTION_DB_RUNS_AARS` or `NOTION_MISSION_RUNS_DB_ID` unless the Mission Runs target has been explicitly revalidated as live.
+   - `NOTION_DB_RUNS_AARS` and `NOTION_MISSION_RUNS_DB_ID` should point to the live Mission Runs surface when Mission Run tools are enabled.
+   - Mission Run lookup is relation-only on the persisted `Mission` relation. `SYNC_KEY` is not a Mission lookup fallback.
    - `NOTION_DB_TASKS` is the approved Tasks surface.
 2. Set Vertex AI variables (`GCP_PROJECT_ID`, `GCP_REGION`, `VERTEX_MODEL`).
 3. Start the HTTP server:

@@ -34,4 +34,46 @@ describe("Tasks remediation surface", () => {
         "NOTION_DB_TASKS not configured. BUILD_TASKS/BUILD fallback is disabled during TASKS remediation.",
     });
   });
+
+  it("reads shared TASKS rows through Related Mission and preserves Task Name/status fields", async () => {
+    const notionClient = new NotionClient() as any;
+    notionClient.config = {
+      ...notionClient.config,
+      NOTION_DB_TASKS: "shared-tasks-db",
+    };
+    notionClient.client = {
+      databases: {
+        retrieve: async () => ({
+          properties: {
+            "Related Mission": { type: "relation" },
+          },
+        }),
+        query: async () => ({
+          results: [
+            {
+              id: "task-123",
+              properties: {
+                "Task Name": {
+                  title: [{ plain_text: "Shared TASKS smoke row" }],
+                },
+                Status: {
+                  status: { name: "Backlog" },
+                },
+              },
+            },
+          ],
+        }),
+      },
+    };
+
+    await expect(
+      notionClient["missions.tasks.list"]("mission-123")
+    ).resolves.toEqual([
+      expect.objectContaining({
+        id: "task-123",
+        title: "Shared TASKS smoke row",
+        status: "Backlog",
+      }),
+    ]);
+  });
 });

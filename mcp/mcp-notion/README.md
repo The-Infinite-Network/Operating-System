@@ -30,7 +30,7 @@ NOTION_DB_MISSIONS=a1b2c3d4e5f6g7h8...
 NOTION_DB_ARK_ASSETS=optional_ark_assets_db_id
 NOTION_DB_TIMELINE=optional_timeline_db_id
 NOTION_DB_INBOX=optional_inbox_db_id
-NOTION_DB_TASKS=controlled_tasks_exception_db_id
+NOTION_DB_TASKS=approved_shared_tasks_db_id
 NOTION_DB_RUNS_AARS=live_mission_runs_db_id
 PORT=3002
 NODE_ENV=development
@@ -52,7 +52,7 @@ CANON_ROOT_NAME=INFINITE_NETWORK_CANON
 
 **Optional:**
 
-- `NOTION_DB_TASKS` - Current Tasks database surface.
+- `NOTION_DB_TASKS` - Approved shared Tasks database surface.
 - `NOTION_DB_RUNS_AARS` - Compatibility alias for the live Mission Runs surface; AAR content is written to the same row and Mission linkage is resolved from the persisted `Mission` relation
 - `NOTION_DB_ARK_ASSETS` - Asset registry for ARK seal logging
 - `NOTION_DB_TIMELINE` - Timeline / PoLE events database

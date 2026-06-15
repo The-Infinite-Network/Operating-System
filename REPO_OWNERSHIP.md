@@ -6,7 +6,7 @@
 
 ## Ownership
 
-This repository is responsible for the **core INOS platform and integration layer**.
+This repository is responsible for the **core INOS runtime, adapter, and control-plane layer**.
 
 ### Primary Components (from Wave 3)
 
@@ -14,6 +14,16 @@ This repository is responsible for the **core INOS platform and integration laye
 - `inos-api/` - Python backend services.
 - `inos-shell/` - Primary React/Vite command center.
 - Core platform documentation and contracts (AGENTS.md, CLAUDE.md, MCP validation docs, etc.)
+
+## Boundary Rule
+
+`Operating-System` owns runtime surfaces, adapters, contracts, and control-plane behavior.
+
+It does **not** become the source of truth for:
+
+- TEAM AI capability source or agent doctrine
+- VAP routing or private operator canon
+- business/trust canon merely because the runtime reads or writes those systems
 
 ### Out of Scope
 

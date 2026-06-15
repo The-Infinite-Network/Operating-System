@@ -2518,14 +2518,21 @@ export class NotionClient {
 
       const tasks = (res.results || []).map((page: any) => {
         const props = page.properties || {};
+        const statusValue =
+          props.Status?.status?.name ||
+          props.Status?.select?.name ||
+          props.State?.status?.name ||
+          props.State?.select?.name ||
+          null;
         return {
           id: page.id,
           title:
+            props["Task Name"]?.title?.[0]?.plain_text ||
             props["Task Title"]?.title?.[0]?.plain_text ||
             props.Name?.title?.[0]?.plain_text ||
             props.Title?.title?.[0]?.plain_text ||
             "Untitled",
-          status: props.Status?.select?.name || null,
+          status: statusValue,
           owner: props.Owner?.people?.[0]?.name || null,
           due_date:
             props["Due Date"]?.date?.start || props.Due?.date?.start || null,
@@ -4954,6 +4961,7 @@ export class NotionClient {
       (this.config as any).NOTION_FOOD_INGREDIENTS_DB_ID,
       // Legacy DBs (still valid write targets during migration)
       this.config.NOTION_DB_MISSIONS,
+      this.config.NOTION_DB_TASKS,
       this.config.NOTION_DB_TIMELINE,
       this.config.NOTION_DB_RUNS_AARS,
       this.config.NOTION_DB_INBOX,
@@ -4965,6 +4973,7 @@ export class NotionClient {
       this.config.NOTION_DB_DRAFT_BLOCKS,
       this.config.NOTION_DB_LAW_DOCS,
       this.config.NOTION_DB_CLASS_KB,
+      (this.config as any).NOTION_TASKS_DB_ID,
     ].filter(Boolean);
 
     if (!canonicalDbs.includes(dbId)) {
@@ -5046,7 +5055,7 @@ export class NotionClient {
   /**
    * Resolve the approved Tasks surface for this remediation wave.
    * Tasks may use the explicit TASKS ids only; do not silently fall through
-   * to BUILD task surfaces while the legacy-parent exception is being managed.
+   * to BUILD task surfaces while TASKS remediation remains bounded.
    */
   private _getApprovedTasksDbId(operation: string) {
     const dbId =
