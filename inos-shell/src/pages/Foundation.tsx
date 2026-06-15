@@ -137,8 +137,8 @@ export default function Foundation() {
                   <div className="layer-info">
                     <div className="layer-name">{layer.name}</div>
                     <div className="layer-dbs">
-                      {(layer.canonical_dbs || layer.components || []).map(item => (
-                        <span key={item} className="layer-db-pill">{item}</span>
+                      {(layer.canonical_dbs || layer.components || []).map((item, index) => (
+                        <span key={`${layer.id}-${index}-${item}`} className="layer-db-pill">{item}</span>
                       ))}
                     </div>
                   </div>
