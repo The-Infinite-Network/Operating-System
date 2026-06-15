@@ -15,6 +15,12 @@ This repository is responsible for the **core INOS runtime, adapter, and control
 - `inos-shell/` - Primary React/Vite command center.
 - Core platform documentation and contracts (AGENTS.md, CLAUDE.md, MCP validation docs, etc.)
 
+### MCP Runtime Surfaces
+
+- `mcp/mcp-notion` - Active Notion/Drive integration runtime.
+- `mcp/scripts` - MCP helper and validation scripts.
+- `mcp/webmcp` - Intentionally placed WebMCP specification/runtime-adjacent MCP surface under `Operating-System`; treat it as MCP/runtime infrastructure, not as a top-level system bucket or orphan project.
+
 ## Boundary Rule
 
 `Operating-System` owns runtime surfaces, adapters, contracts, and control-plane behavior.
