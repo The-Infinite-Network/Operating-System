@@ -158,6 +158,12 @@ function parseEnv(envSource: any): Config {
      else if (mutableConfig[legacy]) mutableConfig[canonical] = mutableConfig[legacy];
   });
 
+  // Preserve a distinct AAR target when explicitly configured.
+  // Only fall back to the legacy combined surface if no dedicated AAR DB exists.
+  if (!mutableConfig.NOTION_AAR_DB_ID && mutableConfig.NOTION_DB_RUNS_AARS) {
+    mutableConfig.NOTION_AAR_DB_ID = mutableConfig.NOTION_DB_RUNS_AARS;
+  }
+
   return config;
 }
 

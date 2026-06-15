@@ -715,7 +715,15 @@ export class Tools {
           missions: config.NOTION_DB_MISSIONS || "MISSING",
           tasks: config.NOTION_DB_TASKS || "MISSING",
           timeline: config.NOTION_DB_TIMELINE || "MISSING",
-          runs_aars: config.NOTION_DB_RUNS_AARS || "MISSING",
+          mission_runs:
+            (config as any).NOTION_MISSION_RUNS_DB_ID ||
+            config.NOTION_DB_RUNS_AARS ||
+            "MISSING",
+          aars:
+            (config as any).NOTION_MISSION_RUNS_DB_ID ||
+            config.NOTION_DB_RUNS_AARS ||
+            "MISSING",
+          runs_aars_legacy_alias: config.NOTION_DB_RUNS_AARS || "MISSING",
           inbox: config.NOTION_DB_INBOX || "MISSING",
           rooms: config.NOTION_DB_ROOMS || "MISSING",
           entities: config.NOTION_DB_ENTITIES || "MISSING",
@@ -726,7 +734,9 @@ export class Tools {
           missions: "active",
           tasks: "active",
           timeline: "active",
-          runs_aars: "blocked_pending_live_target_revalidation",
+          mission_runs: "active_live_target",
+          aars: "same_row_on_mission_runs",
+          runs_aars_legacy_alias: "compatibility_alias_only",
           inbox: "active_if_configured",
           rooms: "active_if_configured",
           entities: "active_if_configured",
@@ -4149,6 +4159,14 @@ export class Tools {
         originalError: String(error),
       });
     }
+  }
+
+  /**
+   * Tool: tasks.update
+   * Public alias for task updates.
+   */
+  async ["tasks.update"](params: unknown) {
+    return this["tasks.update.internal"](params);
   }
 
   /**

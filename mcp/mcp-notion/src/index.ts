@@ -30,15 +30,6 @@ async function main() {
     const config = getConfig();
     const remediationWarnings: Array<{ surface: string; status: string; message: string }> = [];
 
-    if (config.NOTION_DB_RUNS_AARS || (config as any).NOTION_MISSION_RUNS_DB_ID) {
-      remediationWarnings.push({
-        surface: "MISSION_RUNS",
-        status: "BLOCKED",
-        message:
-          "Mission Runs write target is pending live target revalidation. Runtime writes are guarded and should remain halted until the target is explicitly verified.",
-      });
-    }
-
     for (const warning of remediationWarnings) {
       logger.warn(`Remediation state: ${warning.surface}`, warning);
     }

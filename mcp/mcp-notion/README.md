@@ -54,7 +54,7 @@ CANON_ROOT_NAME=INFINITE_NETWORK_CANON
 **Optional:**
 
 - `NOTION_DB_TASKS` - Current Tasks database surface.
-- `NOTION_DB_RUNS_AARS` - Leave unset until the Mission Runs target is explicitly revalidated as live
+- `NOTION_DB_RUNS_AARS` - Compatibility alias for the live Mission Runs surface; AAR content is written to the same row
 - `NOTION_DB_ARK_ASSETS` - Asset registry for ARK seal logging
 - `NOTION_DB_TIMELINE` - Timeline / PoLE events database
 - `NOTION_DB_INBOX` - Inbox capture database

@@ -1906,7 +1906,7 @@ export class NotionClient {
 
   /**
    * Create a mission run (start execution)
-   * Creates both Run and AAR entries, emits RUN_STARTED and AAR_CREATED events
+   * Creates a single Mission Run row. AAR activity is written back to the same row.
    */
   async ["runs.create"](params: {
     missionId: string;
@@ -1916,14 +1916,7 @@ export class NotionClient {
     userContext?: { userId?: string; userHandle?: string; userName?: string };
   }) {
     try {
-      const dbId = this.config.NOTION_DB_RUNS_AARS;
-      if (!dbId) {
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_RUNS_AARS not configured",
-          { operation: "create_run" }
-        );
-      }
+      const dbId = this._getMissionRunsDbId("create_run");
 
       // Guardrail: Validate canonical DB
       this._validateCanonicalDb(dbId);
@@ -1939,96 +1932,33 @@ export class NotionClient {
         });
       }
 
-      const runTitle = params.runTitle || `Run: ${mission.title}`;
+      const runLabel = params.runTitle || `RUN-${new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14)}`;
       const now = new Date().toISOString();
+      const runSyncKey = `MISSION_RUN_${now}_${params.missionId}`;
 
-      // Detect Run Type property name from schema
-      let runTypePropertyName: string | null = null;
-      try {
-        const dbSchema = await this.client.databases.retrieve({
-          database_id: dbId,
-        });
-        const properties = (dbSchema as any).properties || {};
-        // Try common property names
-        const runTypeProps = ["Run Type", "Type", "Record Type"];
-        for (const name of runTypeProps) {
-          if (
-            properties[name] &&
-            (properties[name].type === "select" ||
-              properties[name].type === "status")
-          ) {
-            runTypePropertyName = name;
-            break;
-          }
-        }
-        // Fallback: find any select property with "type" or "run" in name
-        if (!runTypePropertyName) {
-          for (const [propName, propDef] of Object.entries(properties)) {
-            if (
-              ((propDef as any).type === "select" ||
-                (propDef as any).type === "status") &&
-              (propName.toLowerCase().includes("type") ||
-                propName.toLowerCase().includes("run"))
-            ) {
-              runTypePropertyName = propName;
-              break;
-            }
-          }
-        }
-      } catch (schemaError) {
-        logger.warn(
-          "Failed to detect Run Type property, will attempt with default name",
-          { error: String(schemaError) }
-        );
-        runTypePropertyName = "Run Type"; // Default fallback
-      }
-
-      // Create Run entry (Run Type = "Run")
+      // Create live Mission Run entry
       const runProperties: any = {
-        "Run Title": { title: [{ text: { content: runTitle } }] },
+        "Run ID": { title: [{ text: { content: runLabel } }] },
         Mission: { relation: [{ id: params.missionId }] },
-        "Start Date": { date: { start: now } },
+        "Started At": { date: { start: now } },
         Status: { select: { name: "In Progress" } },
+        SYNC_KEY: { rich_text: [{ text: { content: runSyncKey } }] },
+        "Output Summary": {
+          rich_text: [{ text: { content: params.notes || `Run started for ${mission.title}` } }],
+        },
       };
-      // Explicitly set Run Type property
-      if (runTypePropertyName) {
-        runProperties[runTypePropertyName] = { select: { name: "Run" } };
-      } else {
-        logger.warn(
-          "Run Type property not found in schema, Run entry may not be properly categorized"
-        );
-      }
-      if (params.notes) {
-        runProperties.Notes = {
-          rich_text: [{ text: { content: params.notes } }],
-        };
+      const missionRunType = await this._resolveSelectOptionName(dbId, "Run Type", [
+        "Automation Run",
+        "Analysis",
+        "Transformation",
+      ]);
+      if (missionRunType) {
+        runProperties["Run Type"] = { select: { name: missionRunType } };
       }
 
       const runPage = await this.client.pages.create({
         parent: { database_id: dbId },
         properties: runProperties,
-      } as any);
-
-      // Create AAR entry (linked to run, Run Type = "AAR")
-      const aarTitle = `AAR: ${mission.title}`;
-      const aarProperties: any = {
-        "AAR Title": { title: [{ text: { content: aarTitle } }] },
-        Mission: { relation: [{ id: params.missionId }] },
-        Run: { relation: [{ id: runPage.id }] },
-        Status: { select: { name: "Draft" } },
-      };
-      // Explicitly set Run Type property for AAR
-      if (runTypePropertyName) {
-        aarProperties[runTypePropertyName] = { select: { name: "AAR" } };
-      } else {
-        logger.warn(
-          "Run Type property not found in schema, AAR entry may not be properly categorized"
-        );
-      }
-
-      const aarPage = await this.client.pages.create({
-        parent: { database_id: dbId },
-        properties: aarProperties,
       } as any);
 
       // Resolve actor
@@ -2050,7 +1980,7 @@ export class NotionClient {
           run_id: runPage.id,
           actor_people_id: actorId,
           sync_key: `RUN_STARTED_${runPage.id}`,
-          summary: `Run started: ${runTitle}`,
+          summary: `Run started: ${runLabel}`,
           external_refs: this._generateExternalRefs(
             (runPage as any).url,
             `/runs/${runPage.id}`
@@ -2076,26 +2006,26 @@ export class NotionClient {
           room: mission.room || undefined,
           missionId: params.missionId,
           run_id: runPage.id,
-          aar_id: aarPage.id,
+          aar_id: runPage.id,
           actor_people_id: actorId,
-          sync_key: `AAR_CREATED_${aarPage.id}`,
-          summary: `AAR created: ${aarTitle}`,
+          sync_key: `AAR_CREATED_${runPage.id}`,
+          summary: `AAR initialized on mission run row`,
           external_refs: this._generateExternalRefs(
-            (aarPage as any).url,
-            `/aars/${aarPage.id}`
+            (runPage as any).url,
+            `/aars/${runPage.id}`
           ),
           source: "INOS Shell",
         });
       } catch (timelineError) {
         logger.warn("Failed to log AAR_CREATED timeline event", {
-          aarId: aarPage.id,
+          aarId: runPage.id,
           error: timelineError,
         });
       }
 
       return {
         run: { id: runPage.id, url: (runPage as any).url },
-        aar: { id: aarPage.id, url: (aarPage as any).url },
+        aar: { id: runPage.id, url: (runPage as any).url },
       };
     } catch (error) {
       if (error instanceof MCPError) throw error;
@@ -2118,14 +2048,7 @@ export class NotionClient {
     userContext?: { userId?: string; userHandle?: string; userName?: string };
   }) {
     try {
-      const dbId = this.config.NOTION_DB_RUNS_AARS;
-      if (!dbId) {
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_RUNS_AARS not configured",
-          { operation: "end_run" }
-        );
-      }
+      const dbId = this._getMissionRunsDbId("end_run");
 
       // Guardrail: Validate canonical DB
       this._validateCanonicalDb(dbId);
@@ -2137,11 +2060,11 @@ export class NotionClient {
       const runPage = await this.client.pages.update({
         page_id: params.runId,
         properties: {
-          Status: { select: { name: "Complete" } },
-          "End Date": { date: { start: now } },
+          Status: { select: { name: "Review" } },
+          "Completed At": { date: { start: now } },
           ...(params.endNotes
             ? {
-              Notes: {
+              "Output Summary": {
                 rich_text: [{ text: { content: params.endNotes } }],
               },
             }
@@ -2150,8 +2073,8 @@ export class NotionClient {
       } as any);
 
       // Get mission ID from run
-      const runMissionId = (runPage as any).properties?.Mission?.relation?.[0]
-        ?.id;
+      const runMissionId =
+        (runPage as any).properties?.Mission?.relation?.[0]?.id;
       if (!runMissionId) {
         throw new MCPError(
           ErrorCodes.BAD_REQUEST,
@@ -2227,14 +2150,7 @@ export class NotionClient {
     userContext?: { userId?: string; userHandle?: string; userName?: string };
   }) {
     try {
-      const dbId = this.config.NOTION_DB_RUNS_AARS;
-      if (!dbId) {
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_RUNS_AARS not configured",
-          { operation: "update_aar" }
-        );
-      }
+      const dbId = this._getMissionRunsDbId("update_aar");
 
       // Guardrail: Validate canonical DB
       this._validateCanonicalDb(dbId);
@@ -2245,33 +2161,42 @@ export class NotionClient {
         page_id: params.aarId,
       });
       const isFirstSave =
-        (currentAAR as any).properties?.Status?.select?.name === "Draft" &&
-        params.status !== "Draft";
-      const isFinalSave = params.status === "Complete";
+        !((currentAAR as any).properties?.["Output Payload / Body"]?.rich_text?.[0]?.plain_text) &&
+        Boolean(params.summary || params.outcomes || params.lessons);
+      const isFinalSave =
+        params.status === "Complete" || params.status === "Approved";
 
       const properties: any = {};
-      if (params.title) {
-        properties["AAR Title"] = {
-          title: [{ text: { content: params.title } }],
+      const notesSections = [
+        params.title ? `AAR Title\n${params.title}` : null,
+        params.summary ? `Summary\n${params.summary}` : null,
+        params.outcomes ? `Outcomes\n${params.outcomes}` : null,
+        params.lessons ? `Lessons\n${params.lessons}` : null,
+      ].filter(Boolean);
+      if (notesSections.length > 0) {
+        properties["Output Payload / Body"] = {
+          rich_text: [{ text: { content: notesSections.join("\n\n") } }],
         };
       }
       if (params.summary) {
-        properties.Summary = {
+        properties["Output Summary"] = {
           rich_text: [{ text: { content: params.summary } }],
         };
       }
-      if (params.outcomes) {
-        properties.Outcomes = {
-          rich_text: [{ text: { content: params.outcomes } }],
-        };
-      }
-      if (params.lessons) {
-        properties.Lessons = {
-          rich_text: [{ text: { content: params.lessons } }],
-        };
-      }
       if (params.status) {
-        properties.Status = { select: { name: params.status } };
+        properties.Status = {
+          select: { name: this._mapMissionRunStatusForAAR(params.status) },
+        };
+      }
+      if (isFinalSave) {
+        const outputType = await this._resolveSelectOptionName(dbId, "Output Type", [
+          "Memo",
+          "JSON",
+          "Other",
+        ]);
+        if (outputType) {
+          properties["Output Type"] = { select: { name: outputType } };
+        }
       }
 
       const aarPage = await this.client.pages.update({
@@ -2284,7 +2209,7 @@ export class NotionClient {
         try {
           const missionId = (aarPage as any).properties?.Mission?.relation?.[0]
             ?.id;
-          const runId = (aarPage as any).properties?.Run?.relation?.[0]?.id;
+          const runId = params.aarId;
 
           if (missionId) {
             const missions = await this.listMissions();
@@ -2364,94 +2289,35 @@ export class NotionClient {
     hasMore: boolean;
   }> {
     try {
-      const dbId = this.config.NOTION_DB_RUNS_AARS;
-      if (!dbId) {
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_RUNS_AARS not configured",
-          { operation: "list_runs_for_mission" }
-        );
-      }
-
-      // Detect Run Type property name
-      let runTypePropertyName: string | null = null;
-      try {
-        const dbSchema = await this.client.databases.retrieve({
-          database_id: dbId,
-        });
-        const properties = (dbSchema as any).properties || {};
-        const runTypeProps = ["Run Type", "Type", "Record Type"];
-        for (const name of runTypeProps) {
-          if (
-            properties[name] &&
-            (properties[name].type === "select" ||
-              properties[name].type === "status")
-          ) {
-            runTypePropertyName = name;
-            break;
-          }
-        }
-        if (!runTypePropertyName) {
-          for (const [propName, propDef] of Object.entries(properties)) {
-            if (
-              ((propDef as any).type === "select" ||
-                (propDef as any).type === "status") &&
-              (propName.toLowerCase().includes("type") ||
-                propName.toLowerCase().includes("run"))
-            ) {
-              runTypePropertyName = propName;
-              break;
-            }
-          }
-        }
-      } catch (schemaError) {
-        logger.warn("Failed to detect Run Type property for filtering", {
-          error: String(schemaError),
-        });
-        // Continue without Run Type filter (will return all records for mission)
-      }
+      const dbId = this._getMissionRunsDbId("list_runs_for_mission");
 
       const limit = Math.min(params.limit || 50, 100); // Max 100
-      const offset = params.offset || 0;
-
-      // Build filter: Mission relation = missionId AND Run Type = "Run"
-      const filters: any[] = [
-        {
-          property: "Mission",
-          relation: { contains: params.missionId },
-        },
-      ];
-
-      // Add Run Type filter if property detected
-      if (runTypePropertyName) {
-        filters.push({
-          property: runTypePropertyName,
-          select: { equals: "Run" },
-        });
-      }
 
       const query = await this.client.databases.query({
         database_id: dbId,
-        filter: { and: filters },
-        sorts: [{ property: "Start Date", direction: "descending" }],
+        filter: {
+          property: "Mission",
+          relation: { contains: params.missionId },
+        },
+        sorts: [{ property: "Started At", direction: "descending" }],
         page_size: limit + 1, // Fetch one extra to check hasMore
-        start_cursor: offset > 0 ? undefined : undefined, // Note: Notion pagination uses cursor, not offset
       });
 
       const hasMore = (query.results as any[]).length > limit;
       const runs = (query.results as any[]).slice(0, limit).map((page: any) => {
         const props = page.properties || {};
         const titleProp =
-          props["Run Title"]?.title?.[0]?.plain_text ||
+          props["Run ID"]?.title?.[0]?.plain_text ||
           props.Title?.title?.[0]?.plain_text ||
           props.Name?.title?.[0]?.plain_text ||
           "Untitled Run";
         const statusProp =
           props.Status?.select?.name || props.Status?.status?.name || "Unknown";
-        const startDate = props["Start Date"]?.date?.start || null;
-        const endDate = props["End Date"]?.date?.start || null;
+        const startDate = props["Started At"]?.date?.start || null;
+        const endDate = props["Completed At"]?.date?.start || null;
         const notes =
-          props.Notes?.rich_text?.[0]?.plain_text ||
+          props["Output Summary"]?.rich_text?.[0]?.plain_text ||
+          props["Failure Reason"]?.rich_text?.[0]?.plain_text ||
           props.notes?.rich_text?.[0]?.plain_text ||
           null;
 
@@ -2501,98 +2367,20 @@ export class NotionClient {
     url: string;
   } | null> {
     try {
-      const dbId = this.config.NOTION_DB_RUNS_AARS;
-      if (!dbId) {
-        throw new MCPError(
-          ErrorCodes.CONFIG_ERROR,
-          "NOTION_DB_RUNS_AARS not configured",
-          { operation: "get_aar_by_run_id" }
-        );
-      }
-
-      // Detect Run Type property name
-      let runTypePropertyName: string | null = null;
-      try {
-        const dbSchema = await this.client.databases.retrieve({
-          database_id: dbId,
-        });
-        const properties = (dbSchema as any).properties || {};
-        const runTypeProps = ["Run Type", "Type", "Record Type"];
-        for (const name of runTypeProps) {
-          if (
-            properties[name] &&
-            (properties[name].type === "select" ||
-              properties[name].type === "status")
-          ) {
-            runTypePropertyName = name;
-            break;
-          }
-        }
-        if (!runTypePropertyName) {
-          for (const [propName, propDef] of Object.entries(properties)) {
-            if (
-              ((propDef as any).type === "select" ||
-                (propDef as any).type === "status") &&
-              (propName.toLowerCase().includes("type") ||
-                propName.toLowerCase().includes("run"))
-            ) {
-              runTypePropertyName = propName;
-              break;
-            }
-          }
-        }
-      } catch (schemaError) {
-        logger.warn("Failed to detect Run Type property for filtering", {
-          error: String(schemaError),
-        });
-      }
-
-      // Build filter: Run relation = runId AND Run Type = "AAR"
-      const filters: any[] = [
-        {
-          property: "Run",
-          relation: { contains: params.runId },
-        },
-      ];
-
-      // Add Run Type filter if property detected
-      if (runTypePropertyName) {
-        filters.push({
-          property: runTypePropertyName,
-          select: { equals: "AAR" },
-        });
-      }
-
-      const query = await this.client.databases.query({
-        database_id: dbId,
-        filter: { and: filters },
-        page_size: 1, // Should be exactly one AAR per Run
+      const page: any = await this.client.pages.retrieve({
+        page_id: params.runId,
       });
-
-      if (query.results.length === 0) {
-        return null;
-      }
-
-      const page = query.results[0] as any;
       const props = page.properties || {};
       const titleProp =
-        props["AAR Title"]?.title?.[0]?.plain_text ||
+        props["Run ID"]?.title?.[0]?.plain_text ||
         props.Title?.title?.[0]?.plain_text ||
         props.Name?.title?.[0]?.plain_text ||
         "Untitled AAR";
       const statusProp =
         props.Status?.select?.name || props.Status?.status?.name || "Unknown";
-      const summary =
-        props.Summary?.rich_text?.[0]?.plain_text ||
-        props.summary?.rich_text?.[0]?.plain_text ||
-        null;
-      const outcomes =
-        props.Outcomes?.rich_text?.[0]?.plain_text ||
-        props.outcomes?.rich_text?.[0]?.plain_text ||
-        null;
-      const lessons =
-        props.Lessons?.rich_text?.[0]?.plain_text ||
-        props.lessons?.rich_text?.[0]?.plain_text ||
+      const notes =
+        props["Output Payload / Body"]?.rich_text?.[0]?.plain_text ||
+        props["Output Summary"]?.rich_text?.[0]?.plain_text ||
         null;
       const missionId = props.Mission?.relation?.[0]?.id || null;
 
@@ -2600,9 +2388,9 @@ export class NotionClient {
         id: page.id,
         title: titleProp,
         status: statusProp,
-        summary,
-        outcomes,
-        lessons,
+        summary: notes,
+        outcomes: null,
+        lessons: null,
         runId: params.runId,
         missionId,
         url: (page as any).url || "",
@@ -2841,7 +2629,7 @@ export class NotionClient {
         const existing = await this.client.databases.query({
           database_id: dbId,
           filter: {
-            property: "Sync Key",
+            property: "SYNC_KEY",
             rich_text: { equals: event.sync_key },
           },
         });
@@ -2871,61 +2659,41 @@ export class NotionClient {
         title = `${event.event_type}`;
       }
 
-      // Map legacy event_type codes to new canonical EventType select values
-      const eventTypeMap: Record<string, string> = {
-        MISSION_CREATED: "MissionCreated",
-        MISSION_UPDATED: "MissionUpdated",
-        TASK_CREATED: "MissionUpdated",
-        TASK_UPDATED: "MissionUpdated",
-        RUN_STARTED: "RunStarted",
-        RUN_ENDED: "RunCompleted",
-        AAR_CREATED: "AARLogged",
-        AAR_UPDATED: "AARLogged",
-        SystemEvent: "SystemEvent",
-        ManualEntry: "ManualEntry",
-      };
-      const canonicalEventType = eventType
-        ? (eventTypeMap[eventType] || eventType)
-        : undefined;
-
-      // Infer Channel from event type
-      const channelMap: Record<string, string> = {
-        MissionCreated: "Mission",
-        MissionUpdated: "Mission",
-        RunStarted: "Mission",
-        RunCompleted: "Mission",
-        AARLogged: "Mission",
-        SpecDrafted: "Canon",
-        SpecPromotedToCanon: "Canon",
-        PolicyCreated: "Governance",
-        ApprovalGranted: "Governance",
-        ApprovalRejected: "Governance",
-        SystemEvent: "System",
-        ManualEntry: "System",
-      };
-      const channel = canonicalEventType ? (channelMap[canonicalEventType] || "System") : "System";
+      const timelineType = eventType && /MISSION|TASK|RUN|AAR/i.test(eventType)
+        ? "Mission Event"
+        : "System Change";
+      const timelineEventType = eventType === "MISSION_UPDATED" ? "MISSION_UPDATED" : undefined;
 
       const properties: Record<string, any> = {
-        // [IN] Timeline canonical schema
-        Summary: { title: [{ text: { content: title } }] },
-        Timestamp: { date: { start: timestamp } },
-        Channel: { select: { name: channel } },
-        "Event Type": canonicalEventType ? { select: { name: canonicalEventType } } : undefined,
-        Entity: event.entity
-          ? { multi_select: [{ name: event.entity }] }
+        // [MIND] Timeline live schema
+        Name: { title: [{ text: { content: title } }] },
+        Summary: title
+          ? { rich_text: [{ text: { content: title } }] }
           : undefined,
-        "Sync Key": event.sync_key
+        Timestamp: { date: { start: timestamp } },
+        Date: { date: { start: timestamp } },
+        Type: { select: { name: timelineType } },
+        "Event Type": timelineEventType ? { select: { name: timelineEventType } } : undefined,
+        Entity: event.entity
+          ? { select: { name: event.entity } }
+          : undefined,
+        "SYNC_KEY": event.sync_key
           ? { rich_text: [{ text: { content: event.sync_key } }] }
           : undefined,
-        "Payload Ref": event.link ? { url: event.link } : undefined,
-        "Source Surface": event.source
-          ? { select: { name: event.source } }
-          : { select: { name: "MCP" } },
+        Link: event.link ? { url: event.link } : undefined,
+        Source: event.source
+          ? { rich_text: [{ text: { content: event.source } }] }
+          : { rich_text: [{ text: { content: "MCP" } }] },
+        "External Refs": event.external_refs
+          ? { rich_text: [{ text: { content: event.external_refs } }] }
+          : undefined,
         Notes: event.notes
           ? { rich_text: [{ text: { content: event.notes } }] }
           : undefined,
-        // â†’ Mission relation
-        "â†’ Mission": event.missionId
+        Entry: event.summary
+          ? { rich_text: [{ text: { content: event.summary } }] }
+          : undefined,
+        Mission: event.missionId
           ? { relation: [{ id: event.missionId }] }
           : undefined,
       };
@@ -3043,20 +2811,17 @@ export class NotionClient {
             props.Name?.title?.[0]?.plain_text || "Untitled",
           type,
           event_type: type,
-          missionId: props["â†’ Mission"]?.relation?.[0]?.id ||
-            props.Mission?.relation?.[0]?.id || null,
+          missionId: props.Mission?.relation?.[0]?.id || null,
           tags: (props.Tags?.multi_select || []).map((tag: any) => tag.name),
-          source: props["Source Surface"]?.select?.name ||
-            props.Source?.rich_text?.[0]?.plain_text || null,
+          source: props.Source?.rich_text?.[0]?.plain_text || null,
           notes: props.Notes?.rich_text?.[0]?.plain_text || null,
           summary: props["Summary"]?.title?.[0]?.plain_text || entry || null,
           timestamp,
           date: timestamp,
           end_date: props.Date?.date?.end || null,
-          external_refs: props["Payload Ref"]?.url ||
-            props["External Refs"]?.rich_text?.[0]?.plain_text || null,
+          external_refs: props["External Refs"]?.rich_text?.[0]?.plain_text || null,
           actor: actor ? { id: actor.id, name: actor.name, avatar_url: actor.avatar_url } : null,
-          link: props["Payload Ref"]?.url || null,
+          link: props.Link?.url || null,
           last_edited_time: page.last_edited_time,
         };
       });
@@ -4720,7 +4485,7 @@ export class NotionClient {
           status: p["Status"]?.select?.name || null,
           pod_owner: p["Pod Owner"]?.select?.name || null,
           entity: (p["Entity"]?.multi_select || []).map((e: any) => e.name),
-          sync_key: p["Sync Key"]?.rich_text?.[0]?.plain_text || null,
+          sync_key: p["SYNC_KEY"]?.rich_text?.[0]?.plain_text || null,
           doc_link: p["Doc Link"]?.url || null,
           notion_url: page.url,
           last_edited_time: page.last_edited_time,
@@ -4760,7 +4525,7 @@ export class NotionClient {
       if (data.status) properties["Status"] = { select: { name: data.status } };
       if (data.pod_owner) properties["Pod Owner"] = { select: { name: data.pod_owner } };
       if (data.entity?.length) properties["Entity"] = { multi_select: data.entity.map((e) => ({ name: e })) };
-      if (data.sync_key) properties["Sync Key"] = { rich_text: [{ text: { content: data.sync_key } }] };
+      if (data.sync_key) properties["SYNC_KEY"] = { rich_text: [{ text: { content: data.sync_key } }] };
       if (data.doc_link) properties["Doc Link"] = { url: data.doc_link };
       if (data.acceptance_tests) properties["Acceptance Tests"] = { rich_text: [{ text: { content: data.acceptance_tests } }] };
 
@@ -5100,6 +4865,74 @@ export class NotionClient {
     }
   }
 
+  private _getMissionRunsDbId(operation: string) {
+    const dbId =
+      (this.config as any).NOTION_MISSION_RUNS_DB_ID ||
+      this.config.NOTION_DB_RUNS_AARS;
+    if (!dbId) {
+      throw new MCPError(
+        ErrorCodes.CONFIG_ERROR,
+        "Mission Runs database not configured",
+        { operation }
+      );
+    }
+    return dbId;
+  }
+
+  private async _resolveSelectOptionName(
+    dbId: string,
+    propertyName: string,
+    candidates: string[]
+  ): Promise<string | null> {
+    try {
+      const dbSchema = await this.client.databases.retrieve({ database_id: dbId });
+      const property = (dbSchema as any).properties?.[propertyName];
+      const optionNames = Array.isArray(property?.select?.options)
+        ? property.select.options.map((option: any) => String(option.name))
+        : Array.isArray(property?.status?.options)
+          ? property.status.options.map((option: any) => String(option.name))
+          : Array.isArray(property?.options)
+            ? property.options.map((option: any) => String(option.name))
+            : [];
+
+      for (const candidate of candidates) {
+        if (optionNames.includes(candidate)) return candidate;
+      }
+      return optionNames[0] || null;
+    } catch (error) {
+      logger.warn("Failed to resolve select option from schema", {
+        dbId,
+        propertyName,
+        error: String(error),
+      });
+      return null;
+    }
+  }
+
+  private _mapMissionRunStatusForAAR(status: string) {
+    switch (status) {
+      case "Draft":
+      case "Proposed":
+      case "Queued":
+        return "Queued";
+      case "In Progress":
+      case "Review":
+        return "Review";
+      case "Complete":
+      case "Approved":
+        return "Approved";
+      case "Needs Follow-up":
+      case "Failed":
+        return "Failed";
+      case "Archived":
+        return "Archived";
+      case "Cancelled":
+        return "Cancelled";
+      default:
+        return "Review";
+    }
+  }
+
   /**
    * Guardrail: Validates that a database ID belongs to the canonical set.
    * Explicitly rejects writes to non-canonical databases.
@@ -5111,6 +4944,7 @@ export class NotionClient {
       (this.config as any).NOTION_TIMELINE_DB_ID,
       (this.config as any).NOTION_MISSIONS_DB_ID,
       (this.config as any).NOTION_MISSION_RUNS_DB_ID,
+      (this.config as any).NOTION_AAR_DB_ID,
       (this.config as any).NOTION_SPECS_DB_ID,
       (this.config as any).NOTION_CANON_REGISTRY_DB_ID,
       (this.config as any).NOTION_POLICIES_DB_ID,
