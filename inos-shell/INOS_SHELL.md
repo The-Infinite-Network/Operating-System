@@ -227,7 +227,7 @@ nullkode-apps/inos-shell/
 
 ## API & MCP Integration
 
-INOS Shell never calls Notion directly. All external data goes through the MCP server over HTTP. Preferred local URL is `http://localhost:3002`, with `3003/3004` as valid fallback ports. The shell can also use an override from `localStorage` or `VITE_MCP_BASE_URL`.
+INOS Shell never calls Notion directly. All external data goes through the MCP server over HTTP. The preferred browser-facing local path is `/mcp` on `http://localhost:5173`, proxied to the MCP backend on `http://localhost:3002`. The shell can also use an override from `localStorage` or `VITE_MCP_BASE_URL`.
 
 ### HTTP Contract
 
@@ -571,7 +571,7 @@ Mission and task cards arranged in status columns. Supports:
 
 | Variable                   | Default                 | Purpose                                                                         |
 | -------------------------- | ----------------------- | ------------------------------------------------------------------------------- |
-| `VITE_MCP_BASE_URL`        | `http://localhost:3002` | Preferred MCP server base URL. Local startup may fall back to `3003` or `3004`. |
+| `VITE_MCP_BASE_URL`        | `/mcp` | Preferred shell-facing MCP base path. In local dev this proxies to the MCP backend. |
 | `VITE_INOS_API_ENDPOINT`   | â€”                     | INOS API endpoint                                                               |
 | `VITE_NOTION_API_ENDPOINT` | â€”                     | Notion API endpoint                                                             |
 

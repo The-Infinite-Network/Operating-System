@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { mcpClient, MCPMission, MCPTask } from "../../services/mcpClient";
+import { api } from "../../api";
 import type { Mission, Task } from "../../types/operations";
 
-const MISSION_COLUMNS = ["Planning", "Active", "Blocked", "Complete"];
-const TASK_COLUMNS = ["Backlog", "Next", "Doing", "Blocked", "Done"];
+const MISSION_COLUMNS = ["Planning", "Active", "Blocked", "Complete"] as const;
 
 function mapMissionStatus(status?: string | null) {
   if (!status) return "Planning";
@@ -14,293 +13,178 @@ function mapMissionStatus(status?: string | null) {
   return "Planning";
 }
 
-function mapTaskStatus(status?: string | null) {
-  if (!status) return "Backlog";
-  const normalized = status.toLowerCase();
-  if (["doing", "in progress", "active"].includes(normalized)) return "Doing";
-  if (["blocked"].includes(normalized)) return "Blocked";
-  if (["done", "complete"].includes(normalized)) return "Done";
-  if (["next"].includes(normalized)) return "Next";
-  return "Backlog";
+function mapPriority(priority?: number | string | null) {
+  if (typeof priority === "number") return `P${priority}`;
+  return priority || "P2";
 }
 
 export default function WarRoom() {
   const [missions, setMissions] = useState<Mission[]>([]);
+  const [selectedMissionId, setSelectedMissionId] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [runs, setRuns] = useState<any[]>([]);
-  const [filter, setFilter] = useState({
-    entity: "",
-    owner: "",
-    priority: "",
-    status: "",
-    tag: "",
-    needsGate: false,
-  });
+  const [loadingTasks, setLoadingTasks] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [createMission, setCreateMission] = useState({
     title: "",
-    description: "",
-    objective: "",
-    priority: "P2",
+    status: "Planning",
   });
   const [createTask, setCreateTask] = useState({
+    missionId: "",
     title: "",
-    missionId: "",
+    status: "Backlog",
   });
-  const [logUpdate, setLogUpdate] = useState({
-    missionId: "",
-    taskId: "",
-    runId: "",
-    note: "",
-  });
-  const [blocked, setBlocked] = useState({
-    missionId: "",
-    taskId: "",
-    reason: "",
-    gate: "",
-  });
-  const [runMissionId, setRunMissionId] = useState("");
 
-  const loadData = async () => {
-    const missionRows = await mcpClient.missions.list({ limit: 100 });
-    const taskRows = await mcpClient.tasks.list({ limit: 150 });
-    setMissions(
-      missionRows.map((m: MCPMission) => ({
-        id: m.id,
-        title: m.title || m.name || "Untitled",
-        status: m.status || "Planning",
-        priority: m.priority,
-        owner: m.owner,
-        entityId: m.entity,
-        tags: m.guild ? [m.guild] : [],
-        updatedAt: m.last_edited_time,
-      }))
-    );
-    setTasks(
-      taskRows.map((t: MCPTask) => ({
-        id: t.id,
-        title: t.title || "Untitled",
-        status: t.status ?? null,
-        priority: t.priority,
-        owner: t.owner,
-        missionId: t.mission_id,
-        entityId: t.entity,
-        dueDate: t.due_date,
-        updatedAt: undefined,
-      }))
-    );
-  };
+  async function loadMissions() {
+    try {
+      setError(null);
+      const response = await api.missions.list(100);
+      setMissions(response.missions);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load missions");
+    }
+  }
+
+  async function loadTasks(missionId: string) {
+    if (!missionId) {
+      setTasks([]);
+      return;
+    }
+    try {
+      setLoadingTasks(true);
+      const response = await api.tasks.list(missionId);
+      setTasks(
+        response.tasks.map((task) => ({
+          id: task.id,
+          title: task.title,
+          status: task.status,
+          owner: task.owner,
+          dueDate: task.due_date,
+        })),
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load tasks");
+      setTasks([]);
+    } finally {
+      setLoadingTasks(false);
+    }
+  }
 
   useEffect(() => {
-    loadData();
+    loadMissions();
   }, []);
 
   useEffect(() => {
-    if (!runMissionId) return;
-    mcpClient
-      .runs.list({ missionId: runMissionId })
-      .then((res) => {
-        setRuns(res.data?.runs || (res as any)?.runs || []);
-      })
-      .catch(() => setRuns([]));
-  }, [runMissionId]);
+    if (!selectedMissionId && missions.length > 0) {
+      const firstMission = missions[0].id;
+      setSelectedMissionId(firstMission);
+      setCreateTask((prev) => ({ ...prev, missionId: firstMission }));
+      return;
+    }
+    if (selectedMissionId) {
+      loadTasks(selectedMissionId);
+    }
+  }, [selectedMissionId, missions]);
 
-  const filteredMissions = useMemo(() => {
-    return missions.filter((mission) => {
-      if (filter.entity && mission.entityId !== filter.entity) return false;
-      if (filter.owner && mission.owner !== filter.owner) return false;
-      if (filter.priority && mission.priority !== filter.priority) return false;
-      if (filter.status && mapMissionStatus(mission.status) !== filter.status)
-        return false;
-      if (filter.tag && !(mission.tags || []).includes(filter.tag)) return false;
-      return true;
-    });
-  }, [missions, filter]);
-
-  const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      if (filter.owner && task.owner !== filter.owner) return false;
-      if (filter.priority && `${task.priority}` !== filter.priority) return false;
-      if (filter.status && mapTaskStatus(task.status) !== filter.status)
-        return false;
-      return true;
-    });
-  }, [tasks, filter]);
+  const missionBoard = useMemo(() => {
+    return MISSION_COLUMNS.map((column) => ({
+      column,
+      items: missions.filter((mission) => mapMissionStatus(mission.status) === column),
+    }));
+  }, [missions]);
 
   const handleCreateMission = async () => {
     if (!createMission.title.trim()) return;
-    await mcpClient.missions.create({
-      mission_title: createMission.title,
-      mission_description: createMission.description || createMission.title,
-      mission_objective: createMission.objective || createMission.title,
-      priority: createMission.priority,
-      status: "Active",
-      source_system: "INOS",
-    } as any);
-    setCreateMission({ title: "", description: "", objective: "", priority: "P2" });
-    await loadData();
+    try {
+      await api.missions.upsert({
+        title: createMission.title.trim(),
+        status: createMission.status,
+      });
+      setCreateMission({ title: "", status: "Planning" });
+      await loadMissions();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create mission");
+    }
   };
 
   const handleCreateTask = async () => {
-    if (!createTask.title.trim() || !createTask.missionId) return;
-    await mcpClient.tasks.create({
-      missionId: createTask.missionId,
-      taskTitle: createTask.title,
-      status: "Next",
-      source_system: "INOS",
-    });
-    setCreateTask({ title: "", missionId: "" });
-    await loadData();
+    if (!createTask.missionId || !createTask.title.trim()) return;
+    try {
+      await api.tasks.create({
+        missionId: createTask.missionId,
+        title: createTask.title.trim(),
+        status: createTask.status,
+      });
+      setCreateTask((prev) => ({ ...prev, title: "" }));
+      if (createTask.missionId === selectedMissionId) {
+        await loadTasks(selectedMissionId);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create task");
+    }
   };
 
   const handleStartRun = async (missionId: string) => {
-    await mcpClient.runs.create({ missionId, runTitle: "Run Start" });
-    setRunMissionId(missionId);
-  };
-
-  const handleLogUpdate = async () => {
-    if (!logUpdate.note.trim()) return;
-    const syncKey = `war-update-${Date.now()}`;
-    await mcpClient.timeline.log({
-      title: "WAR Update",
-      source: "INOS",
-      notes: logUpdate.note,
-      sync_key: syncKey,
-      type: "WAR_UPDATE",
-    });
-    setLogUpdate({ missionId: "", taskId: "", runId: "", note: "" });
-  };
-
-  const handleBlocked = async () => {
-    if (!blocked.reason.trim()) return;
-    if (blocked.missionId) {
-      await mcpClient.missions.updateStatus({
-        missionId: blocked.missionId,
-        status: "Blocked",
-      });
+    try {
+      await api.runs.create({ missionId, runTitle: "WAR Run" });
+      await loadTasks(selectedMissionId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to start run");
     }
-    if (blocked.taskId) {
-      await mcpClient.tasks.update({
-        taskId: blocked.taskId,
-        status: "Blocked",
-        notes: blocked.reason,
-      });
-    }
-    await mcpClient.timeline.log({
-      title: "BLOCKED",
-      source: "INOS",
-      notes: `${blocked.reason}${blocked.gate ? ` | Gate: ${blocked.gate}` : ""}`,
-      sync_key: `blocked-${Date.now()}`,
-      type: "BLOCKED",
-    });
-    setBlocked({ missionId: "", taskId: "", reason: "", gate: "" });
-    await loadData();
   };
 
   return (
-    <div className="spine-page">
+    <div className="spine-page space-y-4">
       <div className="card p-4">
-        <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-          Filters
-        </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 mt-3">
-          <input
-            className="inos-input"
-            placeholder="Entity"
-            value={filter.entity}
-            onChange={(event) =>
-              setFilter((prev) => ({ ...prev, entity: event.target.value }))
-            }
-          />
-          <input
-            className="inos-input"
-            placeholder="Owner"
-            value={filter.owner}
-            onChange={(event) =>
-              setFilter((prev) => ({ ...prev, owner: event.target.value }))
-            }
-          />
-          <input
-            className="inos-input"
-            placeholder="Priority"
-            value={filter.priority}
-            onChange={(event) =>
-              setFilter((prev) => ({ ...prev, priority: event.target.value }))
-            }
-          />
-          <input
-            className="inos-input"
-            placeholder="Status"
-            value={filter.status}
-            onChange={(event) =>
-              setFilter((prev) => ({ ...prev, status: event.target.value }))
-            }
-          />
-          <input
-            className="inos-input"
-            placeholder="Tag"
-            value={filter.tag}
-            onChange={(event) =>
-              setFilter((prev) => ({ ...prev, tag: event.target.value }))
-            }
-          />
-          <label className="inos-chip flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={filter.needsGate}
-              onChange={(event) =>
-                setFilter((prev) => ({ ...prev, needsGate: event.target.checked }))
-              }
-            />
-            Needs Gate
-          </label>
+        <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">WAR Room</div>
+        <div className="mt-2 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-white">Mission and task control surface</h2>
+            <p className="mt-1 text-[12px] leading-5 text-inos-muted">
+              Single-shell operations view for live mission intake, task creation, and run start
+              against the current MCP runtime.
+            </p>
+          </div>
+          {error && (
+            <div className="rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+              {error}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="spine-grid mt-4">
+      <div className="grid gap-4 lg:grid-cols-2">
         <div className="card p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-            Create Mission
-          </div>
+          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">Create mission</div>
           <input
-            className="inos-input mt-2"
+            className="inos-input mt-3"
             placeholder="Mission title"
             value={createMission.title}
             onChange={(event) =>
               setCreateMission((prev) => ({ ...prev, title: event.target.value }))
             }
           />
-          <input
-            className="inos-input mt-2"
-            placeholder="Description"
-            value={createMission.description}
-            onChange={(event) =>
-              setCreateMission((prev) => ({
-                ...prev,
-                description: event.target.value,
-              }))
-            }
-          />
-          <input
-            className="inos-input mt-2"
-            placeholder="Objective"
-            value={createMission.objective}
-            onChange={(event) =>
-              setCreateMission((prev) => ({
-                ...prev,
-                objective: event.target.value,
-              }))
-            }
-          />
-          <button className="btn-primary mt-3" onClick={handleCreateMission}>
-            Create Mission
-          </button>
-        </div>
-        <div className="card p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-            Create Task
-          </div>
           <select
             className="inos-input mt-2"
+            value={createMission.status}
+            onChange={(event) =>
+              setCreateMission((prev) => ({ ...prev, status: event.target.value }))
+            }
+          >
+            {MISSION_COLUMNS.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+          <button className="btn-primary mt-3" onClick={handleCreateMission}>
+            Create mission
+          </button>
+        </div>
+
+        <div className="card p-4">
+          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">Create task</div>
+          <select
+            className="inos-input mt-3"
             value={createTask.missionId}
             onChange={(event) =>
               setCreateTask((prev) => ({ ...prev, missionId: event.target.value }))
@@ -321,104 +205,81 @@ export default function WarRoom() {
               setCreateTask((prev) => ({ ...prev, title: event.target.value }))
             }
           />
-          <button className="btn-primary mt-3" onClick={handleCreateTask}>
-            Create Task
-          </button>
-        </div>
-        <div className="card p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-            Log Update
-          </div>
-          <textarea
-            className="inos-input mt-2"
-            rows={3}
-            placeholder="Update note"
-            value={logUpdate.note}
-            onChange={(event) =>
-              setLogUpdate((prev) => ({ ...prev, note: event.target.value }))
-            }
-          />
-          <button className="btn-secondary mt-3" onClick={handleLogUpdate}>
-            Write Timeline Update
-          </button>
-        </div>
-      </div>
-
-      <div className="spine-grid mt-4">
-        <div className="card p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-            Mission Board
-          </div>
-          <div className="lane-grid">
-            {MISSION_COLUMNS.map((column) => (
-              <div key={column} className="inos-card p-3">
-                <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-                  {column}
-                </div>
-                {filteredMissions
-                  .filter((mission) => mapMissionStatus(mission.status) === column)
-                  .map((mission) => (
-                    <div key={mission.id} className="inos-card p-3 mt-2">
-                      <div className="text-sm font-semibold">{mission.title}</div>
-                      <div className="text-[11px] text-inos-muted">
-                        {mission.priority || "P2"} · {mission.owner || "Unassigned"}
-                      </div>
-                      <button
-                        className="btn-secondary mt-2"
-                        onClick={() => handleStartRun(mission.id)}
-                      >
-                        Start Run
-                      </button>
-                    </div>
-                  ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="card p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-            Task Board
-          </div>
-          <div className="lane-grid">
-            {TASK_COLUMNS.map((column) => (
-              <div key={column} className="inos-card p-3">
-                <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-                  {column}
-                </div>
-                {filteredTasks
-                  .filter((task) => mapTaskStatus(task.status) === column)
-                  .map((task) => (
-                    <div key={task.id} className="inos-card p-3 mt-2">
-                      <div className="text-sm font-semibold">{task.title}</div>
-                      <div className="text-[11px] text-inos-muted">
-                        {task.owner || "Unassigned"}
-                      </div>
-                      {task.missionId ? (
-                        <button
-                          className="btn-secondary mt-2"
-                          onClick={() => handleStartRun(task.missionId!)}
-                        >
-                          Start Run
-                        </button>
-                      ) : null}
-                    </div>
-                  ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="spine-grid mt-4">
-        <div className="card p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-            Runs Feed
-          </div>
           <select
             className="inos-input mt-2"
-            value={runMissionId}
-            onChange={(event) => setRunMissionId(event.target.value)}
+            value={createTask.status}
+            onChange={(event) =>
+              setCreateTask((prev) => ({ ...prev, status: event.target.value }))
+            }
+          >
+            <option value="Backlog">Backlog</option>
+            <option value="Next">Next</option>
+            <option value="Doing">Doing</option>
+            <option value="Blocked">Blocked</option>
+            <option value="Done">Done</option>
+          </select>
+          <button className="btn-primary mt-3" onClick={handleCreateTask}>
+            Create task
+          </button>
+        </div>
+      </div>
+
+      <div className="card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">Mission board</div>
+          <button className="btn-secondary" onClick={loadMissions}>
+            Refresh
+          </button>
+        </div>
+        <div className="lane-grid mt-4">
+          {missionBoard.map(({ column, items }) => (
+            <div key={column} className="inos-card p-3">
+              <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">{column}</div>
+              <div className="mt-3 space-y-2">
+                {items.length === 0 ? (
+                  <div className="text-[11px] text-inos-muted">No missions</div>
+                ) : (
+                  items.map((mission) => (
+                    <div key={mission.id} className="rounded-md border border-inos-border/70 bg-[#0f172a] p-3">
+                      <div className="text-sm font-semibold text-white">{mission.title}</div>
+                      <div className="mt-1 text-[11px] text-inos-muted">
+                        {mapPriority(mission.priority)} · {mission.owner || "Unassigned"}
+                      </div>
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          className="btn-secondary"
+                          onClick={() => {
+                            setSelectedMissionId(mission.id);
+                            setCreateTask((prev) => ({ ...prev, missionId: mission.id }));
+                          }}
+                        >
+                          View tasks
+                        </button>
+                        <button className="btn-secondary" onClick={() => handleStartRun(mission.id)}>
+                          Start run
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">Mission tasks</div>
+            <div className="mt-1 text-sm font-semibold text-white">
+              {missions.find((mission) => mission.id === selectedMissionId)?.title || "Select a mission"}
+            </div>
+          </div>
+          <select
+            className="inos-input max-w-[320px]"
+            value={selectedMissionId}
+            onChange={(event) => setSelectedMissionId(event.target.value)}
           >
             <option value="">Select mission</option>
             {missions.map((mission) => (
@@ -427,70 +288,27 @@ export default function WarRoom() {
               </option>
             ))}
           </select>
-          <div className="mt-3 space-y-2">
-            {runs.map((run: any) => (
-              <div key={run.id || run.runId} className="inos-card p-3">
-                <div className="text-sm font-semibold">
-                  {run.title || run.runTitle || "Run"}
-                </div>
-                <div className="text-[11px] text-inos-muted">
-                  {run.startedAt || run.start_time || "—"}
+        </div>
+        <div className="mt-4 space-y-2">
+          {loadingTasks ? (
+            <div className="text-[11px] text-inos-muted">Loading tasks…</div>
+          ) : tasks.length === 0 ? (
+            <div className="text-[11px] text-inos-muted">No tasks for this mission.</div>
+          ) : (
+            tasks.map((task) => (
+              <div key={task.id} className="rounded-md border border-inos-border/70 bg-[#0f172a] p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-semibold text-white">{task.title}</div>
+                    <div className="mt-1 text-[11px] text-inos-muted">
+                      {task.status || "Backlog"} · {task.owner || "Unassigned"}
+                    </div>
+                  </div>
+                  {task.dueDate && <div className="text-[11px] text-inos-muted">{task.dueDate}</div>}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-        <div className="card p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-            Mark Blocked
-          </div>
-          <select
-            className="inos-input mt-2"
-            value={blocked.missionId}
-            onChange={(event) =>
-              setBlocked((prev) => ({ ...prev, missionId: event.target.value }))
-            }
-          >
-            <option value="">Mission</option>
-            {missions.map((mission) => (
-              <option key={mission.id} value={mission.id}>
-                {mission.title}
-              </option>
-            ))}
-          </select>
-          <select
-            className="inos-input mt-2"
-            value={blocked.taskId}
-            onChange={(event) =>
-              setBlocked((prev) => ({ ...prev, taskId: event.target.value }))
-            }
-          >
-            <option value="">Task</option>
-            {tasks.map((task) => (
-              <option key={task.id} value={task.id}>
-                {task.title}
-              </option>
-            ))}
-          </select>
-          <input
-            className="inos-input mt-2"
-            placeholder="Blocker reason"
-            value={blocked.reason}
-            onChange={(event) =>
-              setBlocked((prev) => ({ ...prev, reason: event.target.value }))
-            }
-          />
-          <input
-            className="inos-input mt-2"
-            placeholder="Gate type (ARC/LAW/MCP)"
-            value={blocked.gate}
-            onChange={(event) =>
-              setBlocked((prev) => ({ ...prev, gate: event.target.value }))
-            }
-          />
-          <button className="btn-secondary mt-3" onClick={handleBlocked}>
-            Mark Blocked
-          </button>
+            ))
+          )}
         </div>
       </div>
     </div>

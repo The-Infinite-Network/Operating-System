@@ -5,7 +5,14 @@ Browser Shell for **INOS_E0** (Infinite Network OS, Epoch 0). Acts as the single
 ## Quick start
 
 ```powershell
-cd nullkode-apps/inos-shell
+cd C:\dev\The-Infinite-Network\Operating-System
+.\start-inos-clean.ps1
+```
+
+Shell-only manual start:
+
+```powershell
+cd C:\dev\The-Infinite-Network\Operating-System\inos-shell
 npm install
 npm run dev
 # open http://localhost:5173
@@ -23,7 +30,8 @@ npm run preview
 INOS Shell assumes:
 
 - Canonical MCP Notion HTTP server running locally (project: `mcp-notion`).
-- Preferred port is `http://localhost:3002`.
+- Preferred backend port is `http://localhost:3002`.
+- Preferred browser origin is `http://localhost:5173`.
 - If `3002` is occupied, local startup may fall back to `3003` or `3004`.
 - Core endpoints:
   - `GET /missions` – list missions from `[WAR] Missions`.
@@ -35,7 +43,7 @@ By default, the Shell points to:
 
 - `window.notionApiEndpoint`, if provided
 - `localStorage["inos_mcp_base_url"]`, if present
-- otherwise it probes `http://localhost:3002`, `3003`, then `3004`
+- otherwise it uses same-origin MCP proxy path `/mcp`
 
 You can override this at runtime via `window.notionApiEndpoint` or by setting `localStorage["inos_mcp_base_url"]`.
 
@@ -48,7 +56,18 @@ Basic local setup for mcp-notion:
    - Mission Run lookup is relation-only on the persisted `Mission` relation. `SYNC_KEY` is not a Mission lookup fallback.
    - `NOTION_DB_TASKS` is the approved Tasks surface.
 2. Set Vertex AI variables (`GCP_PROJECT_ID`, `GCP_REGION`, `VERTEX_MODEL`).
-3. Start the HTTP server:
+3. Start the clean consolidated launcher:
+
+   ```powershell
+   cd C:\dev\The-Infinite-Network\Operating-System
+   .\start-inos-clean.ps1
+   ```
+
+   This starts:
+   - `mcp-notion` in the background from the new repo path
+   - `inos-shell` on `http://localhost:5173`
+
+4. Manual MCP start, if needed:
 
    ```powershell
    cd C:\dev\The-Infinite-Network\Operating-System\mcp\mcp-notion
@@ -57,7 +76,7 @@ Basic local setup for mcp-notion:
    npm run start:clean
    ```
 
-4. Start INOS Shell (see Quick start above).
+5. Manual shell start (see Quick start above).
 
 ## Features (Epoch 0)
 
@@ -92,7 +111,7 @@ Key flows:
 
 ### MCP health check
 
-Use Settings → “Health Check + Resync” to ping `MCP_BASE_URL`. Preferred local URL is `http://localhost:3002`, with `3003/3004` as valid fallback ports.
+Use Settings → “Health Check + Resync” to ping `MCP_BASE_URL`. Default local shell-facing path is `/mcp`, which proxies to the MCP backend.
 
 ### Extend drills
 

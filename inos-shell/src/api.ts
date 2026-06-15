@@ -16,7 +16,7 @@ export const API_BASE =
   import.meta.env.VITE_INOS_API_ENDPOINT ||
   import.meta.env.VITE_NOTION_API_ENDPOINT ||
   import.meta.env.VITE_MCP_BASE_URL ||
-  "http://localhost:3002";
+  "/mcp";
 
 // New Node.js/TypeScript API layer
 export const NODE_API_BASE = "/api";

@@ -36,7 +36,8 @@ export default function VentureIntranetApp({ ventureId }: { ventureId: VentureId
 
   const apiEndpoint =
     (import.meta.env.VITE_INOS_API_ENDPOINT as string | undefined) ||
-    "http://localhost:3002";
+    (import.meta.env.VITE_MCP_BASE_URL as string | undefined) ||
+    "/mcp";
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {

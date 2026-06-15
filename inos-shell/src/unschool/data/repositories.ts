@@ -18,7 +18,7 @@ export const settingsRepo = {
     if (existing) return existing;
     const defaults: SyncSettings = {
       id: "settings",
-      mcpBaseUrl: "http://localhost:3002",
+      mcpBaseUrl: "/mcp",
       syncEnabled: false,
     };
     await unschoolDb.settings.put(defaults);
