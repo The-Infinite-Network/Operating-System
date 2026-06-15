@@ -4,11 +4,20 @@ import { ChevronDown } from "lucide-react";
 
 const tabs = [
   { label: "Home", to: "/home" },
-  { label: "Entities Map", to: "/foundation" },
-  { label: "Rooms", to: "/room/me" },
+  { label: "Foundation", to: "/foundation" },
+  { label: "My Room", to: "/room/me" },
+  { label: "Agents", to: "/agents" },
+  { label: "Guilds", to: "/guilds" },
+  { label: "Apps", to: "/apps" },
+  { label: "Small Brain", to: "/inbox" },
+  { label: "Logs", to: "/logs" },
 ];
 
-export default function TopHeader({ onOpenPOLELogger }: { onOpenPOLELogger: () => void }) {
+export default function TopHeader({
+  onOpenPOLELogger,
+}: {
+  onOpenPOLELogger: () => void;
+}) {
   const [isGuildsOpen, setIsGuildsOpen] = useState(false);
   const [isAgentsOpen, setIsAgentsOpen] = useState(false);
 
@@ -42,7 +51,6 @@ export default function TopHeader({ onOpenPOLELogger }: { onOpenPOLELogger: () =
           </NavLink>
         ))}
 
-        {/* Guilds Dropdown */}
         <div className="relative group">
           <button
             className="gh-tab flex items-center gap-1"
@@ -64,7 +72,6 @@ export default function TopHeader({ onOpenPOLELogger }: { onOpenPOLELogger: () =
           )}
         </div>
 
-        {/* Agents Dropdown */}
         <div className="relative group">
           <button
             className="gh-tab flex items-center gap-1"
@@ -81,20 +88,17 @@ export default function TopHeader({ onOpenPOLELogger }: { onOpenPOLELogger: () =
             >
               <NavLink to="/agents" className="block px-4 py-2 text-xs text-inos-muted hover:text-inos-accent hover:bg-white/5 rounded-lg">Active Roster</NavLink>
               <NavLink to="/team-ai-hq" className="block px-4 py-2 text-xs text-inos-muted hover:text-inos-accent hover:bg-white/5 rounded-lg">Agent Forge</NavLink>
+              <NavLink to="/apps/fulcrum" className="block px-4 py-2 text-xs text-inos-muted hover:text-inos-accent hover:bg-white/5 rounded-lg">FULCRUM</NavLink>
             </div>
           )}
         </div>
-
-        <NavLink to="/apps" className={({ isActive }) => `gh-tab ${isActive ? "active" : ""}`}>Apps</NavLink>
-        <NavLink to="/inbox" className={({ isActive }) => `gh-tab ${isActive ? "active" : ""}`}>Second Brain</NavLink>
-        <NavLink to="/unschool" className={({ isActive }) => `gh-tab ${isActive ? "active" : ""}`}>Unschool</NavLink>
       </nav>
 
       <div className="gh-profile">
-        <div className="gh-avatar">IN</div>
+        <div className="gh-avatar">L</div>
         <button className="gh-mode-pill" type="button">
           <span className="label">MODE</span>
-          <span>FAST</span>
+          <span>DEEP</span>
         </button>
         <div className="gh-sync-indicator">
           <span className="gh-sync-dot" />

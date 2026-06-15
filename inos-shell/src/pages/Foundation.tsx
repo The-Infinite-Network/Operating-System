@@ -85,9 +85,46 @@ export default function Foundation() {
 
   return (
     <div className="spine-page">
-      <div className="foundation-layout pb-8">
+      <div className="foundation-layout pb-8 space-y-6">
+        <section className="card p-5">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-4xl">
+              <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
+                Foundation Lock · Epoch 0
+              </div>
+              <h1 className="mt-2 text-2xl font-semibold text-white md:text-3xl">
+                Foundation Schema · INOS_E0
+              </h1>
+              <p className="mt-3 text-sm leading-6 text-inos-muted">
+                Canonical foundation entities, system layers, and live registry surfaces for the
+                current operating shell. This page absorbs the old foundation donor pattern while
+                staying attached to the single INOS runtime.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {["Sovereignty-first", "Time-native", "Extend-only", "Single localhost"].map((item) => (
+                  <span key={item} className="inos-pill">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="grid min-w-[260px] gap-3 sm:grid-cols-3 xl:w-[420px]">
+              <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3">
+                <div className="text-[10px] uppercase tracking-[0.18em] text-cyan-100/80">Epoch</div>
+                <div className="mt-1 text-xs font-semibold text-cyan-100">Epoch 0</div>
+              </div>
+              <div className="rounded-2xl border border-indigo-400/30 bg-indigo-400/10 px-4 py-3">
+                <div className="text-[10px] uppercase tracking-[0.18em] text-indigo-100/80">Version</div>
+                <div className="mt-1 text-xs font-semibold text-indigo-100">INOS_E0 v2.4</div>
+              </div>
+              <div className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3">
+                <div className="text-[10px] uppercase tracking-[0.18em] text-emerald-100/80">Status</div>
+                <div className="mt-1 text-xs font-semibold text-emerald-100">Foundation locked</div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        {/* Building Map: Layers (The Spine) */}
         <section className="card p-4">
           <div className="text-xs uppercase tracking-[0.2em] text-inos-muted mb-4">
             Network Spine (Building Map Epoch 0)
@@ -128,7 +165,6 @@ export default function Foundation() {
           </div>
         </section>
 
-        {/* Operating Pods section */}
         <section className="card p-4">
           <div className="text-xs uppercase tracking-[0.2em] text-inos-muted mb-4">
             Operating Pods (HQ Entities)
@@ -147,7 +183,6 @@ export default function Foundation() {
           </div>
         </section>
 
-        {/* Core Schema section */}
         <section className="card p-4">
           <div className="text-xs uppercase tracking-[0.2em] text-inos-muted mb-4">
             Data Schema & Interfaces
@@ -180,7 +215,6 @@ export default function Foundation() {
           </div>
         </section>
 
-        {/* Live Registry section */}
         <section className="card p-4">
           <div className="text-xs uppercase tracking-[0.2em] text-inos-muted mb-4">
             Network Registry (Live)

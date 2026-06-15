@@ -140,19 +140,35 @@ export default function RoomMe() {
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">
-      {/* -- ROOM HEADER -- */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold uppercase tracking-widest text-[#00f0ff] flex items-center gap-3">   
-            <span className="p-2 bg-[#00f0ff]/10 rounded text-[#00f0ff]"><Activity size={18} /></span>
-            My Room
-          </h1>
-          <p className="text-xs text-[#555] font-mono mt-2 uppercase">
-            OPERATOR: {user ? (user.displayName || user.email) : "ANONYMOUS"} // EPOCH 0
-          </p>
-        </div>
+      <div className="card p-5 mb-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+          <div className="max-w-4xl">
+            <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555]">
+              Room // Human Room // My Room
+            </div>
+            <h1 className="mt-2 flex items-center gap-3 text-2xl font-semibold text-white">
+              <span className="rounded-xl bg-[#00f0ff]/10 p-2 text-[#00f0ff]">
+                <Activity size={18} />
+              </span>
+              My Room · Proof of Living Engine
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-inos-muted">
+              Personal operating surface for mission context, shell log, Proof of Living,
+              timeline review, and local runtime posture.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {["Human scope", "PoLE v0.4", "Timeline-linked", "Training-aware"].map((pill) => (
+                <span key={pill} className="inos-pill">
+                  {pill}
+                </span>
+              ))}
+            </div>
+            <p className="mt-4 text-xs font-mono uppercase text-[#555]">
+              Operator: {user ? user.displayName || user.email : "Anonymous"} // Epoch 0
+            </p>
+          </div>
 
-        <div className="flex flex-col items-end gap-3">
+          <div className="flex flex-col items-end gap-3">
           <Link
             to="/provisioning?mode=edit"
             className="flex items-center gap-2 px-3 py-1.5 border border-[#1a1a1a] bg-[#080808] text-[9px] font-mono uppercase tracking-widest text-[#555] hover:text-[#00f0ff] hover:border-[#00f0ff]/30 transition-all rounded-sm"
@@ -179,8 +195,8 @@ export default function RoomMe() {
           )}
         </div>
       </div>
+      </div>
 
-      {/* -- MAIN CONTENT RENDERER -- */}
       {layoutMode === "custom" && customGrid ? (
         <div className="flex-1 grid grid-cols-12 gap-4 min-h-0 overflow-y-auto pr-2 scrollbar-hide">
           <div className="col-span-3 flex flex-col gap-4 h-full">
@@ -199,6 +215,48 @@ export default function RoomMe() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 flex-1 min-h-0">
           <div className="flex flex-col gap-6 overflow-y-auto pr-2 scrollbar-hide">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.2fr_1fr]">
+              <div className="bg-[#080808] border border-[#1a1a1a] p-5 rounded-sm">
+                <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4">
+                  Current Sync
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <div className="text-xs text-[#777]">Mission</div>
+                    <div className="mt-1 text-lg font-semibold text-white">No mission linked</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-[#777]">SYNC_KEY</div>
+                    <div className="mt-1 font-mono text-[#00f0ff]">E0-UZAMYD</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-[#777]">Run Profile</div>
+                    <div className="mt-1 font-semibold text-white">DEEP</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-[#777]">Time Budget</div>
+                    <div className="mt-1 font-semibold text-white">-</div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-[#080808] border border-[#1a1a1a] p-5 rounded-sm">
+                <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4">
+                  Navigation
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  <Link to="/foundation" className="rounded-xl border border-[#1f2937] bg-[#0d0d0d] px-4 py-3 text-sm text-white hover:border-[#00f0ff]/40">
+                    Open Foundation
+                  </Link>
+                  <Link to="/agents" className="rounded-xl border border-[#1f2937] bg-[#0d0d0d] px-4 py-3 text-sm text-white hover:border-[#00f0ff]/40">
+                    View Agents
+                  </Link>
+                  <Link to="/apps" className="rounded-xl border border-[#1f2937] bg-[#0d0d0d] px-4 py-3 text-sm text-white hover:border-[#00f0ff]/40">
+                    Open Apps
+                  </Link>
+                </div>
+              </div>
+            </div>
+
             {activeTab === "today" && (
               <div className="space-y-6">
                  <div className="grid grid-cols-3 gap-4">
@@ -347,9 +405,15 @@ export default function RoomMe() {
             </div>
 
             <div className="bg-[#080808] border border-[#1a1a1a] p-5 rounded-sm flex-1">
-              <h3 className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4">System Alerts</h3> 
-              <div className="space-y-3">
-                 <div className="flex gap-3 text-xs text-amber-400 p-2 bg-amber-400/5 border border-amber-400/20 rounded-sm">
+              <h3 className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4">System Plane · Shell Log</h3> 
+              <div className="space-y-3 text-xs">
+                 <div className="rounded-sm border border-[#1a1a1a] bg-[#0d0d0d] p-3 text-[#b8c7db]">
+                   <div><span className="text-white">[BOOT]</span> Infinite Network OS // Epoch 0 // Human Room online.</div>
+                 </div>
+                 <div className="rounded-sm border border-[#1a1a1a] bg-[#0d0d0d] p-3 text-[#b8c7db]">
+                   <div><span className="text-white">[SYNC]</span> Mode: local-only · PoLE storage: browser + timeline adapter.</div>
+                 </div>
+                 <div className="flex gap-3 text-xs text-amber-400 p-3 bg-amber-400/5 border border-amber-400/20 rounded-sm">
                    <AlertCircle size={14} className="shrink-0 mt-0.5" />
                    <span>Timeline sync operating in local-only mode. Database sync required.</span>
                  </div>

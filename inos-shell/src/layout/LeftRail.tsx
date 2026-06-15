@@ -1,186 +1,115 @@
 import { NavLink } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { ShellEntity, ShellRoom } from "./shellContext";
 
-const ENTITY_OPTIONS = ["Global", "IE", "FFC", "CNGI", "GGP"];
-const ROOM_OPTIONS = [
-  "Control Tower",
-  "Ops & Training",
-  "Governance Room",
-  "Command Center",
+const ACTIVE_TRAINS = [
+  {
+    code: "T1 · Protocol Setup",
+    owner: "ARC",
+    mode: "SWARM",
+    status: "Active",
+  },
+  {
+    code: "T2 · My Room",
+    owner: "TWIN",
+    mode: "LOCAL",
+    status: "Parked",
+  },
 ];
 
-const ENTITY_STORAGE_KEY = "inos_entity_context_v1";
-const ROOM_STORAGE_KEY = "inos_room_context_v1";
+type LeftRailProps = {
+  entity: ShellEntity;
+  room: ShellRoom;
+};
 
-export default function LeftRail() {
-  const [entity, setEntity] = useState(() => {
-    if (typeof window === "undefined") return ENTITY_OPTIONS[0];
-    return window.localStorage.getItem(ENTITY_STORAGE_KEY) || ENTITY_OPTIONS[0];
-  });
-  const [room, setRoom] = useState(() => {
-    if (typeof window === "undefined") return ROOM_OPTIONS[0];
-    return window.localStorage.getItem(ROOM_STORAGE_KEY) || ROOM_OPTIONS[0];
-  });
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(ENTITY_STORAGE_KEY, entity);
-    window.dispatchEvent(
-      new CustomEvent("inos-context-change", {
-        detail: { entity, room },
-      })
-    );
-  }, [entity]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(ROOM_STORAGE_KEY, room);
-    window.dispatchEvent(
-      new CustomEvent("inos-context-change", {
-        detail: { entity, room },
-      })
-    );
-  }, [room]);
+export default function LeftRail({ entity, room }: LeftRailProps) {
+  const activeCount = ACTIVE_TRAINS.filter((train) => train.status === "Active").length;
+  const activePercent = `${Math.max(20, Math.min(100, activeCount * 20))}%`;
 
   return (
-    <aside className="spine-rail" aria-label="Left Rail">
-      <div className="rail-section">
-        <div className="rail-title">Context</div>
-        <label className="rail-label" htmlFor="rail-entity">
-          Entity
-        </label>
-        <select
-          id="rail-entity"
-          className="rail-select"
-          value={entity}
-          onChange={(event) => setEntity(event.target.value)}
-        >
-          {ENTITY_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <label className="rail-label" htmlFor="rail-room">
-          Room
-        </label>
-        <select
-          id="rail-room"
-          className="rail-select"
-          value={room}
-          onChange={(event) => setRoom(event.target.value)}
-        >
-          {ROOM_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+    <aside className="switchyard-rail" aria-label="Switchyard">
+      <div className="sy-header">
+        <div className="sy-title-row">
+          <span className="sy-title">Switchyard</span>
+          <span className="sy-count">{activeCount}/5</span>
+        </div>
+        <div className="sy-progress">
+          <div className="sy-progress-fill" style={{ width: activePercent }} />
+        </div>
       </div>
 
       <div className="rail-section">
-        <div className="rail-title">Rooms</div>
+        <div className="rail-title">Current Scope</div>
+        <div className="rounded-2xl border border-[#22304a] bg-[#0a1222] p-4">
+          <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-[#6f86a8]">
+            Entity
+          </div>
+          <div className="mt-1 text-base font-semibold text-white">{entity}</div>
+          <div className="mt-3 text-[10px] font-mono uppercase tracking-[0.18em] text-[#6f86a8]">
+            Room
+          </div>
+          <div className="mt-1 text-sm font-semibold text-[#b8c7db]">{room}</div>
+        </div>
+      </div>
+
+      <div className="rail-section">
+        <div className="sy-section-label">Active Trains</div>
+        <div className="sy-train-list">
+          {ACTIVE_TRAINS.map((train) => (
+            <div
+              key={train.code}
+              className={`sy-train-card ${train.status === "Active" ? "active" : ""}`}
+            >
+              <div className="sy-train-top">
+                <span className="sy-train-code">{train.code}</span>
+                <div className="sy-train-status">
+                  <span className={`sy-status-dot sy-status-${train.status.replace(/\s/g, "")}`} />
+                </div>
+              </div>
+              <div className="sy-train-bottom">
+                <span className="sy-mini-meta">{train.owner}</span>
+                <span className="sy-owner-tag">{train.mode}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="sy-controls">
+          <NavLink to="/operations/war" className="btn-primary sy-start-btn">
+            Start Train
+          </NavLink>
+        </div>
+      </div>
+
+      <div className="rail-section">
+        <div className="rail-title">Core Apps</div>
         <nav className="rail-nav">
-          <NavLink
-            to="/front-door"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Intake Hub
+          <NavLink to="/home" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
+            Lead Console
           </NavLink>
-          <NavLink
-            to="/operations/war"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Operations
-          </NavLink>
-          <NavLink
-            to="/inbox"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Second Brain
-          </NavLink>
-          <NavLink
-            to="/tasks"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Tasks
-          </NavLink>
-          <NavLink
-            to="/room/me"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
+          <NavLink to="/room/me" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
             My Room
           </NavLink>
-          <NavLink
-            to="/foundation"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Entities Map
+          <NavLink to="/foundation" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
+            Foundation
           </NavLink>
-          <NavLink
-            to="/core"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            CORE
+          <NavLink to="/guilds" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
+            Guild Room
           </NavLink>
-          <NavLink
-            to="/agents"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Agent Roster
-          </NavLink>
-          <NavLink
-            to="/guilds"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Guild Directory
-          </NavLink>
-          <NavLink
-            to="/apps"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Apps
-          </NavLink>
-          <NavLink
-            to="/logs"
-            className={({ isActive }) =>
-              `rail-link ${isActive ? "rail-link-active" : ""}`
-            }
-          >
-            Global Timeline
+          <NavLink to="/logs" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
+            Timeline Viewer
           </NavLink>
         </nav>
       </div>
 
       <div className="rail-section">
-        <div className="rail-title">Apps</div>
+        <div className="rail-title">Runtime Surfaces</div>
         <NavLink
-          to="/unschool"
+          to="/apps/ie-intranet"
           className={({ isActive }) =>
             `rail-link ${isActive ? "rail-link-active" : ""}`
           }
         >
-          Unschool Ops
+          IE Intranet
         </NavLink>
         <NavLink
           to="/apps/ie-hq-spine"
@@ -191,58 +120,50 @@ export default function LeftRail() {
           IE HoldCo Spine
         </NavLink>
         <NavLink
-          to="/apps/ie-intranet"
+          to="/apps/fulcrum"
           className={({ isActive }) =>
             `rail-link ${isActive ? "rail-link-active" : ""}`
           }
         >
-          IE Intranet
+          FULCRUM
         </NavLink>
         <NavLink
-          to="/apps/ffc-intranet"
+          to="/inbox"
           className={({ isActive }) =>
             `rail-link ${isActive ? "rail-link-active" : ""}`
           }
         >
-          FFC / Fulcrum
+          Small Brain
         </NavLink>
         <NavLink
-          to="/apps/cngi-intranet"
+          to="/tasks"
           className={({ isActive }) =>
             `rail-link ${isActive ? "rail-link-active" : ""}`
           }
         >
-          CNGI Intranet
+          Tasks
         </NavLink>
         <NavLink
-          to="/apps/ggp-intranet"
+          to="/unschool"
           className={({ isActive }) =>
             `rail-link ${isActive ? "rail-link-active" : ""}`
           }
         >
-          GGP Intranet
+          Unschool
         </NavLink>
         <NavLink
-          to="/apps/timeline-viewer"
+          to="/apps"
           className={({ isActive }) =>
             `rail-link ${isActive ? "rail-link-active" : ""}`
           }
         >
-          Timeline Viewer
-        </NavLink>
-        <NavLink
-          to="/apps/db-sync"
-          className={({ isActive }) =>
-            `rail-link ${isActive ? "rail-link-active" : ""}`
-          }
-        >
-          Database Sync
+          App Directory
         </NavLink>
       </div>
 
       <div className="rail-footer">
         <div className="rail-footer-label">Epoch Spine</div>
-        <div className="rail-footer-value">INOS_E0 - Locked</div>
+        <div className="rail-footer-value">INOS_E0 · Extend-only</div>
       </div>
     </aside>
   );

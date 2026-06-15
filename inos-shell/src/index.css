@@ -753,7 +753,6 @@ body,
   border: 1px solid rgba(148, 163, 184, 0.5);
 }
 
-.badge-status.In\\ Flight,
 .badge-status.Active {
   background: rgba(22, 163, 74, 0.18);
   color: #bbf7d0;

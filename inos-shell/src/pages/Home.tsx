@@ -3,9 +3,7 @@ import {
   Activity,
   Database,
   Globe,
-  Settings,
   Shield,
-  UserSquare2,
   Users,
 } from "lucide-react";
 
@@ -17,11 +15,11 @@ const STATS = [
 ];
 
 const QUICK_LINKS = [
-  { id: "foundation", title: "Foundation", sub: "Schema · Epoch 0", icon: Database },
-  { id: "guilds", title: "Guilds", sub: "Network Forums", icon: Globe },
-  { id: "agents", title: "TEAM AI", sub: "Roster · Roles", icon: Users },
-  { id: "governance", title: "Governance", sub: "Rules · Commands", icon: Shield },
-  { id: "logs", title: "Logs", sub: "Action stream", icon: Activity },
+  { route: "/foundation", title: "Foundation", sub: "Schema · Epoch 0", icon: Database },
+  { route: "/guilds", title: "Guilds", sub: "Network Forums", icon: Globe },
+  { route: "/agents", title: "TEAM AI", sub: "Roster · Roles", icon: Users },
+  { route: "/operations/constraints", title: "Governance", sub: "Rules · Commands", icon: Shield },
+  { route: "/logs", title: "Logs", sub: "Action stream", icon: Activity },
 ];
 
 export default function Home() {
@@ -29,27 +27,73 @@ export default function Home() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <section className="bg-[#080808] border border-[#222] p-6 rounded-sm">
-        <div className="flex justify-between items-start mb-6">
+      <section className="card p-6">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <div className="text-[9px] font-mono tracking-[0.2em] text-[#555] uppercase">
-              Home · Operating Frame
+              Workspace · Infinite Network OS // Epoch 0
             </div>
-            <h2 className="text-xl font-bold mt-1">Epoch 0 · Infinite Network OS</h2>
-            <p className="text-xs text-[#777] mt-1">
-              At-a-glance: SYNC, trains, POLEs, and Timeline activity.
+            <h2 className="mt-2 text-3xl font-semibold text-white">Root Node · Infinite Network & Timeline</h2>
+            <p className="mt-3 max-w-4xl text-sm leading-6 text-inos-muted">
+              Epoch 0 operating shell for humans, agents, guilds, missions, PoLE, and the shared
+              Timeline. This surface carries the current runtime spine without splitting into
+              separate localhost apps.
             </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {["Humans · Agents · Guilds · Missions", "PoLE -> Time Credits", "Sovereign Snapshots", "Timeline Layer"].map((chip) => (
+                <span key={chip} className="inos-pill">
+                  {chip}
+                </span>
+              ))}
+            </div>
           </div>
-          <button className="px-3 py-1.5 border border-[#333] text-[10px] font-mono text-[#555] rounded hover:border-[#555] hover:text-white transition-all">
-            SEED DEMO
-          </button>
+
+          <div className="grid min-w-[260px] grid-cols-1 gap-3 md:grid-cols-3 xl:w-[420px]">
+            <div className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-emerald-100/80">Time-native</div>
+              <div className="mt-1 text-xs font-semibold text-emerald-100">Epoch spine stable</div>
+            </div>
+            <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-amber-100/80">Network-first</div>
+              <div className="mt-1 text-xs font-semibold text-amber-100">Shared rooms online</div>
+            </div>
+            <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-cyan-100/80">Control Layer</div>
+              <div className="mt-1 text-xs font-semibold text-cyan-100">Single-shell runtime</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="card p-6">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555]">
+              Lead Console
+            </div>
+            <h3 className="mt-1 text-lg font-semibold text-white">At-a-glance operational frame</h3>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate("/room/me")}
+              className="btn-secondary"
+            >
+              Return to My Room
+            </button>
+            <button
+              onClick={() => navigate("/provisioning?mode=edit")}
+              className="btn-secondary"
+            >
+              Change Environment
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           {STATS.map((s) => (
             <div
               key={s.label}
-              className="relative group overflow-hidden bg-gradient-to-br from-[#0a0a14]/95 to-[#05050a]/85 border border-indigo-900/30 p-4 rounded-sm"
+              className="inos-card relative overflow-hidden p-4"
             >
               <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/5 blur-2xl group-hover:bg-blue-500/10 transition-all" />
               <div className="text-[10px] font-mono text-[#555] mb-2 uppercase">{s.label}</div>
@@ -62,39 +106,12 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <button
-          onClick={() => navigate("/room/me")}
-          className="flex items-center justify-between gap-3 p-4 bg-[#080808] border border-[#00f0ff]/30 rounded-sm text-left hover:border-[#00f0ff] hover:bg-[#00f0ff]/5 transition-all group"
-        >
-          <div className="flex items-center gap-3">
-            <UserSquare2 size={18} className="text-[#00f0ff]" />
-            <div>
-              <div className="text-xs font-bold uppercase tracking-tight">Return to My Room</div>
-              <div className="text-[10px] text-[#555] mt-0.5">Operator workspace</div>
-            </div>
-          </div>
-        </button>
-        <button
-          onClick={() => navigate("/provisioning?mode=edit")}
-          className="flex items-center justify-between gap-3 p-4 bg-[#080808] border border-[#c9a227]/30 rounded-sm text-left hover:border-[#c9a227] hover:bg-[#c9a227]/5 transition-all group"
-        >
-          <div className="flex items-center gap-3">
-            <Settings size={18} className="text-[#c9a227]" />
-            <div>
-              <div className="text-xs font-bold uppercase tracking-tight">Change Environment</div>
-              <div className="text-[10px] text-[#555] mt-0.5">Layout and module config</div>
-            </div>
-          </div>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
         {QUICK_LINKS.map((link) => (
           <button
-            key={link.id}
-            onClick={() => navigate(`/${link.id}`)}
-            className="flex flex-col gap-2 p-4 bg-[#080808] border border-[#222] rounded-sm text-left hover:border-[#00f0ff]/50 hover:bg-[#00f0ff]/5 transition-all group"
+            key={link.route}
+            onClick={() => navigate(link.route)}
+            className="inos-card flex flex-col gap-2 p-4 text-left transition-all group hover:border-[#00f0ff]/50 hover:bg-[#00f0ff]/5"
           >
             <link.icon size={16} className="text-[#555] group-hover:text-[#00f0ff]" />
             <div>
@@ -103,10 +120,10 @@ export default function Home() {
             </div>
           </button>
         ))}
-      </div>
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6">
-        <section className="bg-[#080808] border border-[#222] p-5 rounded-sm">
+        <section className="card p-5">
           <div className="text-[9px] font-mono tracking-[0.2em] text-[#555] uppercase mb-4">
             Current SYNC
           </div>
@@ -126,7 +143,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-[#080808] border border-[#222] p-5 rounded-sm flex flex-col">
+        <section className="card p-5 flex flex-col">
           <div className="text-[9px] font-mono tracking-[0.2em] text-[#555] uppercase mb-4">
             Activity Stream
           </div>

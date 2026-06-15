@@ -61,6 +61,13 @@ export default function IeIntranetApp() {
               entity visibility, and internal operating context. This replaces the old separate
               venture-intranet localhost path for IE.
             </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {["Holdco runtime", "Entity map", "Venture routing", "Single-shell only"].map((pill) => (
+                <span key={pill} className="inos-pill">
+                  {pill}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:min-w-[440px]">
@@ -88,6 +95,26 @@ export default function IeIntranetApp() {
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_360px]">
         <div className="space-y-4">
+          <div className="card p-4">
+            <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
+              Maps & Registries
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {[
+                "Entity Map",
+                "Trust & Vehicle Map",
+                "Asset Registry",
+                "Agreements & Docs",
+                "Bank & Accounts",
+                "Ventures",
+              ].map((item) => (
+                <div key={item} className="rounded-2xl border border-[#22304a] bg-[#0a1222] px-4 py-3 text-sm text-white">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="grid gap-3 md:grid-cols-3">
             {controlCards.map((card) => {
               const Icon = card.icon;

@@ -88,6 +88,51 @@ async function main() {
     app.use("/tool", entitiesRouter);
     app.use("/tool", coreRouter);
     app.use("/tool", timelineRouter);
+    app.post("/tool/:toolName", async (req: Request, res: Response) => {
+      try {
+        const requestedName = String(req.params.toolName || "").trim();
+        const actualName = requestedName.replace(/_/g, ".");
+        const toolMethod = (tools as any)[actualName] || (tools as any)[requestedName];
+
+        if (!toolMethod || typeof toolMethod !== "function") {
+          return res.status(404).json({
+            ok: false,
+            error: {
+              code: "tool_not_found",
+              message: `Tool ${requestedName} not found`,
+            },
+          });
+        }
+
+        const payload =
+          req.body && typeof req.body === "object" && "params" in req.body
+            ? (req.body as { params?: unknown }).params
+            : req.body;
+
+        const data = await toolMethod.call(tools, payload);
+        return res.json({ ok: true, data });
+      } catch (error) {
+        if (error instanceof MCPError) {
+          return res.status(error.code === ErrorCodes.BAD_REQUEST ? 400 : 500).json({
+            ok: false,
+            error: {
+              code: error.code,
+              message: error.message,
+              details: error.details,
+            },
+          });
+        }
+
+        logger.error(`REST tool bridge failed for ${req.params.toolName}`, error);
+        return res.status(500).json({
+          ok: false,
+          error: {
+            code: ErrorCodes.INTERNAL_ERROR,
+            message: error instanceof Error ? error.message : "Unexpected error",
+          },
+        });
+      }
+    });
 
     app.get("/health", (req, res) =>
       res.json({
