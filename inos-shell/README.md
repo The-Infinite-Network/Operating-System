@@ -30,9 +30,9 @@ npm run preview
 INOS Shell assumes:
 
 - Canonical MCP Notion HTTP server running locally (project: `mcp-notion`).
-- Preferred backend port is `http://localhost:3002`.
+- Canonical MCP port is `http://localhost:3002`.
 - Preferred browser origin is `http://localhost:5173`.
-- If `3002` is occupied, local startup may fall back to `3003` or `3004`.
+- Clean launcher contract also boots the local Python API on `8000` and shell Node API on `3005`.
 - Core endpoints:
   - `GET /missions` – list missions from `[WAR] Missions`.
   - `PATCH /missions/:id/status` – update mission status.
@@ -51,7 +51,9 @@ You can override this at runtime via `window.notionApiEndpoint` or by setting `l
 
 Basic local setup for mcp-notion:
 
-1. In `C:\dev\The-Infinite-Network\Operating-System\mcp\mcp-notion\.env.local`, set your Notion keys and DB IDs (`NOTION_API_KEY`, `NOTION_DB_MISSIONS`, etc.).
+1. In `C:\dev\The-Infinite-Network\Operating-System\mcp\mcp-notion\.env.local`, set canonical non-secret runtime values and database IDs.
+   - Do **not** store `NOTION_API_KEY` in `.env.local`.
+   - Inject `NOTION_API_KEY` from the parent process, `-NotionApiKey`, or an explicitly approved `.env`.
    - `NOTION_DB_RUNS_AARS` and `NOTION_MISSION_RUNS_DB_ID` should point to the live Mission Runs surface when Mission Run tools are enabled.
    - Mission Run lookup is relation-only on the persisted `Mission` relation. `SYNC_KEY` is not a Mission lookup fallback.
    - `NOTION_DB_TASKS` is the approved Tasks surface.
@@ -63,8 +65,10 @@ Basic local setup for mcp-notion:
    .\start-inos-clean.ps1
    ```
 
-   This starts:
-   - `mcp-notion` in the background from the new repo path
+   This starts the clean single-stack runtime:
+   - Python API on `http://localhost:8000`
+   - shell Node API on `http://localhost:3005`
+   - `mcp-notion` on `http://localhost:3002`
    - `inos-shell` on `http://localhost:5173`
 
 4. Manual MCP start, if needed:
@@ -77,6 +81,9 @@ Basic local setup for mcp-notion:
    ```
 
 5. Manual shell start (see Quick start above).
+
+For the active launch inventory, use [RUNTIME_SURFACE_INVENTORY.md](../RUNTIME_SURFACE_INVENTORY.md).
+For legacy layout donor mapping and adoption intent, use [LEGACY_LAYOUT_CROSSWALK.md](../LEGACY_LAYOUT_CROSSWALK.md).
 
 ## Features (Epoch 0)
 

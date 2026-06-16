@@ -12,6 +12,10 @@ import {
   readStoredShellContext,
 } from "./shellContext";
 
+const RUNTIME_ENV_LABEL = "ENV: LOCAL";
+const RUNTIME_SURFACE_LABEL = "Clean Runtime";
+const RUNTIME_PRIMARY_URL = "localhost:5173";
+
 const routeMeta: Array<{
   match: (pathname: string) => boolean;
   root: string;
@@ -87,6 +91,9 @@ export default function AppSpine() {
   const navigate = useNavigate();
   const storedContext = useMemo(() => readStoredShellContext(), []);
   const [entity, setEntity] = useState<ShellEntity>(storedContext.entity);
+  const [lastEntityScope, setLastEntityScope] = useState<ShellEntity>(
+    storedContext.entity === "Global" ? "IE" : storedContext.entity,
+  );
   const [room, setRoom] = useState<ShellRoom>(storedContext.room);
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
@@ -95,6 +102,12 @@ export default function AppSpine() {
   useEffect(() => {
     persistShellContext(entity, room);
   }, [entity, room]);
+
+  useEffect(() => {
+    if (entity !== "Global") {
+      setLastEntityScope(entity);
+    }
+  }, [entity]);
 
   useEffect(() => {
     const inferredRoom = inferRoomFromPath(location.pathname);
@@ -106,6 +119,29 @@ export default function AppSpine() {
   const handleRoomChange = (nextRoom: ShellRoom) => {
     setRoom(nextRoom);
     navigate(mapRoomToRoute(nextRoom));
+  };
+
+  const handleScopeChange = (scope: "global" | "entity" | "personal") => {
+    if (scope === "global") {
+      setEntity("Global");
+      if (room !== "Control Tower") {
+        handleRoomChange("Control Tower");
+      }
+      return;
+    }
+
+    if (scope === "entity") {
+      const nextEntity = entity === "Global" ? lastEntityScope : entity;
+      setEntity(nextEntity);
+      if (room === "My Room") {
+        handleRoomChange("Control Tower");
+      } else {
+        navigate("/apps/ie-intranet");
+      }
+      return;
+    }
+
+    handleRoomChange("My Room");
   };
 
   const handleCopySyncKey = async () => {
@@ -151,16 +187,24 @@ export default function AppSpine() {
         <div className="context-center">{meta.root}</div>
         <div className="context-right">
           <div className="scope-toggle">
-            <button type="button" className={entity === "Global" ? "active" : ""}>
+            <button
+              type="button"
+              className={entity === "Global" ? "active" : ""}
+              onClick={() => handleScopeChange("global")}
+            >
               Global
             </button>
-            <button type="button" className={entity !== "Global" ? "active" : ""}>
+            <button
+              type="button"
+              className={entity !== "Global" ? "active" : ""}
+              onClick={() => handleScopeChange("entity")}
+            >
               Entity
             </button>
             <button
               type="button"
               className={location.pathname.startsWith("/room/") ? "active" : ""}
-              onClick={() => navigate("/room/me")}
+              onClick={() => handleScopeChange("personal")}
             >
               Personal
             </button>
@@ -240,8 +284,8 @@ export default function AppSpine() {
                   </div>
                   <div className="rounded-xl border border-[#22304a] bg-[#0a1222] p-3">
                     <div className="text-[10px] uppercase tracking-[0.18em] text-[#6f86a8]">Runtime</div>
-                    <div className="mt-1 text-white">localhost:5173 · shell primary</div>
-                    <div className="mt-1 text-[#9ca3af]">Single launcher, single localhost, MCP-backed runtime.</div>
+                    <div className="mt-1 text-white">{RUNTIME_PRIMARY_URL} · shell primary</div>
+                    <div className="mt-1 text-[#9ca3af]">Single launcher, single localhost, MCP-backed clean runtime.</div>
                   </div>
                 </div>
               </div>
@@ -259,7 +303,8 @@ export default function AppSpine() {
           <button type="button" className="btn-ghost" onClick={() => setIsInspectorOpen((value) => !value)}>
             Inspector
           </button>
-          <span className="sf-env-pill">ENV: SANDBOX</span>
+          <span className="sf-env-pill">{RUNTIME_ENV_LABEL}</span>
+          <span className="sf-env-pill">{RUNTIME_SURFACE_LABEL}</span>
         </div>
       </footer>
     </div>

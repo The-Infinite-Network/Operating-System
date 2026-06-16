@@ -121,7 +121,7 @@ export default function RoomMe() {
           <div className="bg-[#080808] border border-[#1a1a1a] p-4 rounded-sm h-full flex items-center">
             <div className="flex gap-3 text-xs text-amber-400 p-2 bg-amber-400/5 border border-amber-400/20 rounded-sm w-full">
               <AlertCircle size={14} className="shrink-0 mt-0.5" />
-              <span>Timeline sync operating in local-only mode. Database sync required.</span>
+              <span>Timeline adapter is active. Canon coverage depends on the configured live database surfaces.</span>
             </div>
           </div>
         );
@@ -415,7 +415,7 @@ export default function RoomMe() {
                  </div>
                  <div className="flex gap-3 text-xs text-amber-400 p-3 bg-amber-400/5 border border-amber-400/20 rounded-sm">
                    <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                   <span>Timeline sync operating in local-only mode. Database sync required.</span>
+                   <span>Timeline adapter is active. Canon coverage depends on the configured live database surfaces.</span>
                  </div>
               </div>
             </div>

@@ -22,10 +22,9 @@ All tools follow the consistent error shape: `{ code, message, context }`.
 
 ### Environment Variables
 
-Create a `.env.local` file for local runtime secrets and overrides:
+Create a `.env.local` file for local runtime values and non-secret overrides. Do not put a blank `NOTION_API_KEY=` line in `.env.local`, because the runtime loads that file with `override: true`.
 
 ```env
-NOTION_API_KEY=replace_with_notion_integration_token
 NOTION_DB_MISSIONS=a1b2c3d4e5f6g7h8...
 NOTION_DB_ARK_ASSETS=optional_ark_assets_db_id
 NOTION_DB_TIMELINE=optional_timeline_db_id
@@ -45,9 +44,11 @@ GOOGLE_SHARED_DRIVE_ID=YOUR_SHARED_DRIVE_ID
 CANON_ROOT_NAME=INFINITE_NETWORK_CANON
 ```
 
+Inject `NOTION_API_KEY` from the parent process or pass it via `-NotionApiKey` when using the clean runtime launcher. If a repo-local secret file is explicitly approved, put that token in `.env`, not `.env.local`.
+
 **Required:**
 
-- `NOTION_API_KEY` - Your Notion integration token
+- `NOTION_API_KEY` - Your Notion integration token, injected at launch or stored in an explicitly approved `.env`
 - `NOTION_DB_MISSIONS` - Database ID for TEAM AI missions
 
 **Optional:**
@@ -97,9 +98,24 @@ npm run start:clean
 This script:
 
 - requires the clean `Operating-System` repo path
-- requires `.env` or `.env.local` in that repo
+- requires `.env` or `.env.local` in that repo for canonical runtime values
 - builds `dist\index.js` if needed
+- rejects `NOTION_API_KEY` stored in `.env.local`
+- accepts `NOTION_API_KEY` from the parent process, `-NotionApiKey`, or an explicitly approved `.env`
 - starts `node .\dist\index.js` on port `3002` by default
+
+The expected top-level launcher for the clean local stack is:
+
+```powershell
+C:\dev\The-Infinite-Network\Operating-System\start-inos-clean.ps1
+```
+
+That launcher owns:
+
+- `inos-shell` on `5173`
+- shell Node API on `3005`
+- Python API on `8000`
+- `mcp-notion` on `3002`
 
 Do not launch the legacy runtime from `C:\dev\~devantigravity-playground\The-Infinite-Netowrk\mcp\mcp-notion`.
 
@@ -393,10 +409,10 @@ Env used by the smoke run:
 
 ### `NOTION_API_KEY not found`
 
-Ensure your `.env` file is in the project root and not listed in `.gitignore`. Run:
+Ensure `NOTION_API_KEY` is available from the parent process, `-NotionApiKey`, or an explicitly approved `.env` file. Do not leave a blank `NOTION_API_KEY=` line in `.env.local`. Inspect the effective source before launch:
 
 ```powershell
-cat .env
+Get-ChildItem .env, .env.local -ErrorAction SilentlyContinue
 ```
 
 ### `NOTION_DB_MISSIONS database ID is required`

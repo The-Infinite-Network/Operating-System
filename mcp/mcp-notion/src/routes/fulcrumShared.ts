@@ -120,6 +120,7 @@ export function buildFulcrumEnvelope(sourceLabel: string): FulcrumEnvelope {
       promotion_rule: "candidate -> review -> promotion -> supersede",
     },
     routing: {
+      FULCRUM: "Coordinate Fulcrum methodology work through #ffc-fulcrum-system; outputs remain candidate-only until ARC/ARK promotion.",
       TWIN: "Consume approved fields and route intent-level Fulcrum work.",
       CORE: "Handle executive synthesis, command translation, and operating oversight.",
       AIM: "Resolve routing ambiguity.",
@@ -137,6 +138,7 @@ export function buildFulcrumEnvelope(sourceLabel: string): FulcrumEnvelope {
       cap_id: "Assigned by Registry v2.0 on create",
       writes_enabled: false,
       promotion_enabled: false,
+      source_of_truth: "Notion",
       canonical_owner_repo: "TEAM-AI",
       runtime_adapter_repo: "Operating-System",
     },

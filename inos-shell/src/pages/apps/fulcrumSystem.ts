@@ -215,7 +215,7 @@ export const internalProofRegistry: InternalProof[] = [
     lane: "GGP",
     summary:
       "Preserved LDR work-product proof for operating infrastructure, governance, training, financial controls, and repeatable execution systems. The dispute lane is payment for work product, not public GGP brand operations.",
-    sourcePath: "Infinite-Earth/Infinite-Earth-Holdco/FFC/case-studies.html",
+    sourcePath: "Infinite-Earth/fulcrumfortressconsulting.com/src/case-studies.html",
     publicPolicy:
       "Do not publish on the public GGP placeholder site. Public FFC use requires explicit legal/brand approval and revised framing.",
   },

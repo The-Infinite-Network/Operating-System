@@ -10,7 +10,12 @@ interface POLEEntryProps {
 
 async function generateSyncKey(summary: string): Promise<string> {
     const now = new Date();
-    const timestamp = now.toISOString().replace(/[-:.]/g, "").slice(0, 14); // YYYYMMDDHHMMSS
+    const timestamp = now
+        .toISOString()
+        .replaceAll("-", "")
+        .replaceAll(":", "")
+        .replaceAll(".", "")
+        .slice(0, 14); // YYYYMMDDHHMMSS
     const raw = `${timestamp}-${summary}`;
     const encoder = new TextEncoder();
     const data = encoder.encode(raw);

@@ -17,7 +17,7 @@ $envLocalPath = Join-Path $repoRoot ".env.local"
 $existingEnvFiles = @($envPath, $envLocalPath) | Where-Object { Test-Path $_ }
 
 if ($existingEnvFiles.Count -eq 0) {
-  throw "Missing .env or .env.local in $repoRoot. Copy env.canonical.example or .env.example and set live values before launch."
+  throw "Missing .env or .env.local in $repoRoot. Copy env.canonical.example or .env.example and set canonical runtime values before launch."
 }
 
 if (-not (Test-Path (Join-Path $repoRoot "dist\\index.js"))) {
@@ -25,22 +25,36 @@ if (-not (Test-Path (Join-Path $repoRoot "dist\\index.js"))) {
   npm run build
 }
 
+$envLocalCarriesToken = $false
+if (Test-Path $envLocalPath) {
+  $envLocalCarriesToken = [bool](Select-String -Path $envLocalPath -Pattern '^\s*NOTION_API_KEY\s*=\s*.+$' -ErrorAction SilentlyContinue)
+}
+
+$envFileCarriesToken = $false
+if (Test-Path $envPath) {
+  $envFileCarriesToken = [bool](Select-String -Path $envPath -Pattern '^\s*NOTION_API_KEY\s*=\s*.+$' -ErrorAction SilentlyContinue)
+}
+
+$approvedFileToken = $envFileCarriesToken
+
 $hasProcessToken = -not [string]::IsNullOrWhiteSpace($env:NOTION_API_KEY)
 $hasParamToken = -not [string]::IsNullOrWhiteSpace($NotionApiKey)
+
+if ($envLocalCarriesToken) {
+  throw ".env.local should not store NOTION_API_KEY for the clean runtime. Keep non-secret canonical values in .env.local and inject NOTION_API_KEY via the parent process, -NotionApiKey, or an explicitly approved .env file."
+}
 
 if ($hasParamToken) {
   $env:NOTION_API_KEY = $NotionApiKey
 }
 
-$hasFileToken = [bool](Select-String -Path $existingEnvFiles -Pattern '^\s*NOTION_API_KEY\s*=\s*.+$' -ErrorAction SilentlyContinue)
-
-if (-not $hasProcessToken -and -not $hasParamToken -and -not $hasFileToken) {
-  throw "NOTION_API_KEY is not available. Set it in .env/.env.local, pass -NotionApiKey, or launch from a process that already has NOTION_API_KEY."
+if (-not $hasProcessToken -and -not $hasParamToken -and -not $approvedFileToken) {
+  throw "NOTION_API_KEY is not available. Inject it from the parent process, pass -NotionApiKey, or place it in .env if an approved local secret file is required."
 }
 
 $env:PORT = "$Port"
 
-Write-Host "[launch] token availability: param=$hasParamToken process=$hasProcessToken file=$hasFileToken" -ForegroundColor DarkCyan
+Write-Host "[launch] token availability: param=$hasParamToken process=$hasProcessToken approved_env_file=$approvedFileToken" -ForegroundColor DarkCyan
 Write-Host "[launch] Starting clean mcp-notion runtime from $repoRoot on port $Port" -ForegroundColor Cyan
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = "node"

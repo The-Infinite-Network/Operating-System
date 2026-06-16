@@ -73,8 +73,8 @@ export default function FulcrumCandidateApp() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
-            <span className="pill">Owner: TEAM-AI</span>
-            <span className="pill">Adapter: Operating-System</span>
+            <span className="pill">Canonical: TEAM-AI</span>
+            <span className="pill">Runtime: Operating-System</span>
             <span className="pill text-amber-300">Candidate Only</span>
           </div>
         </div>

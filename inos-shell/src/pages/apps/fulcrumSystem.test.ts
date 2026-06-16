@@ -54,7 +54,7 @@ describe("fulcrum system seed contract", () => {
         id: "ggp-operating-infrastructure-build",
         lane: "GGP",
         state: "internal",
-        sourcePath: "Infinite-Earth/Infinite-Earth-Holdco/FFC/case-studies.html",
+        sourcePath: "Infinite-Earth/fulcrumfortressconsulting.com/src/case-studies.html",
       }),
     ]);
     expect(internalProofRegistry[0].publicPolicy).toContain("Do not publish");

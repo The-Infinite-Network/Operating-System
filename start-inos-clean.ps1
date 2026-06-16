@@ -149,7 +149,7 @@ if (-not $ShellOnly) {
     throw "mcp-notion path not found: $mcpRoot"
   }
   if (-not (Test-Path $mcpEnv)) {
-    throw "Missing $mcpEnv. Set live MCP values before boot."
+    throw "Missing $mcpEnv. Set canonical non-secret MCP values before boot, then inject NOTION_API_KEY via the parent process, -NotionApiKey, or an approved .env file."
   }
 
   if (Test-PortListening -Port 3002) {

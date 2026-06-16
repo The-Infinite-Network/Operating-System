@@ -2,12 +2,13 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
+const RUNTIME_ENV_LABEL = "ENV: LOCAL";
+const RUNTIME_SYNC_LABEL = "Clean Runtime";
+
 const tabs = [
   { label: "Home", to: "/home" },
   { label: "Foundation", to: "/foundation" },
   { label: "My Room", to: "/room/me" },
-  { label: "Agents", to: "/agents" },
-  { label: "Guilds", to: "/guilds" },
   { label: "Apps", to: "/apps" },
   { label: "Small Brain", to: "/inbox" },
   { label: "Logs", to: "/logs" },
@@ -32,7 +33,7 @@ export default function TopHeader({
         </div>
         <div className="gh-env-pill" title="Local-only shell">
           <span className="gh-env-dot" />
-          <span>ENV: LOCAL</span>
+          <span>{RUNTIME_ENV_LABEL}</span>
         </div>
       </div>
 
@@ -102,7 +103,7 @@ export default function TopHeader({
         </button>
         <div className="gh-sync-indicator">
           <span className="gh-sync-dot" />
-          <span>Shell Ready</span>
+          <span>{RUNTIME_SYNC_LABEL}</span>
         </div>
         <button 
           onClick={onOpenPOLELogger}

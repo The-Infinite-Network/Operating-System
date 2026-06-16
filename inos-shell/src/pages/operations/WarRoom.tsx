@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../api";
-import type { Mission, Task } from "../../types/operations";
+import type { Mission } from "../../types";
+import type { Task } from "../../types/operations";
 
 const MISSION_COLUMNS = ["Planning", "Active", "Blocked", "Complete"] as const;
 
