@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { buildFulcrumEnvelope } from "./fulcrumShared.js";
+import { NotionClient } from "../client.js";
+import { MCPError, ErrorCodes } from "../errors.js";
 
 const router = Router();
+const notion = new NotionClient();
 
 router.post("/fulcrum/intake", async (req, res) => {
   const intakeMode = req.body?.raw_dialogue
@@ -66,6 +69,80 @@ router.post("/fulcrum/bundle", async (_req, res) => {
       json_state: envelope.json_state,
     },
   });
+});
+
+router.post("/fulcrum/capability-registry/schema", async (_req, res) => {
+  try {
+    const schema = await notion.getCapabilityRegistrySchema();
+    res.json({
+      ok: true,
+      data: schema,
+    });
+  } catch (error) {
+    const status =
+      error instanceof MCPError && error.code === ErrorCodes.CONFIG_ERROR ? 400 : 500;
+    res.status(status).json({
+      ok: false,
+      error: {
+        code: error instanceof MCPError ? error.code : ErrorCodes.INTERNAL_ERROR,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Capability Registry schema inspection failed",
+      },
+    });
+  }
+});
+
+router.post("/fulcrum/capability-registry/owner-agent", async (req, res) => {
+  try {
+    const pageId = String(req.body?.pageId || "").trim();
+    const newOwnerAgent = String(req.body?.newOwnerAgent || "").trim();
+    const expectedCurrentOwner =
+      req.body?.expectedCurrentOwner === undefined
+        ? undefined
+        : String(req.body.expectedCurrentOwner).trim();
+    const dryRun = req.body?.dryRun !== false;
+
+    if (!pageId || !newOwnerAgent) {
+      return res.status(400).json({
+        ok: false,
+        error: {
+          code: ErrorCodes.BAD_REQUEST,
+          message: "pageId and newOwnerAgent are required",
+        },
+      });
+    }
+
+    const result = await notion.updateCapabilityRegistryOwnerAgent({
+      pageId,
+      newOwnerAgent,
+      expectedCurrentOwner,
+      dryRun,
+    });
+
+    res.json({
+      ok: true,
+      data: result,
+    });
+  } catch (error) {
+    const status =
+      error instanceof MCPError &&
+      (error.code === ErrorCodes.BAD_REQUEST || error.code === ErrorCodes.CONFIG_ERROR)
+        ? 400
+        : 500;
+
+    res.status(status).json({
+      ok: false,
+      error: {
+        code: error instanceof MCPError ? error.code : ErrorCodes.INTERNAL_ERROR,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Capability Registry owner-agent mutation failed",
+      },
+    });
+  }
 });
 
 export default router;

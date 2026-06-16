@@ -4872,6 +4872,172 @@ export class NotionClient {
     }
   }
 
+  private _getCapabilityRegistryDbId(operation: string) {
+    const dbId =
+      (this.config as any).NOTION_CAPABILITY_REGISTRY_DB_ID ||
+      (this.config as any).NOTION_DB_CAPABILITY_REGISTRY;
+    if (!dbId) {
+      throw new MCPError(
+        ErrorCodes.CONFIG_ERROR,
+        "Capability Registry database not configured",
+        { operation }
+      );
+    }
+    return dbId;
+  }
+
+  private _extractSelectLikeOptions(property: any): string[] {
+    if (!property) return [];
+    if (Array.isArray(property?.select?.options)) {
+      return property.select.options.map((option: any) => String(option.name));
+    }
+    if (Array.isArray(property?.multi_select?.options)) {
+      return property.multi_select.options.map((option: any) => String(option.name));
+    }
+    if (Array.isArray(property?.status?.options)) {
+      return property.status.options.map((option: any) => String(option.name));
+    }
+    if (Array.isArray(property?.options)) {
+      return property.options.map((option: any) => String(option.name));
+    }
+    return [];
+  }
+
+  async getCapabilityRegistrySchema() {
+    const operation = "capability_registry.schema";
+    const dbId = this._getCapabilityRegistryDbId(operation);
+    this._validateCanonicalDb(dbId);
+
+    const schema = await this.client.databases.retrieve({ database_id: dbId });
+    const props = (schema as any).properties || {};
+
+    const ownerAgentProperty =
+      this._findPropByNames(props, [
+        "Owner Agent",
+        "Owner",
+        "OwnerAgent",
+        "Owner Pod",
+      ]) || null;
+
+    const titleProperty =
+      Object.entries(props).find(([, def]: any) => def?.type === "title")?.[0] || null;
+
+    const ownerPropertySchema = ownerAgentProperty ? props[ownerAgentProperty.name] : null;
+    const ownerOptions = this._extractSelectLikeOptions(ownerPropertySchema);
+
+    return {
+      db_id: dbId,
+      title_property: titleProperty,
+      owner_agent_property: ownerAgentProperty
+        ? {
+            name: ownerAgentProperty.name,
+            type: ownerAgentProperty.type,
+            options: ownerOptions,
+          }
+        : null,
+      fulcrum_supported: ownerOptions.includes("FULCRUM"),
+      property_names: Object.keys(props),
+    };
+  }
+
+  async updateCapabilityRegistryOwnerAgent(params: {
+    pageId: string;
+    newOwnerAgent: string;
+    expectedCurrentOwner?: string;
+    dryRun?: boolean;
+  }) {
+    const operation = "capability_registry.owner_agent";
+    const dbId = this._getCapabilityRegistryDbId(operation);
+    this._validateCanonicalDb(dbId);
+
+    const schema = await this.getCapabilityRegistrySchema();
+    if (!schema.owner_agent_property) {
+      throw new MCPError(
+        ErrorCodes.BAD_REQUEST,
+        "Capability Registry Owner Agent property was not detected in schema",
+        { operation, dbId }
+      );
+    }
+
+    const ownerPropertyName = schema.owner_agent_property.name;
+    const ownerPropertyType = schema.owner_agent_property.type;
+    const supportedOptions = schema.owner_agent_property.options;
+
+    const page = await this.client.pages.retrieve({ page_id: params.pageId });
+    const property = (page as any).properties?.[ownerPropertyName];
+
+    const currentOwner =
+      property?.select?.name ||
+      (Array.isArray(property?.multi_select)
+        ? property.multi_select.map((item: any) => item?.name).filter(Boolean).join(", ")
+        : null) ||
+      null;
+
+    const result = {
+      db_id: dbId,
+      page_id: params.pageId,
+      owner_agent_property: {
+        name: ownerPropertyName,
+        type: ownerPropertyType,
+        options: supportedOptions,
+      },
+      current_owner_agent: currentOwner,
+      requested_owner_agent: params.newOwnerAgent,
+      supported: supportedOptions.includes(params.newOwnerAgent),
+      dry_run: params.dryRun !== false,
+      updated: false,
+    };
+
+    if (!supportedOptions.includes(params.newOwnerAgent)) {
+      return {
+        ...result,
+        blocked: true,
+        reason: `Owner Agent option '${params.newOwnerAgent}' is not present in live schema`,
+      };
+    }
+
+    if (params.expectedCurrentOwner && params.expectedCurrentOwner !== currentOwner) {
+      return {
+        ...result,
+        blocked: true,
+        reason: `Expected current owner '${params.expectedCurrentOwner}' but found '${currentOwner ?? "none"}'`,
+      };
+    }
+
+    if (params.dryRun !== false) {
+      return {
+        ...result,
+        blocked: false,
+        ready: true,
+      };
+    }
+
+    const properties: Record<string, any> = {};
+    if (ownerPropertyType === "select" || ownerPropertyType === "status") {
+      properties[ownerPropertyName] = { select: { name: params.newOwnerAgent } };
+    } else if (ownerPropertyType === "multi_select") {
+      properties[ownerPropertyName] = { multi_select: [{ name: params.newOwnerAgent }] };
+    } else {
+      throw new MCPError(
+        ErrorCodes.BAD_REQUEST,
+        `Unsupported Owner Agent property type '${ownerPropertyType}'`,
+        { operation, ownerPropertyName, ownerPropertyType }
+      );
+    }
+
+    await this.client.pages.update({
+      page_id: params.pageId,
+      properties,
+    } as any);
+
+    return {
+      ...result,
+      blocked: false,
+      ready: true,
+      updated: true,
+    };
+  }
+
   private _getMissionRunsDbId(operation: string) {
     const dbId =
       (this.config as any).NOTION_MISSION_RUNS_DB_ID ||
@@ -4974,6 +5140,8 @@ export class NotionClient {
       this.config.NOTION_DB_LAW_DOCS,
       this.config.NOTION_DB_CLASS_KB,
       (this.config as any).NOTION_TASKS_DB_ID,
+      (this.config as any).NOTION_CAPABILITY_REGISTRY_DB_ID,
+      (this.config as any).NOTION_DB_CAPABILITY_REGISTRY,
     ].filter(Boolean);
 
     if (!canonicalDbs.includes(dbId)) {

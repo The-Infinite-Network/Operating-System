@@ -45,6 +45,7 @@ const envSchema = z.object({
   NOTION_DB_ROOMS: z.string().optional(),
   NOTION_DB_ARK_REGISTRY: z.string().optional(),
   NOTION_DB_POLE_EVENTS: z.string().optional(),
+  NOTION_DB_CAPABILITY_REGISTRY: z.string().optional(),
 
   // INOS Epoch 0 — Canonical Database IDs
   NOTION_IDENTITY_DB_ID: z.string().optional(),
@@ -58,6 +59,7 @@ const envSchema = z.object({
   NOTION_ARTIFACT_INDEX_DB_ID: z.string().optional(),
   NOTION_KNOWLEDGE_ARTICLES_DB_ID: z.string().optional(),
   NOTION_FOOD_INGREDIENTS_DB_ID: z.string().optional(),
+  NOTION_CAPABILITY_REGISTRY_DB_ID: z.string().optional(),
 
   // Legacy Alias Keys
   NOTION_TASKS_DB_ID: z.string().optional(),
@@ -150,7 +152,8 @@ function parseEnv(envSource: any): Config {
     NOTION_IDENTITY_DB_ID: "NOTION_DB_AGENTS",
     NOTION_CANON_REGISTRY_DB_ID: "NOTION_DB_ARK_REGISTRY",
     NOTION_KNOWLEDGE_ARTICLES_DB_ID: "NOTION_DB_CLASS_KB",
-    NOTION_POLICIES_DB_ID: "NOTION_DB_LAW_DOCS"
+    NOTION_POLICIES_DB_ID: "NOTION_DB_LAW_DOCS",
+    NOTION_CAPABILITY_REGISTRY_DB_ID: "NOTION_DB_CAPABILITY_REGISTRY"
   };
 
   Object.entries(mapping).forEach(([canonical, legacy]) => {

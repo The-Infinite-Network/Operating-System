@@ -9,6 +9,7 @@ The `mcp-notion` server exposes tools for:
 - **databases.list** – List Notion databases accessible to INOS_E0
 - **pages.get** – Retrieve a specific Notion page by ID
 - **missions.upsert** – Create or update mission documents in the TEAM AI missions database
+- **FULCRUM capability-registry inspection** – Verify live `Owner Agent` schema/options before attempting the FULCRUM owner flip
 
 All tools follow the consistent error shape: `{ code, message, context }`.
 
@@ -31,6 +32,7 @@ NOTION_DB_TIMELINE=optional_timeline_db_id
 NOTION_DB_INBOX=optional_inbox_db_id
 NOTION_DB_TASKS=approved_shared_tasks_db_id
 NOTION_DB_RUNS_AARS=live_mission_runs_db_id
+NOTION_DB_CAPABILITY_REGISTRY=optional_capability_registry_db_id
 PORT=3002
 NODE_ENV=development
 GEMINI_API_KEY=optional_ai_studio_key
@@ -58,6 +60,7 @@ Inject `NOTION_API_KEY` from the parent process or pass it via `-NotionApiKey` w
 - `NOTION_DB_ARK_ASSETS` - Asset registry for ARK seal logging
 - `NOTION_DB_TIMELINE` - Timeline / PoLE events database
 - `NOTION_DB_INBOX` - Inbox capture database
+- `NOTION_DB_CAPABILITY_REGISTRY` - Shared Capability Registry surface for live owner-agent schema inspection / guarded mutation
 - `PORT` - Server port (default: 3002)
 - `NODE_ENV` - Environment mode (default: development)
 - `GEMINI_API_KEY` - Gemini AI Studio API key (optional, takes priority if set)
@@ -144,6 +147,45 @@ docker-compose up
 ```
 
 ## Tools
+
+## FULCRUM Capability Registry Routes
+
+These routes exist to close the remaining `Owner Agent` verification gate without assuming schema support.
+
+### `POST /api/v1/fulcrum/capability-registry/schema`
+
+Returns:
+- configured Capability Registry DB id
+- detected `Owner Agent` property name/type
+- current property options
+- whether `FULCRUM` is already a supported live option
+
+This route is read-only.
+
+### `POST /api/v1/fulcrum/capability-registry/owner-agent`
+
+Guarded owner-agent inspection / mutation surface.
+
+Request body:
+
+```json
+{
+  "pageId": "notion_page_id",
+  "newOwnerAgent": "FULCRUM",
+  "expectedCurrentOwner": "TWIN",
+  "dryRun": true
+}
+```
+
+Behavior:
+- `dryRun: true` (default) inspects the live row + schema and reports whether the change is ready
+- `dryRun: false` performs the mutation only if:
+  - the Capability Registry DB is configured
+  - the `Owner Agent` property is detected
+  - the requested owner option exists in the live schema
+  - `expectedCurrentOwner`, when provided, matches the live row
+
+Use this route to prove readiness first. Do not assume `FULCRUM` is a valid live owner option until the schema response confirms it.
 
 ### databases.list
 
