@@ -187,6 +187,30 @@ Behavior:
 
 Use this route to prove readiness first. Do not assume `FULCRUM` is a valid live owner option until the schema response confirms it.
 
+### Capability Registry smoke path
+
+Use the scripted smoke path before any live owner flip:
+
+```powershell
+npm run smoke:fulcrum-capability-registry
+```
+
+Optional dry-run against a specific Capability Registry row:
+
+```powershell
+$env:FULCRUM_CAPABILITY_PAGE_ID = "your-notion-page-id"
+$env:FULCRUM_EXPECTED_CURRENT_OWNER = "TWIN"
+$env:FULCRUM_REQUESTED_OWNER = "FULCRUM"
+npm run smoke:fulcrum-capability-registry
+```
+
+The smoke script:
+- checks `/health`
+- calls `POST /api/v1/fulcrum/capability-registry/schema`
+- optionally calls `POST /api/v1/fulcrum/capability-registry/owner-agent` with `dryRun: true`
+
+This is the approved remote-safe verification path while the real Notion write remains gated.
+
 ### databases.list
 
 List all Notion databases accessible to this integration.

@@ -1,6 +1,7 @@
 param(
   [switch]$ShellOnly,
-  [switch]$VisibleMcp
+  [switch]$VisibleMcp,
+  [string]$SecretFile = "$env:USERPROFILE\.infinite-network\secrets\inos-runtime.json"
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,10 +18,77 @@ $nodeApiHealth = "http://127.0.0.1:3005/health"
 $nodeApiDisplayUrl = "http://localhost:3005/health"
 $mcpHealth = "http://127.0.0.1:3002/health"
 $mcpDisplayUrl = "http://localhost:3002/health"
+$mcpFulcrumSchemaUrl = "http://127.0.0.1:3002/api/v1/fulcrum/capability-registry/schema"
 $shellUrl = "http://localhost:5173"
 $shellHealth = "http://127.0.0.1:5173/"
 $shellEntry = Join-Path $shellRoot "node_modules\vite\bin\vite.js"
 $nodeExe = (Get-Command node -ErrorAction Stop).Source
+
+function Get-PrivateSecrets {
+  param([string]$Path)
+
+  if (-not (Test-Path $Path)) {
+    throw "Missing private secret file: $Path"
+  }
+
+  try {
+    $parsed = Get-Content -Raw -Path $Path | ConvertFrom-Json
+  } catch {
+    throw "Failed to parse private secret file '$Path'. Expected JSON object of key/value pairs."
+  }
+
+  if (-not $parsed) {
+    throw "Private secret file is empty: $Path"
+  }
+
+  $secretMap = @{}
+  foreach ($property in $parsed.PSObject.Properties) {
+    $key = [string]$property.Name
+    $value = if ($null -eq $property.Value) { "" } else { [string]$property.Value }
+    if ([string]::IsNullOrWhiteSpace($key)) {
+      continue
+    }
+    $secretMap[$key] = $value
+  }
+
+  if ($secretMap.Count -eq 0) {
+    throw "Private secret file is empty: $Path"
+  }
+
+  if (-not $secretMap.ContainsKey("NOTION_API_KEY") -or [string]::IsNullOrWhiteSpace($secretMap["NOTION_API_KEY"])) {
+    throw "Private secret file '$Path' must contain NOTION_API_KEY."
+  }
+
+  return $secretMap
+}
+
+function New-ProcessStartInfo {
+  param(
+    [string]$FilePath,
+    [string[]]$ArgumentList,
+    [string]$WorkingDirectory,
+    [bool]$Visible = $false,
+    [hashtable]$EnvironmentOverrides
+  )
+
+  $psi = New-Object System.Diagnostics.ProcessStartInfo
+  $psi.FileName = $FilePath
+  $psi.WorkingDirectory = $WorkingDirectory
+  $psi.UseShellExecute = $false
+  $psi.CreateNoWindow = -not $Visible
+
+  foreach ($argument in $ArgumentList) {
+    [void]$psi.ArgumentList.Add($argument)
+  }
+
+  if ($EnvironmentOverrides) {
+    foreach ($entry in $EnvironmentOverrides.GetEnumerator()) {
+      $psi.Environment[$entry.Key] = [string]$entry.Value
+    }
+  }
+
+  return $psi
+}
 
 function Test-HttpReady {
   param([string]$Url)
@@ -53,31 +121,124 @@ function Test-PortListening {
   return [bool](Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction SilentlyContinue)
 }
 
+function Get-ListeningProcessInfo {
+  param([int]$Port)
+
+  $conn = Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction SilentlyContinue | Select-Object -First 1
+  if (-not $conn) {
+    return $null
+  }
+
+  $ownerPid = $conn.OwningProcess
+  if (-not $ownerPid) {
+    return $null
+  }
+
+  return Get-CimInstance Win32_Process -Filter "ProcessId = $ownerPid" -ErrorAction SilentlyContinue
+}
+
+function Test-McpFulcrumSchemaRoute {
+  param([string]$Url)
+
+  try {
+    $response = Invoke-WebRequest -Uri $Url -Method Post -ContentType "application/json" -Body "{}" -UseBasicParsing -TimeoutSec 3
+    return $true
+  } catch {
+    $httpResponse = $_.Exception.Response
+    if ($httpResponse) {
+      try {
+        $statusCode = [int]$httpResponse.StatusCode
+      } catch {
+        $statusCode = $null
+      }
+
+      if ($statusCode -eq 404) {
+        return $false
+      }
+
+      if ($statusCode) {
+        return $true
+      }
+    }
+
+    return $false
+  }
+}
+
+function Restart-StaleMcpRuntime {
+  param([string]$RootPath)
+
+  $proc = Get-ListeningProcessInfo -Port 3002
+  if (-not $proc) {
+    return
+  }
+
+  $commandLine = [string]$proc.CommandLine
+  $isLocalMcpProcess =
+    $proc.Name -match '^node(\.exe)?$' -and (
+      $commandLine -match 'mcp-notion' -or
+      $commandLine -match 'dist\\index\.js' -or
+      $commandLine -match 'src\\index\.ts'
+    )
+
+  if (-not $isLocalMcpProcess) {
+    throw "Port 3002 is occupied by a process that does not look like the local mcp-notion runtime. ProcessId=$($proc.ProcessId) Name=$($proc.Name) CommandLine=$commandLine"
+  }
+
+  Write-Host "[3/4] Retiring stale MCP runtime on port 3002 (PID $($proc.ProcessId))..." -ForegroundColor Yellow
+  Stop-Process -Id $proc.ProcessId -Force -ErrorAction Stop
+
+  for ($i = 0; $i -lt 10; $i++) {
+    if (-not (Test-PortListening -Port 3002)) {
+      return
+    }
+    Start-Sleep -Milliseconds 500
+  }
+
+  throw "Stale MCP runtime on port 3002 did not exit cleanly after forced stop."
+}
+
 function Start-VisiblePowerShell {
-  param([string]$WorkingDirectory, [string]$Command)
-  Start-Process powershell -ArgumentList @(
+  param(
+    [string]$WorkingDirectory,
+    [string]$Command,
+    [hashtable]$EnvironmentOverrides
+  )
+
+  $psi = New-ProcessStartInfo -FilePath "powershell" -ArgumentList @(
     "-NoExit",
     "-ExecutionPolicy", "Bypass",
     "-Command", "Set-Location '$WorkingDirectory'; $Command"
-  ) -WorkingDirectory $WorkingDirectory
+  ) -WorkingDirectory $WorkingDirectory -Visible $true -EnvironmentOverrides $EnvironmentOverrides
+
+  [void][System.Diagnostics.Process]::Start($psi)
 }
 
 function Start-HiddenPowerShell {
-  param([string]$WorkingDirectory, [string]$Command)
-  Start-Process powershell -WindowStyle Hidden -ArgumentList @(
+  param(
+    [string]$WorkingDirectory,
+    [string]$Command,
+    [hashtable]$EnvironmentOverrides
+  )
+
+  $psi = New-ProcessStartInfo -FilePath "powershell" -ArgumentList @(
     "-ExecutionPolicy", "Bypass",
     "-Command", "Set-Location '$WorkingDirectory'; $Command"
-  ) -WorkingDirectory $WorkingDirectory
+  ) -WorkingDirectory $WorkingDirectory -EnvironmentOverrides $EnvironmentOverrides
+
+  [void][System.Diagnostics.Process]::Start($psi)
 }
 
 function Start-HiddenProcess {
   param(
     [string]$FilePath,
     [string[]]$ArgumentList,
-    [string]$WorkingDirectory
+    [string]$WorkingDirectory,
+    [hashtable]$EnvironmentOverrides
   )
 
-  Start-Process -FilePath $FilePath -ArgumentList $ArgumentList -WorkingDirectory $WorkingDirectory -WindowStyle Hidden
+  $psi = New-ProcessStartInfo -FilePath $FilePath -ArgumentList $ArgumentList -WorkingDirectory $WorkingDirectory -EnvironmentOverrides $EnvironmentOverrides
+  [void][System.Diagnostics.Process]::Start($psi)
 }
 
 if (-not (Test-Path $root)) {
@@ -104,6 +265,9 @@ if (-not (Test-Path $nodeExe)) {
 Write-Host "--- INOS CLEAN BOOT ---" -ForegroundColor Cyan
 Write-Host "[root] $root" -ForegroundColor DarkCyan
 
+$secretEnv = Get-PrivateSecrets -Path $SecretFile
+Write-Host "[secrets] Loaded private runtime secrets from $SecretFile" -ForegroundColor DarkCyan
+
 if (Test-PortListening -Port 8000) {
   if (Wait-HttpReady -Url $pythonHealth -Seconds 10) {
     Write-Host "[1/4] Python API already healthy at $pythonDisplayUrl" -ForegroundColor Green
@@ -114,7 +278,7 @@ if (Test-PortListening -Port 8000) {
   Write-Host "[1/4] Python API already healthy at $pythonDisplayUrl" -ForegroundColor Green
 } else {
   Write-Host "[1/4] Starting Python API on $pythonDisplayUrl ..." -ForegroundColor Gray
-  Start-HiddenProcess -FilePath $pythonExe -ArgumentList @("-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000") -WorkingDirectory $pythonApiRoot
+  Start-HiddenProcess -FilePath $pythonExe -ArgumentList @("-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000") -WorkingDirectory $pythonApiRoot -EnvironmentOverrides $secretEnv
 
   $pythonReady = Wait-HttpReady -Url $pythonHealth -Seconds 25
   if (-not $pythonReady) {
@@ -134,7 +298,7 @@ if (Test-PortListening -Port 3005) {
   Write-Host "[2/4] Node API already healthy at $nodeApiDisplayUrl" -ForegroundColor Green
 } else {
   Write-Host "[2/4] Starting Node API on $nodeApiDisplayUrl ..." -ForegroundColor Gray
-  Start-HiddenProcess -FilePath $nodeExe -ArgumentList @(".\server\index.mjs") -WorkingDirectory $shellRoot
+  Start-HiddenProcess -FilePath $nodeExe -ArgumentList @(".\server\index.mjs") -WorkingDirectory $shellRoot -EnvironmentOverrides $secretEnv
 
   $nodeApiReady = Wait-HttpReady -Url $nodeApiHealth -Seconds 20
   if (-not $nodeApiReady) {
@@ -149,24 +313,40 @@ if (-not $ShellOnly) {
     throw "mcp-notion path not found: $mcpRoot"
   }
   if (-not (Test-Path $mcpEnv)) {
-    throw "Missing $mcpEnv. Set canonical non-secret MCP values before boot, then inject NOTION_API_KEY via the parent process, -NotionApiKey, or an approved .env file."
+    throw "Missing $mcpEnv. Set canonical non-secret MCP values before boot. Secrets are loaded from the private machine-only file at $SecretFile."
   }
+
+  $shouldStartMcp = $false
 
   if (Test-PortListening -Port 3002) {
     if (Wait-HttpReady -Url $mcpHealth -Seconds 10) {
-      Write-Host "[3/4] MCP already healthy at $mcpDisplayUrl" -ForegroundColor Green
+      if (Test-McpFulcrumSchemaRoute -Url $mcpFulcrumSchemaUrl) {
+        Write-Host "[3/4] MCP already healthy at $mcpDisplayUrl" -ForegroundColor Green
+      } else {
+        Restart-StaleMcpRuntime -RootPath $mcpRoot
+        $shouldStartMcp = $true
+      }
     } else {
       throw "Port 3002 is already in use, but the MCP health endpoint is not ready at $mcpDisplayUrl."
     }
   } elseif (Test-HttpReady -Url $mcpHealth) {
-    Write-Host "[3/4] MCP already healthy at $mcpDisplayUrl" -ForegroundColor Green
+    if (Test-McpFulcrumSchemaRoute -Url $mcpFulcrumSchemaUrl) {
+      Write-Host "[3/4] MCP already healthy at $mcpDisplayUrl" -ForegroundColor Green
+    } else {
+      Restart-StaleMcpRuntime -RootPath $mcpRoot
+      $shouldStartMcp = $true
+    }
   } else {
+    $shouldStartMcp = $true
+  }
+
+  if ($shouldStartMcp) {
     Write-Host "[3/4] Starting mcp-notion clean runtime..." -ForegroundColor Gray
     $mcpCommand = ".\scripts\start_clean_runtime.ps1"
     if ($VisibleMcp) {
-      Start-VisiblePowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand
+      Start-VisiblePowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand -EnvironmentOverrides $secretEnv
     } else {
-      Start-HiddenPowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand
+      Start-HiddenPowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand -EnvironmentOverrides $secretEnv
     }
 
     $maxWait = 30
@@ -186,7 +366,7 @@ if (Test-HttpReady -Url $shellHealth) {
   Write-Host "[4/4] INOS shell already live at $shellUrl" -ForegroundColor Green
 } else {
   Write-Host "[4/4] Starting INOS shell on $shellUrl ..." -ForegroundColor Gray
-  Start-VisiblePowerShell -WorkingDirectory $shellRoot -Command "& '$nodeExe' '.\node_modules\vite\bin\vite.js' --host 127.0.0.1 --port 5173"
+  Start-VisiblePowerShell -WorkingDirectory $shellRoot -Command "& '$nodeExe' '.\node_modules\vite\bin\vite.js' --host 127.0.0.1 --port 5173" -EnvironmentOverrides $secretEnv
 
   $shellReady = Wait-HttpReady -Url $shellHealth -Seconds 20
 

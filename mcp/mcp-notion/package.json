@@ -14,6 +14,7 @@
     "test:watch": "vitest watch",
     "test:mcp": "node dist/scripts/mcp_smoke_all.js",
     "smoke:mcp": "node scripts/smoke_mcp_timeline.js",
+    "smoke:fulcrum-capability-registry": "node scripts/smoke_fulcrum_capability_registry.js",
     "start": "node dist/index.js",
     "inbox:backfill": "tsx scripts/inbox_backfill_codes.ts"
   },
