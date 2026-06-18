@@ -77,8 +77,21 @@ function New-ProcessStartInfo {
   $psi.UseShellExecute = $false
   $psi.CreateNoWindow = -not $Visible
 
-  foreach ($argument in $ArgumentList) {
-    [void]$psi.ArgumentList.Add($argument)
+  if ($ArgumentList) {
+    $escapedArguments = foreach ($argument in $ArgumentList) {
+      if ($null -eq $argument) {
+        '""'
+      } else {
+        $stringValue = [string]$argument
+        if ($stringValue -match '[\s"]') {
+          '"' + ($stringValue -replace '"', '\"') + '"'
+        } else {
+          $stringValue
+        }
+      }
+    }
+
+    $psi.Arguments = ($escapedArguments -join ' ')
   }
 
   if ($EnvironmentOverrides) {
