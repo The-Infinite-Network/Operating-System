@@ -20,41 +20,56 @@ const routeMeta: Array<{
   match: (pathname: string) => boolean;
   root: string;
   mission: string;
+  missionState: string;
+  missionSample?: boolean;
   syncKey: string;
   runMode: string;
   acceptance: string;
+  acceptanceSample?: boolean;
 }> = [
   {
     match: (pathname) => pathname.startsWith("/room/"),
     root: "ROOM // HUMAN // SESSION: ACTIVE",
-    mission: "MSN-2026-0001 - Personal Operating Loop",
+    mission: "Personal operating loop",
+    missionState: "Placeholder",
+    missionSample: true,
     syncKey: "E0-UZAMYD",
     runMode: "DEEP",
     acceptance: "0/0",
+    acceptanceSample: true,
   },
   {
     match: (pathname) => pathname.startsWith("/foundation"),
     root: "ROOT // INOS_E0 // FOUNDATION: LOCKED",
     mission: "MSN-2025-0011 - Register 9 Standalone Agents",
+    missionState: "Sample",
+    missionSample: true,
     syncKey: "E0-SWARM-001",
     runMode: "FAST",
     acceptance: "0/9",
+    acceptanceSample: true,
   },
   {
     match: (pathname) => pathname.startsWith("/apps/ie"),
     root: "ROOT // IE_HOLDCO // SESSION: ACTIVE",
     mission: "MSN-2026-0017 - IE Holdco Spine",
+    missionState: "Sample",
+    missionSample: true,
     syncKey: "IE-E0-V1O",
     runMode: "DEEP",
     acceptance: "0/4",
+    acceptanceSample: true,
   },
   {
     match: () => true,
     root: "ROOT // INOS_E0 // SESSION: ACTIVE",
     mission: "MSN-2025-0011 - Register 9 Standalone Agents",
+    missionState: "Sample",
+    missionSample: true,
     syncKey: "E0-3V4C9P",
     runMode: "DEEP",
     acceptance: "0/0",
+    acceptanceSample: true,
   },
 ];
 
@@ -217,7 +232,8 @@ export default function AppSpine() {
           <span className="ms-label">Mission</span>
           <div className="ms-mission-pill">
             <span className="ms-mission-code">{meta.mission}</span>
-            <span className="ms-status">Active</span>
+            <span className="ms-status">{meta.missionState}</span>
+            {meta.missionSample ? <span className="ms-status">Sample</span> : null}
           </div>
         </div>
         <div className="ms-center">
@@ -234,7 +250,9 @@ export default function AppSpine() {
           </button>
         </div>
         <div className="ms-right">
-          <div className="ms-acceptance-pill">Acceptance: {meta.acceptance} checks defined</div>
+          <div className="ms-acceptance-pill">
+            Acceptance{meta.acceptanceSample ? " (sample)" : ""}: {meta.acceptance} checks defined
+          </div>
         </div>
       </div>
 
@@ -296,9 +314,9 @@ export default function AppSpine() {
 
       <footer className="status-footer">
         <div className="sf-left">
-          ACTIVE TRAIN: <span className="text-white">T1 · Protocol Setup</span>
+          ACTIVE TRAIN (SAMPLE): <span className="text-white">T1 · Protocol Setup</span>
         </div>
-        <div className="sf-center">AUTOSAVED · JUST NOW</div>
+        <div className="sf-center">SHELL CONTEXT SAVED LOCALLY</div>
         <div className="sf-right">
           <button type="button" className="btn-ghost" onClick={() => setIsInspectorOpen((value) => !value)}>
             Inspector

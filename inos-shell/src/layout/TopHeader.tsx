@@ -2,8 +2,8 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-const RUNTIME_ENV_LABEL = "ENV: LOCAL";
-const RUNTIME_SYNC_LABEL = "Clean Runtime";
+const RUNTIME_ENV_LABEL = "LOCAL SHELL";
+const RUNTIME_SYNC_LABEL = "CANONICAL RUNTIME";
 
 const tabs = [
   { label: "Home", to: "/home" },

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Activity,
@@ -6,7 +7,10 @@ import {
   Shield,
   Users,
 } from "lucide-react";
+import { api } from "../api";
+import { Mission, TimelineEvent } from "../types";
 
+// SAMPLE: no live source wired yet for these aggregate counters (Packet 8).
 const STATS = [
   { label: "Active Trains", val: "1", meta: "Max 5 · Epoch 0", color: "text-[#00f0ff]" },
   { label: "Humans", val: "1", meta: "Active agents", color: "text-[#00ff9d]" },
@@ -22,8 +26,48 @@ const QUICK_LINKS = [
   { route: "/logs", title: "Logs", sub: "Action stream", icon: Activity },
 ];
 
+const ACTIVE_STATUSES = ["In Flight", "Active", "Planning"];
+
+function SampleTag() {
+  return (
+    <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-amber-300/70 border border-amber-300/30 bg-amber-300/5 px-1.5 py-0.5 rounded-sm">
+      Sample
+    </span>
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
+  const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [activeMission, setActiveMission] = useState<Mission | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const [timeline, missions] = await Promise.all([
+          api.timeline.queryByMission("global", 5),
+          api.missions.list(50),
+        ]);
+        if (cancelled) return;
+        setEvents(timeline.events);
+        const active =
+          missions.missions.find((m) => ACTIVE_STATUSES.includes(m.status)) ||
+          missions.missions.find((m) => m.status !== "Done" && m.status !== "Parked") ||
+          null;
+        setActiveMission(active);
+      } catch (e) {
+        console.error("Home load failed:", e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -68,8 +112,11 @@ export default function Home() {
       <section className="card p-6">
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
-            <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555]">
-              Lead Console
+            <div className="flex items-center gap-2">
+              <div className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555]">
+                Lead Console
+              </div>
+              <SampleTag />
             </div>
             <h3 className="mt-1 text-lg font-semibold text-white">At-a-glance operational frame</h3>
           </div>
@@ -84,7 +131,7 @@ export default function Home() {
               onClick={() => navigate("/provisioning?mode=edit")}
               className="btn-secondary"
             >
-              Change Environment
+              Change Workspace Layout
             </button>
           </div>
         </div>
@@ -130,14 +177,20 @@ export default function Home() {
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs border-b border-[#1a1a1a] pb-2">
               <span className="text-[#555]">ACTIVE MISSION</span>
-              <span className="font-mono text-[#00f0ff]">MSN-2025-0011</span>
+              <span className="font-mono text-[#00f0ff]">
+                {loading
+                  ? "…"
+                  : activeMission
+                    ? activeMission.mission_code || activeMission.title
+                    : "No active mission"}
+              </span>
             </div>
             <div className="flex items-center justify-between text-xs border-b border-[#1a1a1a] pb-2">
-              <span className="text-[#555]">SYNC_KEY</span>
+              <span className="flex items-center gap-2 text-[#555]">SYNC_KEY <SampleTag /></span>
               <span className="font-mono text-white">E0-SWARM-001</span>
             </div>
             <div className="flex items-center justify-between text-xs border-b border-[#1a1a1a] pb-2">
-              <span className="text-[#555]">POD AUTHORITY</span>
+              <span className="flex items-center gap-2 text-[#555]">POD AUTHORITY <SampleTag /></span>
               <span className="font-mono text-[#c9a227]">CORE COMMAND</span>
             </div>
           </div>
@@ -148,20 +201,24 @@ export default function Home() {
             Activity Stream
           </div>
           <div className="flex-1 space-y-4 max-h-[120px] overflow-y-auto pr-2 scrollbar-hide">
-            {[
-              { time: "14:22", type: "SYS", text: "INOS_E0 shell initialized" },
-              { time: "14:20", type: "MSN", text: "MSN-2025-0011 created" },
-              { time: "13:45", type: "SEC", text: "Identity extraction complete" },
-            ].map((evt, i) => (
-              <div
-                key={i}
-                className="flex gap-3 text-[10px] font-mono border-b border-[#1a1a1a] pb-2 last:border-0"
-              >
-                <span className="text-[#555]">{evt.time}</span>
-                <span className="text-[#00f0ff]">{evt.type}</span>
-                <span className="text-[#777] flex-1">{evt.text}</span>
-              </div>
-            ))}
+            {loading ? (
+              <div className="text-[10px] font-mono text-[#555] py-4 text-center uppercase">Syncing timeline…</div>
+            ) : events.length === 0 ? (
+              <div className="text-[10px] font-mono text-[#555] py-4 text-center uppercase">No timeline events</div>
+            ) : (
+              events.map((evt, i) => (
+                <div
+                  key={evt.id || i}
+                  className="flex gap-3 text-[10px] font-mono border-b border-[#1a1a1a] pb-2 last:border-0"
+                >
+                  <span className="text-[#555]">
+                    {new Date(evt.timestamp || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                  <span className="text-[#00f0ff]">{evt.event_type || "LOG"}</span>
+                  <span className="text-[#777] flex-1 truncate">{evt.title || evt.summary}</span>
+                </div>
+              ))
+            )}
           </div>
         </section>
       </div>

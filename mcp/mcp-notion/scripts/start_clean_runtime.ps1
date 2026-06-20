@@ -44,6 +44,14 @@ if ($envLocalCarriesToken) {
   throw ".env.local should not store NOTION_API_KEY for the clean runtime. Keep non-secret canonical values in .env.local and inject NOTION_API_KEY via the parent process, -NotionApiKey, or an explicitly approved .env file."
 }
 
+foreach ($forbiddenKey in @("GOOGLE_APPLICATION_CREDENTIALS", "GEMINI_API_KEY")) {
+  if (Test-Path $envLocalPath) {
+    if (Select-String -Path $envLocalPath -Pattern ("^\s*{0}\s*=\s*\S+" -f [regex]::Escape($forbiddenKey)) -ErrorAction SilentlyContinue) {
+      throw ".env.local must not store $forbiddenKey for the clean runtime. Keep it in the canonical private secret JSON and inject it via the parent process."
+    }
+  }
+}
+
 if ($hasParamToken) {
   $env:NOTION_API_KEY = $NotionApiKey
 }
@@ -65,6 +73,13 @@ $psi.RedirectStandardOutput = $false
 $psi.RedirectStandardError = $false
 $psi.Environment["NOTION_API_KEY"] = $env:NOTION_API_KEY
 $psi.Environment["PORT"] = "$Port"
+
+foreach ($injectKey in @("GOOGLE_APPLICATION_CREDENTIALS", "GEMINI_API_KEY")) {
+  $injectVal = [Environment]::GetEnvironmentVariable($injectKey)
+  if (-not [string]::IsNullOrWhiteSpace($injectVal)) {
+    $psi.Environment[$injectKey] = $injectVal
+  }
+}
 
 $proc = [System.Diagnostics.Process]::Start($psi)
 $proc.WaitForExit()

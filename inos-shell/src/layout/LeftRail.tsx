@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { ShellEntity, ShellRoom } from "./shellContext";
 
+// SAMPLE: no live train/switchyard source wired yet (Packet 8).
 const ACTIVE_TRAINS = [
   {
     code: "T1 · Protocol Setup",
@@ -52,7 +53,12 @@ export default function LeftRail({ entity, room }: LeftRailProps) {
       </div>
 
       <div className="rail-section">
-        <div className="sy-section-label">Active Trains</div>
+        <div className="sy-section-label flex items-center gap-2">
+          Active Trains
+          <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-amber-300/70 border border-amber-300/30 bg-amber-300/5 px-1.5 py-0.5 rounded-sm">
+            Sample
+          </span>
+        </div>
         <div className="sy-train-list">
           {ACTIVE_TRAINS.map((train) => (
             <div
@@ -84,7 +90,7 @@ export default function LeftRail({ entity, room }: LeftRailProps) {
         <div className="rail-title">Core Apps</div>
         <nav className="rail-nav">
           <NavLink to="/home" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
-            Lead Console
+            Home
           </NavLink>
           <NavLink to="/room/me" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
             My Room
@@ -93,10 +99,10 @@ export default function LeftRail({ entity, room }: LeftRailProps) {
             Foundation
           </NavLink>
           <NavLink to="/guilds" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
-            Guild Room
+            Guilds
           </NavLink>
           <NavLink to="/logs" className={({ isActive }) => `rail-link ${isActive ? "rail-link-active" : ""}`}>
-            Timeline Viewer
+            Logs
           </NavLink>
         </nav>
       </div>

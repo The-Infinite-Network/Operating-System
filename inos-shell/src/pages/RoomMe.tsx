@@ -12,6 +12,15 @@ import { api } from "../api";
 import { TimelineEvent } from "../types";
 import { fetchOperatorProfile } from "../services/operatorProfile";
 
+// SAMPLE marker for panels with no live source wired yet (Packet 8).
+function SampleTag() {
+  return (
+    <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-amber-300/70 border border-amber-300/30 bg-amber-300/5 px-1.5 py-0.5 rounded-sm">
+      Sample
+    </span>
+  );
+}
+
 export default function RoomMe() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"today" | "timeline" | "missions" | "wallet">("today");
@@ -94,11 +103,11 @@ export default function RoomMe() {
         return (
           <div className="grid grid-cols-1 gap-2 h-full">
             <div className="bg-[#080808] border border-[#1a1a1a] p-4 rounded-sm flex flex-col justify-center">
-              <div className="text-[9px] font-mono text-[#555] uppercase tracking-widest mb-1">Deep Work</div>
+              <div className="flex items-center gap-2 mb-1"><div className="text-[9px] font-mono text-[#555] uppercase tracking-widest">Deep Work</div><SampleTag /></div>
               <div className="text-xl font-bold text-[#00f0ff]">4.5h</div>
             </div>
             <div className="bg-[#080808] border border-[#1a1a1a] p-4 rounded-sm flex flex-col justify-center">
-              <div className="text-[9px] font-mono text-[#555] uppercase tracking-widest mb-1">Sovereign Score</div>
+              <div className="flex items-center gap-2 mb-1"><div className="text-[9px] font-mono text-[#555] uppercase tracking-widest">Sovereign Score</div><SampleTag /></div>
               <div className="text-xl font-bold text-[#00ff9d]">94.2</div>
             </div>
           </div>
@@ -107,9 +116,9 @@ export default function RoomMe() {
         return (
           <div className="bg-[#080808] border border-[#1a1a1a] p-6 rounded-sm h-full">
             <h2 className="text-xs font-bold uppercase tracking-widest text-[#00f0ff] mb-4 flex items-center gap-2">
-              <Target size={14} /> Active Missions
+              <Target size={14} /> Active Missions <SampleTag />
             </h2>
-            <div className="p-3 border border-[#1a1a1a] bg-[#0d0d0d] flex flex-col">   
+            <div className="p-3 border border-[#1a1a1a] bg-[#0d0d0d] flex flex-col">
               <div className="text-[10px] font-mono text-[#555] mb-1">MSN-2026-0001</div>
               <div className="text-sm font-bold mb-2">Initialize Sovereign OS</div>
               <span className="text-[9px] text-[#00ff9d] border border-[#00ff9d]/30 bg-[#00ff9d]/10 px-2 py-1 rounded-sm uppercase tracking-widest self-start">Active</span>
@@ -128,7 +137,7 @@ export default function RoomMe() {
       case 'trains':
         return (
           <div className="bg-[#080808] border border-[#1a1a1a] p-5 rounded-sm h-full">
-            <h3 className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4">Operator Status</h3>
+            <h3 className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4 flex items-center gap-2">Operator Status <SampleTag /></h3>
             <div className="text-xs text-[#777] mb-1">Active Train</div>
             <div className="text-sm font-bold font-mono text-[#00f0ff]">T1 · Protocol Setup</div>
           </div>
@@ -173,7 +182,7 @@ export default function RoomMe() {
             to="/provisioning?mode=edit"
             className="flex items-center gap-2 px-3 py-1.5 border border-[#1a1a1a] bg-[#080808] text-[9px] font-mono uppercase tracking-widest text-[#555] hover:text-[#00f0ff] hover:border-[#00f0ff]/30 transition-all rounded-sm"
           >
-            <Settings size={12} /> Change Environment
+            <Settings size={12} /> Change Workspace Layout
           </Link>
 
           {layoutMode !== "custom" && (
@@ -226,11 +235,11 @@ export default function RoomMe() {
                     <div className="mt-1 text-lg font-semibold text-white">No mission linked</div>
                   </div>
                   <div>
-                    <div className="text-xs text-[#777]">SYNC_KEY</div>
+                    <div className="flex items-center gap-2"><div className="text-xs text-[#777]">SYNC_KEY</div><SampleTag /></div>
                     <div className="mt-1 font-mono text-[#00f0ff]">E0-UZAMYD</div>
                   </div>
                   <div>
-                    <div className="text-xs text-[#777]">Run Profile</div>
+                    <div className="flex items-center gap-2"><div className="text-xs text-[#777]">Run Profile</div><SampleTag /></div>
                     <div className="mt-1 font-semibold text-white">DEEP</div>
                   </div>
                   <div>
@@ -266,7 +275,7 @@ export default function RoomMe() {
                      { label: "Sovereign Score", val: "94.2", color: "text-[#00ff9d]" }
                    ].map(s => (
                      <div key={s.label} className="bg-[#080808] border border-[#1a1a1a] p-4 rounded-sm">
-                       <div className="text-[9px] font-mono text-[#555] uppercase tracking-widest mb-1">{s.label}</div>
+                       <div className="flex items-center gap-2 mb-1"><div className="text-[9px] font-mono text-[#555] uppercase tracking-widest">{s.label}</div><SampleTag /></div>
                        <div className={`text-2xl font-bold ${s.color}`}>{s.val}</div>
                      </div>
                    ))}
@@ -322,14 +331,13 @@ export default function RoomMe() {
                    <Target size={14} /> Active Missions
                  </h2>
                  <div className="space-y-3">
-                   <div className="p-3 border border-[#1a1a1a] bg-[#0d0d0d] flex items-center justify-between">   
+                   <div className="p-3 border border-[#1a1a1a] bg-[#0d0d0d] flex items-center justify-between">
                      <div>
-                       <div className="text-[10px] font-mono text-[#555] mb-1">MSN-2026-0001</div>
+                       <div className="flex items-center gap-2 mb-1"><div className="text-[10px] font-mono text-[#555]">MSN-2026-0001</div><SampleTag /></div>
                        <div className="text-sm font-bold">Initialize Sovereign OS</div>
                      </div>
                      <span className="text-[9px] text-[#00ff9d] border border-[#00ff9d]/30 bg-[#00ff9d]/10 px-2 py-1 rounded-sm uppercase tracking-widest">Active</span>
                    </div>
-                   <div className="text-center text-[#555] text-xs font-mono py-4">Syncing WAR HQ...</div>        
                  </div>
               </div>
             )}
@@ -338,7 +346,7 @@ export default function RoomMe() {
               <div className="bg-[#080808] border border-[#1a1a1a] p-6 rounded-sm space-y-5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xs font-bold uppercase tracking-widest text-[#c9a227] flex items-center gap-2">
-                    <Wallet size={14} /> Time Wallet — {mockWallet.memberId}
+                    <Wallet size={14} /> Time Wallet — {mockWallet.memberId} <SampleTag />
                   </h2>
                   <Link
                     to="/time-wallet"
@@ -398,7 +406,7 @@ export default function RoomMe() {
                   </div>
                 </div>
                 <div className="pt-4 border-t border-[#1a1a1a]">
-                  <div className="text-xs text-[#777] mb-1">Active Train</div>
+                  <div className="flex items-center gap-2 mb-1"><div className="text-xs text-[#777]">Active Train</div><SampleTag /></div>
                   <div className="text-sm font-bold font-mono text-[#00f0ff]">T1 · Protocol Setup</div>
                 </div>
               </div>

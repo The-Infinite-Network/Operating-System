@@ -95,7 +95,7 @@ export default function FrontDoor() {
                   className="flex items-center gap-2 px-8 py-3 bg-[#00f0ff] text-black font-black rounded-2xl hover:bg-[#00d8e6] transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)]"
                 >
                   <Rocket className="w-5 h-5" />
-                  Initialize Environment
+                  Configure Workspace
                 </button>
                 <button
                   onClick={() => logout()}
@@ -173,8 +173,8 @@ export default function FrontDoor() {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Register Business</h3> 
                 <p className="text-xs text-inos-muted leading-relaxed">
-                  Anchor your company, venture, or project to the network registry.
-                  Assign roles and secure your entity code.
+                  Review the current entity and venture registry surfaces.
+                  Treat this as a runtime entry point, not a live registration workflow.
                 </p>
               </div>
 
@@ -202,8 +202,8 @@ export default function FrontDoor() {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Review Access</h3>
                 <p className="text-xs text-inos-muted leading-relaxed">
-                  Enter an access code to unlock privileged intranet surfaces     
-                  and restricted holding company data.
+                  Access-gated intranet surfaces remain separate runtime lanes.
+                  This card is a placeholder until the review flow is wired.
                 </p>
               </div>
             </div>
