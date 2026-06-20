@@ -4,7 +4,9 @@ import { mcpClient, MCPHealth } from "../services/mcpClient";
 export default function DatabaseSync() {
   const [health, setHealth] = useState<MCPHealth | null>(null);
   const [tools, setTools] = useState<string[]>([]);
+  const [toolsUnsupported, setToolsUnsupported] = useState(false);
   const [capabilities, setCapabilities] = useState<Record<string, unknown> | null>(null);
+  const [capsUnsupported, setCapsUnsupported] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -12,23 +14,36 @@ export default function DatabaseSync() {
     setLoading(true);
     setError(null);
     try {
+      // Health is the canonical live signal. Tool/capability discovery endpoints
+      // are optional and not exposed on every MCP build, so they are best-effort
+      // and must not mask a healthy runtime.
       const res = await mcpClient.health();
-      const toolList = await mcpClient.tools();
-      let caps: Record<string, unknown> | null = null;
+      setHealth(res);
+
+      try {
+        const toolList = await mcpClient.tools();
+        setTools(toolList || []);
+        setToolsUnsupported(false);
+      } catch {
+        setTools([]);
+        setToolsUnsupported(true);
+      }
+
       try {
         const capRes = await mcpClient.capabilities();
-        caps = (capRes as any)?.data ?? null;
+        setCapabilities((capRes as any)?.data ?? null);
+        setCapsUnsupported(false);
       } catch {
-        caps = null;
+        setCapabilities(null);
+        setCapsUnsupported(true);
       }
-      setHealth(res);
-      setTools(toolList || []);
-      setCapabilities(caps);
     } catch (err: any) {
       setError(err?.message || "Failed to reach MCP server");
       setHealth(null);
       setTools([]);
+      setToolsUnsupported(false);
       setCapabilities(null);
+      setCapsUnsupported(false);
     } finally {
       setLoading(false);
     }
@@ -112,7 +127,11 @@ export default function DatabaseSync() {
           <div className="inos-card p-3">
             <div className="text-sm font-semibold">Tools</div>
             <ul className="agent-principles mt-2">
-              {tools.length === 0 ? (
+              {toolsUnsupported ? (
+                <li className="text-amber-300">
+                  Tool discovery endpoint not exposed on this MCP build. Canonical tool calls use POST /tool/&#123;name&#125;.
+                </li>
+              ) : tools.length === 0 ? (
                 <li>Run health check to load tools.</li>
               ) : (
                 tools.map((tool) => <li key={tool}>{tool}</li>)
@@ -121,9 +140,15 @@ export default function DatabaseSync() {
           </div>
           <div className="inos-card p-3">
             <div className="text-sm font-semibold">Capabilities</div>
-            <pre className="text-[10px] text-inos-muted mt-2 whitespace-pre-wrap">
-              {capabilities ? JSON.stringify(capabilities, null, 2) : "No capability data yet."}
-            </pre>
+            {capsUnsupported ? (
+              <div className="text-[11px] text-amber-300 mt-2">
+                Capability discovery endpoint not exposed on this MCP build.
+              </div>
+            ) : (
+              <pre className="text-[10px] text-inos-muted mt-2 whitespace-pre-wrap">
+                {capabilities ? JSON.stringify(capabilities, null, 2) : "No capability data yet."}
+              </pre>
+            )}
           </div>
         </div>
       </div>
