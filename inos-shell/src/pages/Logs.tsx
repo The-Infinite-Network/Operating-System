@@ -7,6 +7,10 @@ export default function Logs() {
         <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
           Event Logs
         </div>
+        <div className="text-[10px] font-mono text-[#555] border border-[#1a1a1a] bg-[#0a0a0a] px-3 py-2 rounded-sm mb-3 flex items-center gap-2">
+          <span className="text-[#c9a227]/70">◆</span>
+          Sample data — connect MCP Notion server (port 3002) to load live events
+        </div>
         <div className="table-wrap">
           <table className="inos-table">
             <thead>

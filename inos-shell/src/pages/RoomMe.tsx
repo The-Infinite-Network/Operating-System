@@ -339,6 +339,7 @@ export default function RoomMe() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-xs font-bold uppercase tracking-widest text-[#c9a227] flex items-center gap-2">
                     <Wallet size={14} /> Time Wallet — {mockWallet.memberId}
+                    <span className="text-[8px] font-mono text-[#555] border border-[#1a1a1a] px-1.5 py-0.5 rounded-sm normal-case tracking-normal">sample</span>
                   </h2>
                   <Link
                     to="/time-wallet"

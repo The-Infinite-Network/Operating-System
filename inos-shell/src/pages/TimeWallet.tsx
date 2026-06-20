@@ -127,6 +127,12 @@ export default function TimeWallet() {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-8">
 
+      {/* ── SAMPLE DATA NOTICE ── */}
+      <div className="text-[10px] font-mono text-[#555] border border-[#1a1a1a] bg-[#0a0a0a] px-3 py-2 rounded-sm flex items-center gap-2">
+        <span className="text-[#c9a227]/70">◆</span>
+        Spec preview — sample data only. Time Wallet is not wired to a live backend.
+      </div>
+
       {/* ── WALLET HEADER ── */}
       <div className="bg-[#080808] border border-[#1a1a1a] rounded-sm p-6 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none opacity-20"
