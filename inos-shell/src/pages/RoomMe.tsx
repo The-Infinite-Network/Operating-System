@@ -397,12 +397,12 @@ export default function RoomMe() {
 
           <aside className="flex flex-col gap-6">
             <div className="bg-[#080808] border border-[#1a1a1a] p-5 rounded-sm">
-              <h3 className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4">Operator Status</h3>
+              <h3 className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4 flex items-center gap-2">Operator Status <SampleTag /></h3>
               <div className="space-y-4">
                 <div>
                   <div className="text-xs text-[#777] mb-1">Current State</div>
                   <div className="flex items-center gap-2 text-sm font-bold text-[#00ff9d]">
-                    <CheckCircle2 size={16} /> Online & Ready
+                    <CheckCircle2 size={16} /> Sample Local Posture
                   </div>
                 </div>
                 <div className="pt-4 border-t border-[#1a1a1a]">
@@ -413,7 +413,7 @@ export default function RoomMe() {
             </div>
 
             <div className="bg-[#080808] border border-[#1a1a1a] p-5 rounded-sm flex-1">
-              <h3 className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4">System Plane · Shell Log</h3> 
+              <h3 className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#555] mb-4 flex items-center gap-2">System Plane · Shell Log <SampleTag /></h3>
               <div className="space-y-3 text-xs">
                  <div className="rounded-sm border border-[#1a1a1a] bg-[#0d0d0d] p-3 text-[#b8c7db]">
                    <div><span className="text-white">[BOOT]</span> Infinite Network OS // Epoch 0 // Human Room online.</div>

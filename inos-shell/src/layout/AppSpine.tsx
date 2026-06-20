@@ -12,8 +12,8 @@ import {
   readStoredShellContext,
 } from "./shellContext";
 
-const RUNTIME_ENV_LABEL = "ENV: LOCAL";
-const RUNTIME_SURFACE_LABEL = "Clean Runtime";
+const RUNTIME_ENV_LABEL = "LOCAL SHELL";
+const RUNTIME_SURFACE_LABEL = "CANONICAL RUNTIME";
 const RUNTIME_PRIMARY_URL = "localhost:5173";
 
 const routeMeta: Array<{

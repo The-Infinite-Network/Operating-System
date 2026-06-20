@@ -48,11 +48,11 @@ export async function checkTodoHealth(): TodoResult<{ status: string }> {
     const res = await fetch(`${API_BASE}/health`, { method: "GET" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || data?.ok === false) {
-      return { ok: false, reason: data?.error?.message || "MCP health check failed" };
+      return { ok: false, reason: data?.error?.message || "Canonical MCP health check failed" };
     }
     return { ok: true, data: { status: data.status || "ok" } };
   } catch (error: any) {
-    return { ok: false, reason: error?.message || "MCP health check failed" };
+    return { ok: false, reason: error?.message || "Canonical MCP health check failed" };
   }
 }
 
@@ -98,22 +98,11 @@ export async function completeTodoTask(
   taskId: string
 ): TodoResult<{ task: TodoTask }> {
   try {
-    const res = await fetch(`${API_BASE}/tool/tasks.update`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        params: {
-          taskId,
-          missionId: listId,
-          status: "Done",
-        },
-      }),
+    await api.tasks.update({
+      taskId,
+      missionId: listId,
+      status: "Done",
     });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || data?.ok === false) {
-      return { ok: false, reason: data?.error?.message || "Failed to complete task" };
-    }
 
     const { tasks } = await api.tasks.list(listId);
     const task = tasks.find((item) => item.id === taskId);

@@ -196,15 +196,30 @@ export default function Tasks() {
               color: "#ccc",
             }}
           >
-            mcp-todo offline
+            canonical task adapter offline
             <br />
-            <span style={{ color: "#666" }}>start: cd mcp/mcp-todo && npm run dev</span>
+            <span style={{ color: "#666" }}>
+              Tasks in this shell route through the canonical MCP surface on /mcp. No separate mcp-todo sidecar is expected here.
+            </span>
           </div>
         )}
       </aside>
 
       {/* Right: task panel */}
       <main style={{ flex: 1, padding: "1.5rem", overflowY: "auto" }}>
+        <div
+          style={{
+            marginBottom: "1rem",
+            padding: "0.65rem 0.85rem",
+            background: "rgba(0,255,255,0.05)",
+            border: "1px solid rgba(0,255,255,0.18)",
+            borderRadius: 6,
+            color: "#9ca3af",
+            fontSize: "0.75rem",
+          }}
+        >
+          Runtime contract: mission lists and task updates are served through the canonical shell MCP route. Delete remains intentionally disabled on this runtime.
+        </div>
         {error && (
           <div
             style={{

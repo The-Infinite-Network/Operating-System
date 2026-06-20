@@ -792,6 +792,25 @@ export const api = {
 
       return res;
     },
+    update: async (payload: {
+      missionId: string;
+      taskId: string;
+      status?: string;
+      title?: string;
+      due_date?: string;
+    }): Promise<{ ok?: boolean; task_id?: string }> => {
+      const body = {
+        params: {
+          taskId: payload.taskId,
+          missionId: payload.missionId,
+          status: payload.status,
+          title: payload.title,
+          due_date: payload.due_date,
+        },
+      };
+
+      return postJson<{ ok?: boolean; task_id?: string }>("/tool/tasks.update", body);
+    },
   },
 
   timeline: {

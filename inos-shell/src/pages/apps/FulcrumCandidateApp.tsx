@@ -214,7 +214,16 @@ export default function FulcrumCandidateApp() {
           </div>
 
           <div className="card p-4">
-            <div className="text-xs uppercase tracking-[0.24em] text-inos-muted">Candidate Signals</div>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="text-xs uppercase tracking-[0.24em] text-inos-muted">Seeded Candidate Signals</div>
+              <div className="flex flex-wrap gap-2 text-[11px]">
+                <span className="pill">Live: MCP envelope</span>
+                <span className="pill text-amber-300">Seeded: local candidate content</span>
+              </div>
+            </div>
+            <div className="mt-2 text-[12px] text-inos-muted">
+              The sections below are seeded candidate/reference signals. They are not live Drive, Notion, or canon-backed writes.
+            </div>
             <div className="mt-3 space-y-3 text-sm">
               <div>
                 <div className="text-inos-muted mb-1">Mastery Map</div>

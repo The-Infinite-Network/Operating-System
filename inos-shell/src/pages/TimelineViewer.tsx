@@ -95,12 +95,17 @@ export default function TimelineViewer() {
         <div className="text-lg font-semibold mt-2">IE-HQ Event Stream</div>
         <div className="text-[12px] text-inos-muted mt-1">
           Canonical event stream surface. Pulls from MCP when available; mock data
-          remains as fallback.
+          is shown only as an explicit fallback state.
         </div>
         <div className="text-[10px] text-inos-muted mt-2">
           Source: {source.toUpperCase()}
           {requestId ? ` · request_id: ${requestId}` : ""}
         </div>
+        {source === "mock" && !loading && (
+          <div className="mt-2 text-[11px] text-amber-300">
+            Timeline is currently showing seeded mock events because live MCP timeline data was unavailable or empty.
+          </div>
+        )}
         {error && (
           <div className="mt-2 text-[11px] text-red-400">
             MCP Error: {error}

@@ -1,8 +1,6 @@
 import { API_BASE } from "../api";
 import type { TimelineEvent as MCPTimelineEvent } from "../types/timeline";
 
-const STORAGE_KEY = "inos_mcp_base_url";
-
 export type MCPHealth = {
   ok?: boolean;
   status?: string;
@@ -27,10 +25,6 @@ export class MCPError extends Error {
 }
 
 function resolveBaseUrl() {
-  if (typeof window !== "undefined") {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored?.trim()) return stored.trim().replace(/\/+$/, "");
-  }
   return API_BASE.replace(/\/+$/, "");
 }
 
