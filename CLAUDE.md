@@ -53,11 +53,9 @@ Browser ──/mcp──→ MCP Notion (port 3002)
          ──/api──→ Node API   (port 3005)
 ```
 
-**Layer 1 — `src/services/mcpToolClient.ts`**: Raw HTTP executor. 7-second timeout. Falls back to mock data when MCP is unavailable.
+**Layer 1 — `src/services/mcpClient.ts`**: Raw HTTP executor + typed wrappers. Resolves base URL from `localStorage` override or `VITE_MCP_BASE_URL`. Exposes `mcpClient.health()`, `mcpClient.tools()`, `mcpClient.timeline.list()`. Throws `MCPError` on failure — no automatic mock fallback at this layer.
 
-**Layer 2 — `src/services/mcpClient.ts`**: Typed wrappers over dot-name MCP tools. Tool names follow dot-notation: `missions.list`, `missions.upsert`, `timeline.log`, `timeline.queryByMission`, `runs.create`, `runs.end`, `aars.update`, `inbox.capture`, `inbox.dedupe.find`.
-
-**Layer 3 — `src/api.ts`**: Canonical business logic layer. All pages/components import from here. Maps UI enums to MCP statuses:
+**Layer 2 — `src/api.ts`**: Canonical business logic layer. All pages/components import from here. Maps UI enums to MCP statuses. `api.listAgents()` is the only method with a mock fallback; it returns `source: "mcp" | "mock"` so callers can surface the state.
 
 | Shell UI | MCP canonical |
 |---|---|

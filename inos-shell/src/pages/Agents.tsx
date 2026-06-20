@@ -7,12 +7,14 @@ export default function Agents() {
   const [activeTopTab, setActiveTopTab] = useState<"roster" | "forge">("roster");
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [agentSource, setAgentSource] = useState<"mcp" | "mock" | null>(null);
 
   useEffect(() => {
     const loadAgents = async () => {
       try {
-        const { agents: data } = await api.listAgents();
+        const { agents: data, source } = await api.listAgents();
         setAgents(data);
+        setAgentSource(source);
       } catch (err) {
         console.error("Failed to load agents:", err);
       } finally {
@@ -74,8 +76,15 @@ export default function Agents() {
             </div>
 
             <div className="card p-4">
-              <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
-                Active Roster
+              <div className="flex items-center justify-between">
+                <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
+                  Active Roster
+                </div>
+                {!loading && agentSource && (
+                  <span className={`text-[9px] font-mono px-2 py-0.5 rounded-sm uppercase tracking-widest border ${agentSource === "mcp" ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10" : "text-[#555] border-[#1a1a1a]"}`}>
+                    {agentSource === "mcp" ? "MCP Live" : "sample roster — MCP offline"}
+                  </span>
+                )}
               </div>
               {loading ? (
                 <div className="p-8 text-center text-inos-muted animate-pulse">Loading Roster...</div>

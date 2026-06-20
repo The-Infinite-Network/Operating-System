@@ -213,7 +213,7 @@ export const api = {
   },
 
   // Agents from IEHQ Notion MCP tool (agents.list)
-  listAgents: async (limit: number = 50): Promise<{ agents: Agent[] }> => {
+  listAgents: async (limit: number = 50): Promise<{ agents: Agent[]; source: "mcp" | "mock" }> => {
     try {
       const data = await postJson<{
         data: {
@@ -233,12 +233,12 @@ export const api = {
         cannot: Array.isArray(a.cannot) ? a.cannot : [],
       }));
 
-      if (agents.length > 0) return { agents };
+      if (agents.length > 0) return { agents, source: "mcp" };
     } catch (err) {
       console.warn("MCP agents.list failed, falling back to mock roster", err);
     }
 
-    return { agents: mockAgents.slice(0, limit) };
+    return { agents: mockAgents.slice(0, limit), source: "mock" };
   },
 
   // Python AI Service via Node.js Proxy
