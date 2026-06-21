@@ -30,7 +30,7 @@ export default function LeftRail({ entity, room }: LeftRailProps) {
       <div className="sy-header">
         <div className="sy-title-row">
           <span className="sy-title">Switchyard</span>
-          <span className="sy-count">{activeCount}/5</span>
+          <span className="sy-count" title="sample data">{activeCount}/5</span>
         </div>
         <div className="sy-progress">
           <div className="sy-progress-fill" style={{ width: activePercent }} />
@@ -52,7 +52,10 @@ export default function LeftRail({ entity, room }: LeftRailProps) {
       </div>
 
       <div className="rail-section">
-        <div className="sy-section-label">Active Trains</div>
+        <div className="sy-section-label flex items-center justify-between">
+          <span>Active Trains</span>
+          <span className="text-[8px] font-mono text-[#555] border border-[#1a1a1a] px-1.5 py-0.5 rounded-sm">sample</span>
+        </div>
         <div className="sy-train-list">
           {ACTIVE_TRAINS.map((train) => (
             <div
