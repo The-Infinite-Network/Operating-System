@@ -18,18 +18,24 @@ export default function IeHqSpine() {
         </div>
         <div className="text-lg font-semibold mt-2">Holdco & Entity Spine</div>
         <div className="text-[12px] text-inos-muted mt-1">
-          Internal holdco runtime for entities, trusts, assets, agreements, bank surfaces, and venture mapping.
+          Holdco structure reference for entities, trusts, assets, agreements, bank surfaces, and venture mapping.
+        </div>
+        <div className="mt-2 text-[11px] text-amber-300">
+          Static reference scaffold (sample) — this surface is not yet wired to a live entity/holdco datasource. Counts, directory rows, and detail below are seeded examples, not live records.
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">
-        {spineCards.map((card) => (
-          <div key={card.label} className="inos-card p-4">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-inos-muted">{card.label}</div>
-            <div className={`mt-2 text-2xl font-semibold ${card.accent}`}>{card.value}</div>
-            <div className="mt-1 text-[11px] text-inos-muted">{card.detail}</div>
-          </div>
-        ))}
+      <div className="space-y-2">
+        <div className="text-[10px] uppercase tracking-[0.2em] text-amber-300">Spine Snapshot · Sample (not live counts)</div>
+        <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">
+          {spineCards.map((card) => (
+            <div key={card.label} className="inos-card p-4">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-inos-muted">{card.label}</div>
+              <div className={`mt-2 text-2xl font-semibold ${card.accent}`}>{card.value}</div>
+              <div className="mt-1 text-[11px] text-inos-muted">{card.detail}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="card p-4">
@@ -51,9 +57,12 @@ export default function IeHqSpine() {
 
           <div className="space-y-4">
             <div className="rounded-3xl border border-[#22304a] bg-[#0a1222] p-5">
-              <div className="text-xs uppercase tracking-[0.2em] text-cyan-200/80">Entity Directory</div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs uppercase tracking-[0.2em] text-cyan-200/80">Entity Directory</div>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-amber-300">Sample</span>
+              </div>
               <div className="mt-2 text-sm text-inos-muted">
-                LegalEntity spine for HoldCos, OpCos, SPVs, trusts, and related vehicles.
+                LegalEntity spine for HoldCos, OpCos, SPVs, trusts, and related vehicles. Row below is a seeded example, not a live LegalEntity query.
               </div>
               <div className="mt-5 overflow-hidden rounded-2xl border border-[#22304a]">
                 <table className="inos-table">
@@ -80,7 +89,10 @@ export default function IeHqSpine() {
             </div>
 
             <div className="rounded-3xl border border-[#22304a] bg-[#0a1222] p-5">
-              <div className="text-xs uppercase tracking-[0.2em] text-violet-200/80">Venture Map</div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs uppercase tracking-[0.2em] text-violet-200/80">Venture Map</div>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-amber-300">Sample</span>
+              </div>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <div className="rounded-2xl border border-[#22304a] bg-[#08101d] p-4">
                   <div className="text-sm font-semibold text-white">Crumb n Get It Bakery</div>
@@ -100,7 +112,10 @@ export default function IeHqSpine() {
 
           <div className="space-y-4">
             <div className="rounded-3xl border border-[#22304a] bg-[#0a1222] p-5">
-              <div className="text-xs uppercase tracking-[0.2em] text-cyan-200/80">Entity Detail</div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs uppercase tracking-[0.2em] text-cyan-200/80">Entity Detail</div>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-amber-300">Sample</span>
+              </div>
               <div className="mt-3 text-xl font-semibold text-white">Infinite Earth Holdings, LLC</div>
               <div className="mt-1 text-sm text-inos-muted">IE_HOLDCO · HoldCo · WY</div>
               <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
