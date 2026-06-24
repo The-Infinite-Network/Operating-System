@@ -27,6 +27,11 @@ import {
   isRoutingKeyValid,
 } from "./inbox/normalize.js";
 import { INBOX_VIEWS_SPEC } from "./inbox/views.js";
+import {
+  AsmpContradiction,
+  AsmpKnowledgeCandidate,
+  SessionMemoryManager,
+} from "./asmp.js";
 
 const logger = new Logger("Tools");
 
@@ -90,6 +95,11 @@ export const PUBLIC_TOOL_NAMES = [
   "artifacts.list",
   "artifacts.create",
   "knowledge.list",
+  "knowledge.create",
+  "asmp.sessionStart",
+  "asmp.eventLog",
+  "asmp.sessionEnd",
+  "asmp.distillMemory",
 ] as const;
 
 // Tool request/response schemas
@@ -438,6 +448,57 @@ export const ListAgentsResponseSchema = z.object({
   ),
 });
 
+export const AsmpSessionStartRequestSchema = z.object({
+  current_agent: z.string().min(1, "current_agent is required"),
+  parent_mission_id: z.string().optional().nullable(),
+});
+
+export const AsmpEventLogRequestSchema = z.object({
+  session_id: z.string().min(1, "session_id is required"),
+  event_type: z.string().min(1, "event_type is required"),
+  priority: z.enum(["INFO", "SIGNIFICANT_DECISION", "BLOCKER"]).default("INFO"),
+  summary: z.string().min(1, "summary is required"),
+  tool_name: z.string().optional(),
+  file_path: z.string().optional(),
+  command: z.string().optional(),
+  payload: z.record(z.unknown()).optional(),
+});
+
+export const AsmpKnowledgeCandidateSchema = z.object({
+  article_title: z.string().min(1),
+  article_type: z.string().optional(),
+  summary: z.string().min(1),
+  body: z.string().optional(),
+  entity: z.array(z.string()).optional(),
+  pod_owner: z.string().optional(),
+  version: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+});
+
+export const AsmpContradictionSchema = z.object({
+  surface: z.string().min(1),
+  previous_state: z.string().min(1),
+  new_state: z.string().min(1),
+  reason: z.string().min(1),
+});
+
+export const AsmpDistillMemoryRequestSchema = z.object({
+  session_id: z.string().min(1),
+  verified_facts: z.array(
+    AsmpKnowledgeCandidateSchema.extend({
+      contradictions: z.array(AsmpContradictionSchema).optional(),
+    })
+  ),
+});
+
+export const AsmpSessionEndRequestSchema = z.object({
+  session_id: z.string().min(1),
+  execution_status: z.string().min(1),
+  summary: z.string().optional(),
+  knowledge_articles: z.array(AsmpKnowledgeCandidateSchema).optional(),
+  contradictions: z.array(AsmpContradictionSchema).optional(),
+});
+
 // Drive tool schemas
 export const DriveResolveCanonRootRequestSchema = z.object({
   driveId: z.string().min(1, "driveId is required"),
@@ -546,12 +607,14 @@ export class Tools {
   private warOps: WarOpsTools;
   private driveClient: GoogleDriveClient;
   private llmClient: VertexGeminiClient;
+  private sessionMemory: SessionMemoryManager;
 
   constructor() {
     this.client = new NotionClient();
     this.warOps = new WarOpsTools();
     this.driveClient = new GoogleDriveClient();
     this.llmClient = new VertexGeminiClient();
+    this.sessionMemory = new SessionMemoryManager();
   }
 
   private static INBOX_STATUS = [
@@ -693,6 +756,78 @@ export class Tools {
         normalized.routing_status_select ||
         ROUTING_STATUS_CODE_TO_LABEL[normalized.routing_status_code],
     };
+  }
+
+  private async loadAsmpMissionContext(currentAgent: string) {
+    const activeStatuses = ["Active", "In Flight"];
+    const missionLists = await Promise.all(
+      activeStatuses.map((status) =>
+        this.client.listMissions({ status, limit: 100 }).catch(() => ({ missions: [] }))
+      )
+    );
+    const missionMap = new Map<string, any>();
+    for (const item of missionLists.flatMap((result) => result.missions || [])) {
+      missionMap.set(item.id, item);
+    }
+
+    const normalizedAgent = currentAgent.trim().toLowerCase();
+    const missions = Array.from(missionMap.values()).filter((mission) => {
+      const owner = String(mission.owner || "").toLowerCase();
+      return owner.includes(normalizedAgent);
+    });
+    const fallbackMissions = missions.length > 0 ? missions : Array.from(missionMap.values());
+
+    const tags = Array.from(
+      new Set(
+        fallbackMissions.flatMap((mission) =>
+          Array.isArray(mission.tags) ? mission.tags.map((tag: string) => tag.toLowerCase()) : []
+        )
+      )
+    );
+    const identityResult = await this.client.listIdentities({ limit: 100 }).catch(() => ({ identities: [] }));
+    const identities = (identityResult.identities || []).filter((identity: any) => {
+      if (tags.length === 0) return true;
+      const haystack = [
+        identity.name,
+        identity.identity_type,
+        identity.handle,
+        identity.status,
+        identity.pod_layer,
+        identity.anchor_entity,
+        identity.role_description,
+        ...(Array.isArray(identity.entity) ? identity.entity : []),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return tags.some((tag) => haystack.includes(tag));
+    });
+
+    return {
+      missions: fallbackMissions,
+      identities,
+      parentMissionId: fallbackMissions[0]?.id || null,
+    };
+  }
+
+  async recordAsmpToolUsage(toolName: string, params: unknown) {
+    const payload =
+      params && typeof params === "object" ? (params as Record<string, unknown>) : {};
+    const sessionId =
+      typeof payload.session_id === "string"
+        ? payload.session_id
+        : typeof payload.asmp_session_id === "string"
+          ? payload.asmp_session_id
+          : null;
+    if (!sessionId) return;
+
+    await this.sessionMemory.appendEvent(sessionId, {
+      event_type: "TOOL_USAGE",
+      priority: "INFO",
+      summary: `Tool used: ${toolName}`,
+      tool_name: toolName,
+      payload: payload,
+    });
   }
 
   /**
@@ -1151,7 +1286,15 @@ export class Tools {
   async ["timeline.log"](params: unknown) {
     try {
       logger.info("Calling timeline.log", { params });
-      const parsed = TimelineLogRequestSchema.parse(params);
+      const raw = (params || {}) as Record<string, unknown>;
+      const parsed = TimelineLogRequestSchema.parse({
+        ...raw,
+        source: typeof raw.source === "string" && raw.source.trim() ? raw.source : "MCP Notion",
+        sync_key:
+          typeof raw.sync_key === "string" && raw.sync_key.trim()
+            ? raw.sync_key
+            : `timeline_log_${Date.now().toString(36)}`,
+      });
       const result = await this.client.logTimelineEvent(parsed);
       return TimelineLogResponseSchema.parse({ id: (result as any).id });
     } catch (error) {
@@ -1185,7 +1328,24 @@ export class Tools {
       const result = await this.client.listTimelineEvents(filters);
       const response = {
         request_id,
-        events: result.events || [],
+        events: (result.events || []).map((event: any) => ({
+          id: event.id,
+          title: event.title,
+          type: event.type ?? null,
+          event_type: event.event_type ?? null,
+          missionId: event.missionId ?? null,
+          tags: Array.isArray(event.tags) ? event.tags : [],
+          source: event.source ?? null,
+          notes: event.notes ?? null,
+          summary: event.summary ?? null,
+          timestamp: event.timestamp ?? null,
+          external_refs: event.external_refs ?? null,
+          actor: event.actor ?? null,
+          link: event.link ?? null,
+          date: event.date ?? null,
+          end_date: event.end_date ?? null,
+          last_edited_time: event.last_edited_time,
+        })),
       };
       return TimelineListResponseSchema.parse(response);
     } catch (error) {
@@ -4823,6 +4983,281 @@ export class Tools {
     }
   }
 
+  /**
+   * Tool: knowledge.create
+   * Create a candidate row in [IN] Knowledge Articles.
+   */
+  async ["knowledge.create"](params: unknown) {
+    try {
+      logger.info("Calling knowledge.create", { params });
+      const item = AsmpKnowledgeCandidateSchema.parse(params);
+      const result = await this.client.createKnowledgeArticle({
+        article_title: item.article_title,
+        article_type: item.article_type || "Operational Update",
+        summary: item.summary,
+        body: item.body,
+        entity: item.entity,
+        pod_owner: item.pod_owner,
+        version: item.version,
+        tags: item.tags,
+        status: "Candidate",
+      });
+      return result;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new MCPError(ErrorCodes.BAD_REQUEST, "Invalid request parameters", { operation: "knowledge.create", zodErrors: error.errors });
+      }
+      if (error instanceof MCPError) throw error;
+      logger.error("Unexpected error in knowledge.create", error);
+      throw new MCPError(ErrorCodes.INTERNAL_ERROR, "Unexpected error", { operation: "knowledge.create" });
+    }
+  }
+
+  /**
+   * Tool: asmp.sessionStart
+   * Read local root docs, load mission context, and open a persistent ASMP cache session.
+   */
+  async ["asmp.sessionStart"](params: unknown) {
+    try {
+      logger.info("Calling asmp.sessionStart", { params });
+      const parsed = AsmpSessionStartRequestSchema.parse(params);
+      const context = await this.loadAsmpMissionContext(parsed.current_agent);
+      const session = await this.sessionMemory.createSession({
+        current_agent: parsed.current_agent,
+        parent_mission_id: parsed.parent_mission_id || context.parentMissionId,
+        missions: context.missions,
+        identities: context.identities,
+      });
+      await this.sessionMemory.appendEvent(session.session_id, {
+        event_type: "SESSION_START",
+        priority: "INFO",
+        summary: `Session initialized for ${parsed.current_agent}`,
+        payload: {
+          mission_count: context.missions.length,
+          identity_count: context.identities.length,
+        },
+      });
+
+      return {
+        session_id: session.session_id,
+        parent_mission_id: session.parent_mission_id,
+        loaded_context: session.loaded_context,
+        root_context: session.root_context,
+      };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new MCPError(ErrorCodes.BAD_REQUEST, "Invalid request parameters", { operation: "asmp.sessionStart", zodErrors: error.errors });
+      }
+      if (error instanceof MCPError) throw error;
+      logger.error("Unexpected error in asmp.sessionStart", error);
+      throw new MCPError(ErrorCodes.INTERNAL_ERROR, "Unexpected error", { operation: "asmp.sessionStart" });
+    }
+  }
+
+  /**
+   * Tool: asmp.eventLog
+   * Append a repo-safe session event to `.nos/session_cache.json`.
+   */
+  async ["asmp.eventLog"](params: unknown) {
+    try {
+      logger.info("Calling asmp.eventLog", { params });
+      const parsed = AsmpEventLogRequestSchema.parse(params);
+      const event = await this.sessionMemory.appendEvent(parsed.session_id, {
+        event_type: parsed.event_type,
+        priority: parsed.priority,
+        summary: parsed.summary,
+        tool_name: parsed.tool_name,
+        file_path: parsed.file_path,
+        command: parsed.command,
+        payload: parsed.payload,
+      });
+      if (!event) {
+        throw new MCPError(ErrorCodes.NOT_FOUND, "ASMP session not found", {
+          operation: "asmp.eventLog",
+          session_id: parsed.session_id,
+        });
+      }
+      return { ok: true, event };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new MCPError(ErrorCodes.BAD_REQUEST, "Invalid request parameters", { operation: "asmp.eventLog", zodErrors: error.errors });
+      }
+      if (error instanceof MCPError) throw error;
+      logger.error("Unexpected error in asmp.eventLog", error);
+      throw new MCPError(ErrorCodes.INTERNAL_ERROR, "Unexpected error", { operation: "asmp.eventLog" });
+    }
+  }
+
+  /**
+   * Tool: asmp.distillMemory
+   * Turn verified session facts into candidate knowledge articles and contradiction blocks.
+   */
+  async ["asmp.distillMemory"](params: unknown) {
+    try {
+      logger.info("Calling asmp.distillMemory", { params });
+      const parsed = AsmpDistillMemoryRequestSchema.parse(params);
+      const result = await this.sessionMemory.distillMemory({
+        sessionId: parsed.session_id,
+        verifiedFacts: parsed.verified_facts,
+      });
+      if (!result) {
+        throw new MCPError(ErrorCodes.NOT_FOUND, "ASMP session not found", {
+          operation: "asmp.distillMemory",
+          session_id: parsed.session_id,
+        });
+      }
+
+      await this.sessionMemory.appendEvent(parsed.session_id, {
+        event_type: "MEMORY_DISTILLATION",
+        priority: result.contradiction_flags.length > 0 ? "BLOCKER" : "INFO",
+        summary: `Distilled ${result.knowledge_articles.length} verified facts`,
+        payload: {
+          contradiction_count: result.contradiction_flags.length,
+        },
+      });
+
+      return result;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new MCPError(ErrorCodes.BAD_REQUEST, "Invalid request parameters", { operation: "asmp.distillMemory", zodErrors: error.errors });
+      }
+      if (error instanceof MCPError) throw error;
+      logger.error("Unexpected error in asmp.distillMemory", error);
+      throw new MCPError(ErrorCodes.INTERNAL_ERROR, "Unexpected error", { operation: "asmp.distillMemory" });
+    }
+  }
+
+  /**
+   * Tool: asmp.sessionEnd
+   * Serialize the local session cache, export Runs & AAR, and halt canon writes on contradiction.
+   */
+  async ["asmp.sessionEnd"](params: unknown) {
+    try {
+      logger.info("Calling asmp.sessionEnd", { params });
+      const parsed = AsmpSessionEndRequestSchema.parse(params);
+      const session = await this.sessionMemory.getSession(parsed.session_id);
+      if (!session) {
+        throw new MCPError(ErrorCodes.NOT_FOUND, "ASMP session not found", {
+          operation: "asmp.sessionEnd",
+          session_id: parsed.session_id,
+        });
+      }
+
+      const contradictions: AsmpContradiction[] = [
+        ...session.contradiction_flags,
+        ...(parsed.contradictions || []),
+      ];
+      const knowledgeArticles: AsmpKnowledgeCandidate[] = [
+        ...session.knowledge_candidates,
+        ...(parsed.knowledge_articles || []),
+      ];
+      if (parsed.contradictions?.length) {
+        await this.sessionMemory.registerContradictions(parsed.session_id, parsed.contradictions);
+      }
+      if (parsed.knowledge_articles?.length) {
+        await this.sessionMemory.registerKnowledgeCandidates(parsed.session_id, parsed.knowledge_articles);
+      }
+
+      await this.sessionMemory.appendEvent(parsed.session_id, {
+        event_type: "SESSION_END",
+        priority: contradictions.length > 0 ? "BLOCKER" : "INFO",
+        summary: parsed.summary || "Session completed",
+      });
+
+      const refreshedSession = await this.sessionMemory.getSession(parsed.session_id);
+      if (!refreshedSession) {
+        throw new MCPError(ErrorCodes.NOT_FOUND, "ASMP session not found after update", {
+          operation: "asmp.sessionEnd",
+          session_id: parsed.session_id,
+        });
+      }
+
+      const runsAndAarsMarkdown = this.sessionMemory.buildRunsAarMarkdown(
+        refreshedSession,
+        parsed.summary
+      );
+
+      const runExport = await this.client.exportSessionRun({
+        session_id: refreshedSession.session_id,
+        mission_id: refreshedSession.parent_mission_id,
+        run_title: `ASMP ${refreshedSession.session_id}`,
+        started_at: refreshedSession.timestamp_start,
+        ended_at: new Date().toISOString(),
+        summary: parsed.summary || "ASMP session export",
+        markdown_body: runsAndAarsMarkdown,
+      });
+
+      const timelineUpdates: string[] = [];
+      const knowledgeTitles: string[] = [];
+      let contradictionBlockerReport: string | null = null;
+
+      if (contradictions.length > 0) {
+        contradictionBlockerReport = this.sessionMemory.buildContradictionReport({
+          ...refreshedSession,
+          contradiction_flags: contradictions,
+        });
+      } else {
+        const significantEvents = refreshedSession.events.filter(
+          (event) => event.priority === "SIGNIFICANT_DECISION"
+        );
+        for (const event of significantEvents) {
+          const timelineResult = await this.client.logTimelineEvent({
+            title: `ASMP Decision — ${event.summary}`,
+            event_type: "MISSION_UPDATED",
+            timestamp: event.timestamp,
+            missionId: refreshedSession.parent_mission_id || undefined,
+            sync_key: `${refreshedSession.session_id}_${event.id}`,
+            summary: event.summary,
+            notes: JSON.stringify(event.payload || {}),
+            source: "ASMP",
+          } as any);
+          timelineUpdates.push((timelineResult as any).id);
+        }
+
+        for (const article of knowledgeArticles) {
+          await this.client.createKnowledgeArticle({
+            article_title: article.article_title,
+            article_type: article.article_type || "Operational Update",
+            summary: article.summary,
+            body: article.body,
+            entity: article.entity,
+            pod_owner: article.pod_owner,
+            version: article.version,
+            tags: article.tags,
+            status: "Candidate",
+          });
+          knowledgeTitles.push(article.article_title);
+        }
+      }
+
+      const finalized = await this.sessionMemory.finalizeSession({
+        sessionId: parsed.session_id,
+        executionStatus: parsed.execution_status,
+        runsAndAarsMarkdown,
+        timelineUpdates,
+        knowledgeArticleTitles: knowledgeTitles,
+        contradictionFlags: contradictions,
+      });
+
+      return {
+        session_id: parsed.session_id,
+        runs_and_aars_export: runExport,
+        handoff: finalized?.handoff,
+        summary_markdown_path: finalized?.summaryPath,
+        handoff_json_path: finalized?.handoffPath,
+        contradiction_blocker_report: contradictionBlockerReport,
+        halted_autonomous_memory_updates: contradictions.length > 0,
+      };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new MCPError(ErrorCodes.BAD_REQUEST, "Invalid request parameters", { operation: "asmp.sessionEnd", zodErrors: error.errors });
+      }
+      if (error instanceof MCPError) throw error;
+      logger.error("Unexpected error in asmp.sessionEnd", error);
+      throw new MCPError(ErrorCodes.INTERNAL_ERROR, "Unexpected error", { operation: "asmp.sessionEnd" });
+    }
+  }
+
       async getToolDefinitions() {
     return [
       {
@@ -4847,6 +5282,18 @@ export class Tools {
             sync_key: { type: "string", description: "Unique sync key" }
           },
           required: ["title", "summary"]
+        }
+      },
+      {
+        name: "asmp_sessionStart",
+        description: "Initialize an ASMP session and load immutable mission context",
+        inputSchema: {
+          type: "object",
+          properties: {
+            current_agent: { type: "string" },
+            parent_mission_id: { type: "string" }
+          },
+          required: ["current_agent"]
         }
       }
     ];

@@ -60,6 +60,7 @@ Inject `NOTION_API_KEY` from the parent process or pass it via `-NotionApiKey` w
 - `NOTION_DB_ARK_ASSETS` - Asset registry for ARK seal logging
 - `NOTION_DB_TIMELINE` - Timeline / PoLE events database
 - `NOTION_DB_INBOX` - Inbox capture database
+- `NOTION_DB_AGENTS` / `NOTION_IDENTITY_DB_ID` - Canonical `[IN] Identity` surface for agent/person/entity records
 - `NOTION_DB_CAPABILITY_REGISTRY` - Shared Capability Registry surface for live owner-agent schema inspection / guarded mutation
 - `PORT` - Server port (default: 3002)
 - `NODE_ENV` - Environment mode (default: development)
@@ -210,6 +211,19 @@ The smoke script:
 - optionally calls `POST /api/v1/fulcrum/capability-registry/owner-agent` with `dryRun: true`
 
 This is the approved remote-safe verification path while the real Notion write remains gated.
+
+## Agent-Facing Notion Control Surfaces
+
+For workspace-agent and TEAM-AI runtime use:
+
+- `[IN] Identity` (`NOTION_DB_AGENTS` / `NOTION_IDENTITY_DB_ID`) = canonical agent record surface
+- `IE Capability Registry v2.0` (`NOTION_DB_CAPABILITY_REGISTRY`) = capability ownership / owner-agent surface
+- `[WAR] Missions` (`NOTION_DB_MISSIONS`) = mission context
+- `[WAR] Runs & AARs` (`NOTION_DB_RUNS_AARS`) = run export / AAR surface
+- `[IN] Timeline` (`NOTION_DB_TIMELINE`) = event / decision log
+- `[IN] Knowledge Base` (`NOTION_DB_CLASS_KB`) = candidate knowledge output
+
+`TEAM AI Agent Fleet` should be treated as a view or hub surface over canonical agent truth, not as the ownership root for agent records.
 
 ### databases.list
 

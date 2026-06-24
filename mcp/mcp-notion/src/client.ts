@@ -4872,6 +4872,117 @@ export class NotionClient {
     }
   }
 
+  /**
+   * [IN] Knowledge Articles — create a candidate article.
+   */
+  async createKnowledgeArticle(data: {
+    article_title: string;
+    article_type?: string;
+    summary?: string;
+    body?: string;
+    entity?: string[];
+    pod_owner?: string;
+    version?: string;
+    tags?: string[];
+    review_date?: string;
+    status?: string;
+  }) {
+    try {
+      const dbId = (this.config as any).NOTION_KNOWLEDGE_ARTICLES_DB_ID || this.config.NOTION_DB_CLASS_KB;
+      if (!dbId) throw new MCPError(ErrorCodes.CONFIG_ERROR, "NOTION_KNOWLEDGE_ARTICLES_DB_ID not configured", { operation: "create_knowledge_article" });
+      this._validateCanonicalDb(dbId);
+
+      const properties: any = {
+        "Article Title": { title: [{ text: { content: data.article_title } }] },
+      };
+      if (data.article_type) properties["Article Type"] = { select: { name: data.article_type } };
+      if (data.status) properties["Status"] = { select: { name: data.status } };
+      if (data.entity?.length) properties["Entity"] = { multi_select: data.entity.map((item) => ({ name: item })) };
+      if (data.pod_owner) properties["Pod Owner"] = { select: { name: data.pod_owner } };
+      if (data.version) properties["Version"] = { rich_text: [{ text: { content: data.version } }] };
+      if (data.tags?.length) properties["Tags"] = { multi_select: data.tags.map((tag) => ({ name: tag })) };
+      if (data.review_date) properties["Review Date"] = { date: { start: data.review_date } };
+      if (data.summary) properties["Summary"] = { rich_text: [{ text: { content: data.summary } }] };
+
+      const children =
+        data.body && data.body.trim()
+          ? data.body
+              .match(/[\s\S]{1,1800}/g)
+              ?.map((chunk) => ({
+                object: "block",
+                type: "paragraph",
+                paragraph: {
+                  rich_text: [{ type: "text", text: { content: chunk } }],
+                },
+              }))
+          : undefined;
+
+      const page = await this.client.pages.create({
+        parent: { database_id: dbId },
+        properties,
+        ...(children ? { children } : {}),
+      } as any);
+
+      return { id: (page as any).id, notion_url: (page as any).url, created_time: (page as any).created_time };
+    } catch (error) {
+      if (error instanceof MCPError) throw error;
+      logger.error("Failed to create knowledge article", error);
+      throw new MCPError(ErrorCodes.UPSTREAM_ERROR, "Failed to create knowledge article", { operation: "create_knowledge_article", originalError: String(error) });
+    }
+  }
+
+  /**
+   * [WAR] Mission Runs & AARs — export a completed ASMP session.
+   */
+  async exportSessionRun(data: {
+    session_id: string;
+    mission_id?: string | null;
+    run_title: string;
+    started_at: string;
+    ended_at: string;
+    summary: string;
+    markdown_body: string;
+  }) {
+    try {
+      const dbId = this._getMissionRunsDbId("export_session_run");
+      this._validateCanonicalDb(dbId);
+      await this._assertWritableDatabaseSurface(dbId, "export_session_run");
+
+      const properties: any = {
+        "Run ID": { title: [{ text: { content: data.run_title } }] },
+        "Started At": { date: { start: data.started_at } },
+        "Completed At": { date: { start: data.ended_at } },
+        "Status": { select: { name: "Review" } },
+        "SYNC_KEY": { rich_text: [{ text: { content: data.session_id } }] },
+        "Output Summary": { rich_text: [{ text: { content: data.summary } }] },
+        "Output Payload / Body": { rich_text: [{ text: { content: data.markdown_body.slice(0, 1900) } }] },
+      };
+      if (data.mission_id) {
+        properties["Mission"] = { relation: [{ id: data.mission_id }] };
+      }
+
+      const runType = await this._resolveSelectOptionName(dbId, "Run Type", [
+        "Analysis",
+        "Automation Run",
+        "Transformation",
+      ]);
+      if (runType) {
+        properties["Run Type"] = { select: { name: runType } };
+      }
+
+      const page = await this.client.pages.create({
+        parent: { database_id: dbId },
+        properties,
+      } as any);
+
+      return { id: (page as any).id, notion_url: (page as any).url, created_time: (page as any).created_time };
+    } catch (error) {
+      if (error instanceof MCPError) throw error;
+      logger.error("Failed to export ASMP session run", error);
+      throw new MCPError(ErrorCodes.UPSTREAM_ERROR, "Failed to export ASMP session run", { operation: "export_session_run", originalError: String(error) });
+    }
+  }
+
   private _getCapabilityRegistryDbId(operation: string) {
     const dbId =
       (this.config as any).NOTION_CAPABILITY_REGISTRY_DB_ID ||

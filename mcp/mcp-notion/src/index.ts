@@ -52,6 +52,7 @@ async function main() {
       const actualName = name.replace("_", "."); const method = (tools as any)[actualName] || (tools as any)[name];
       if (!method) throw new Error(`Tool ${name} not found`);
       const result = await method.call(tools, args);
+      await tools.recordAsmpToolUsage(actualName, args);
       return { content: [{ type: "text", text: JSON.stringify(result) }] };
     });
 
@@ -110,6 +111,7 @@ async function main() {
             : req.body;
 
         const data = await toolMethod.call(tools, payload);
+        await tools.recordAsmpToolUsage(actualName, payload);
         return res.json({ ok: true, data });
       } catch (error) {
         if (error instanceof MCPError) {
