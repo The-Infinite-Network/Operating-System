@@ -338,7 +338,7 @@ export const api = {
       missionId: payload.missionId,
       notes: payload.notes,
     };
-    return postJson<{ id: string }>("/tool/ark.sealLog", { params: body });
+    return postJson<{ ok: boolean; data: { id: string } }>("/tool/ark.sealLog", { params: body }).then(res => res.data);
   },
 
   // Inbox capture via /inbox/capture
@@ -590,7 +590,6 @@ export const api = {
     return { events };
   },
 
-  // Timeline log for a mission via /tool/timeline.log
   logTimelineEvent: (payload: {
     title: string;
     type?: string;
@@ -604,10 +603,9 @@ export const api = {
         source: "INOS Shell React",
       },
     };
-    return postJson<{ id: string }>("/tool/timeline.log", body);
+    return postJson<{ ok: boolean; data: { id: string } }>("/tool/timeline.log", body).then(res => res.data);
   },
 
-  // Canonical timeline event logging via /tool/timeline.logEvent
   logTimelineEventV1: (payload: {
     event_type:
     | "MISSION_CREATED"
@@ -635,9 +633,9 @@ export const api = {
     summary?: string;
     external_refs?: string;
   }) => {
-    return postJson<{ id: string }>("/tool/timeline.logEvent", {
+    return postJson<{ ok: boolean; data: { id: string } }>("/tool/timeline.logEvent", {
       params: payload,
-    });
+    }).then(res => res.data);
   },
 
   // Check lane compliance via /tool/core.check_lane
@@ -733,10 +731,11 @@ export const api = {
       };
 
       const res = await postJson<{
-        notion_page_id: string;
+        ok: boolean;
+        data: { notion_page_id: string };
       }>("/tool/missions.upsert", body);
 
-      return { id: res.notion_page_id };
+      return { id: res.data.notion_page_id };
     },
   },
 
@@ -787,10 +786,11 @@ export const api = {
       };
 
       const res = await postJson<{
-        task_id?: string;
+        ok: boolean;
+        data: { task_id?: string };
       }>("/tool/tasks.create", body);
 
-      return res;
+      return res.data;
     },
     update: async (payload: {
       missionId: string;
@@ -809,7 +809,8 @@ export const api = {
         },
       };
 
-      return postJson<{ ok?: boolean; task_id?: string }>("/tool/tasks.update", body);
+      const res = await postJson<{ ok: boolean; data: { ok?: boolean; task_id?: string } }>("/tool/tasks.update", body);
+      return res.data;
     },
   },
 
@@ -887,9 +888,9 @@ export const api = {
       summary?: string;
       external_refs?: string;
     }) => {
-      return postJson<{ id: string }>("/tool/timeline.logEvent", {
+      return postJson<{ ok: boolean; data: { id: string } }>("/tool/timeline.logEvent", {
         params: payload,
-      });
+      }).then(res => res.data);
     },
   },
 
@@ -920,16 +921,16 @@ export const api = {
       runId: string;
       endNotes?: string;
     }): Promise<{ id: string; url?: string }> => {
-      const data = await postJson<{
-        id: string;
-        url?: string;
+      const res = await postJson<{
+        ok: boolean;
+        data: { id: string; url?: string };
       }>("/tool/runs.end", {
         params: {
           runId: payload.runId,
           endNotes: payload.endNotes,
         },
       });
-      return data;
+      return res.data;
     },
   },
 
@@ -942,9 +943,9 @@ export const api = {
       lessons?: string;
       status?: string;
     }): Promise<{ id: string; url?: string }> => {
-      const data = await postJson<{
-        id: string;
-        url?: string;
+      const res = await postJson<{
+        ok: boolean;
+        data: { id: string; url?: string };
       }>("/tool/aars.update", {
         params: {
           aarId: payload.aarId,
@@ -955,7 +956,7 @@ export const api = {
           status: payload.status,
         },
       });
-      return data;
+      return res.data;
     },
   },
 
