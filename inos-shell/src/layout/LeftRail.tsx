@@ -31,7 +31,7 @@ export default function LeftRail({ entity, room }: LeftRailProps) {
       <div className="sy-header">
         <div className="sy-title-row">
           <span className="sy-title">Switchyard</span>
-          <span className="sy-count">{activeCount}/5</span>
+          <span className="sy-count" title="sample data">{activeCount}/5</span>
         </div>
         <div className="sy-progress">
           <div className="sy-progress-fill" style={{ width: activePercent }} />

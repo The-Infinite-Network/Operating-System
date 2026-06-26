@@ -37,6 +37,10 @@ export default function Guilds() {
         <div className="text-xs uppercase tracking-[0.2em] text-inos-muted">
           Guild Directory
         </div>
+        <div className="text-[10px] font-mono text-[#555] border border-[#1a1a1a] bg-[#0a0a0a] px-3 py-2 rounded-sm mb-3 flex items-center gap-2">
+          <span className="text-[#c9a227]/70">◆</span>
+          Sample guilds — Join/Leave state is local only. Live guild registry not yet wired.
+        </div>
         <div className="guilds-grid">
           {mockGuilds.map((guild) => {
             const isJoined = joined.includes(guild.id);

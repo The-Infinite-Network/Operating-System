@@ -10,10 +10,10 @@ export default function Logs() {
             Sample
           </span>
         </div>
-        <p className="mt-2 mb-4 text-xs text-[#777]">
-          This surface is still rendering seeded mock timeline rows. Use it as a placeholder until the
-          live log route is wired or replaced.
-        </p>
+        <div className="text-[10px] font-mono text-amber-300/70 border border-amber-300/30 bg-amber-300/5 px-3 py-2 rounded-lg mb-3 mt-2 flex items-center gap-2">
+          <span className="text-amber-400">◆</span>
+          Sample data — connect MCP Notion server (port 3002) to load live events
+        </div>
         <div className="table-wrap">
           <table className="inos-table">
             <thead>

@@ -217,7 +217,7 @@ export default function Foundation() {
 
         <section className="card p-4">
           <div className="text-xs uppercase tracking-[0.2em] text-inos-muted mb-4">
-            Network Registry (Live)
+            Network Registry
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Rooms */}
@@ -264,7 +264,6 @@ export default function Foundation() {
                   entities.slice(0, 5).map(e => (
                     <div key={e.id} className="text-[11px] flex justify-between">
                       <span>{e.name || e.title}</span>
-                      <span className="inos-pill text-[9px]">Live</span>
                     </div>
                   ))
                 }

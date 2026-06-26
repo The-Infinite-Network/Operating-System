@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Activity, Clock, Target, Wallet, History, CheckCircle2, AlertCircle, Settings,
