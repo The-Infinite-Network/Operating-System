@@ -248,8 +248,11 @@ function Start-VisiblePowerShell {
   if ($EnvironmentOverrides) {
     foreach ($entry in $EnvironmentOverrides.GetEnumerator()) {
       $key = $entry.Key
-      $val = [string]$entry.Value -replace '"', '\"'
-      $envPrefix += "`$env:$key = `"$val`"; "
+      $val = [string]$entry.Value
+      if (-not [string]::IsNullOrEmpty($val)) {
+        $val = $val -replace '"', '\"'
+        $envPrefix += "`$env:$key = `"$val`"; "
+      }
     }
   }
 
