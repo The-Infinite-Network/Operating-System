@@ -429,32 +429,32 @@ Write-Host "=== SMOKE TEST ===" -ForegroundColor Cyan
 $allGood = $true
 
 if (Test-HttpReady -Url $pythonHealth) {
-    Write-Host "✓ Python API healthy" -ForegroundColor Green
+    Write-Host "[+] Python API healthy" -ForegroundColor Green
 } else {
-    Write-Host "✗ Python API not responding" -ForegroundColor Red
+    Write-Host "[-] Python API not responding" -ForegroundColor Red
     $allGood = $false
 }
 
 if (Test-HttpReady -Url $nodeApiHealth) {
-    Write-Host "✓ Node API healthy" -ForegroundColor Green
+    Write-Host "[+] Node API healthy" -ForegroundColor Green
 } else {
-    Write-Host "✗ Node API not responding" -ForegroundColor Red
+    Write-Host "[-] Node API not responding" -ForegroundColor Red
     $allGood = $false
 }
 
 if (-not $ShellOnly) {
     if (Test-HttpReady -Url $mcpHealth) {
-        Write-Host "✓ MCP backend healthy" -ForegroundColor Green
+        Write-Host "[+] MCP backend healthy" -ForegroundColor Green
     } else {
-        Write-Host "✗ MCP backend not responding" -ForegroundColor Red
+        Write-Host "[-] MCP backend not responding" -ForegroundColor Red
         $allGood = $false
     }
 }
 
 if (Test-HttpReady -Url $shellHealth) {
-    Write-Host "✓ INOS shell live" -ForegroundColor Green
+    Write-Host "[+] INOS shell live" -ForegroundColor Green
 } else {
-    Write-Host "✗ INOS shell not responding" -ForegroundColor Red
+    Write-Host "[-] INOS shell not responding" -ForegroundColor Red
     $allGood = $false
 }
 
