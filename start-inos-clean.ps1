@@ -6,7 +6,32 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$root = "C:\dev\The-Infinite-Network\Operating-System"
+# --- GUI pop-up prompt for VisibleMcp (when not passed on command line) ---
+if (-not $PSBoundParameters.ContainsKey('VisibleMcp') -and -not $PSBoundParameters.ContainsKey('ShellOnly')) {
+    try {
+        $wshell = New-Object -ComObject Wscript.Shell
+        $result = $wshell.Popup(
+            "Run the mcp-notion clean runtime in a visible PowerShell window?`n`n(Yes = visible for debugging, No = hidden)",
+            0,
+            "INOS Clean Boot",
+            4  # 4 = Yes/No buttons
+        )
+        # 6 = Yes, 7 = No
+        if ($result -eq 6) {
+            $VisibleMcp = $true
+        }
+    } catch {
+        Write-Host "Could not show pop-up dialog, defaulting to hidden MCP. ($($_.Exception.Message))" -ForegroundColor Yellow
+    }
+}
+
+# Resolve root dynamically so the script works when invoked from anywhere (npm, direct, etc.)
+$scriptRoot = $PSScriptRoot
+if (-not $scriptRoot) {
+  $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+$root = $scriptRoot
+
 $pythonApiRoot = Join-Path $root "inos-api"
 $mcpRoot = Join-Path $root "mcp\mcp-notion"
 $shellRoot = Join-Path $root "inos-shell"
@@ -154,7 +179,7 @@ function Test-McpFulcrumSchemaRoute {
   param([string]$Url)
 
   try {
-    $response = Invoke-WebRequest -Uri $Url -Method Post -ContentType "application/json" -Body "{}" -UseBasicParsing -TimeoutSec 3
+    $null = Invoke-WebRequest -Uri $Url -Method Post -ContentType "application/json" -Body "{}" -UseBasicParsing -TimeoutSec 3
     return $true
   } catch {
     $httpResponse = $_.Exception.Response
@@ -218,13 +243,20 @@ function Start-VisiblePowerShell {
     [hashtable]$EnvironmentOverrides
   )
 
-  $psi = New-ProcessStartInfo -FilePath "powershell" -ArgumentList @(
-    "-NoExit",
-    "-ExecutionPolicy", "Bypass",
-    "-Command", "Set-Location '$WorkingDirectory'; $Command"
-  ) -WorkingDirectory $WorkingDirectory -Visible $true -EnvironmentOverrides $EnvironmentOverrides
+  $envPrefix = ""
+  if ($EnvironmentOverrides) {
+    foreach ($entry in $EnvironmentOverrides.GetEnumerator()) {
+      $key = $entry.Key
+      $val = [string]$entry.Value -replace "'", "''"
+      $envPrefix += "`$env:$key = '$val'; "
+    }
+  }
 
-  [void][System.Diagnostics.Process]::Start($psi)
+  $fullCommand = $envPrefix + "Set-Location '$WorkingDirectory'; $Command"
+
+  # Use cmd /c start to reliably pop a new console window
+  $startCommand = "powershell.exe -NoExit -ExecutionPolicy Bypass -Command `"$fullCommand`""
+  cmd /c start "INOS MCP Visible" $startCommand
 }
 
 function Start-HiddenPowerShell {
@@ -388,6 +420,48 @@ if (Test-HttpReady -Url $shellHealth) {
   }
 
   Write-Host "[4/4] INOS shell live at $shellUrl" -ForegroundColor Green
+}
+
+# --- Smoke Test ---
+Write-Host ""
+Write-Host "=== SMOKE TEST ===" -ForegroundColor Cyan
+
+$allGood = $true
+
+if (Test-HttpReady -Url $pythonHealth) {
+    Write-Host "✓ Python API healthy" -ForegroundColor Green
+} else {
+    Write-Host "✗ Python API not responding" -ForegroundColor Red
+    $allGood = $false
+}
+
+if (Test-HttpReady -Url $nodeApiHealth) {
+    Write-Host "✓ Node API healthy" -ForegroundColor Green
+} else {
+    Write-Host "✗ Node API not responding" -ForegroundColor Red
+    $allGood = $false
+}
+
+if (-not $ShellOnly) {
+    if (Test-HttpReady -Url $mcpHealth) {
+        Write-Host "✓ MCP backend healthy" -ForegroundColor Green
+    } else {
+        Write-Host "✗ MCP backend not responding" -ForegroundColor Red
+        $allGood = $false
+    }
+}
+
+if (Test-HttpReady -Url $shellHealth) {
+    Write-Host "✓ INOS shell live" -ForegroundColor Green
+} else {
+    Write-Host "✗ INOS shell not responding" -ForegroundColor Red
+    $allGood = $false
+}
+
+if ($allGood) {
+    Write-Host "Smoke test PASSED" -ForegroundColor Green
+} else {
+    Write-Host "Smoke test had issues - check logs" -ForegroundColor Red
 }
 
 Write-Host "------------------------------------------------" -ForegroundColor Cyan

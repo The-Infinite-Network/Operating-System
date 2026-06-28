@@ -1,0 +1,21 @@
+{
+  "name": "@infinite-network/operating-system",
+  "private": true,
+  "version": "0.2.0",
+  "description": "INOS (Infinite Network OS) clean boot orchestrator",
+  "scripts": {
+    "start-inos-clean": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./start-inos-clean.ps1",
+    "start-inos-clean:shell-only": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./start-inos-clean.ps1 -ShellOnly",
+    "start-inos-clean:visible-mcp": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./start-inos-clean.ps1 -VisibleMcp",
+    "start": "npm run start-inos-clean",
+    "dev:shell": "npm --prefix inos-shell run dev",
+    "server": "npm --prefix inos-shell run server"
+  },
+  "keywords": [
+    "inos",
+    "infinite-network",
+    "mcp",
+    "clean-boot"
+  ],
+  "license": "MIT"
+}

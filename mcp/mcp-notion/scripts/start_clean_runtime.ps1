@@ -5,11 +5,15 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = "C:\dev\The-Infinite-Network\Operating-System\mcp\mcp-notion"
+$scriptRoot = $PSScriptRoot
+if (-not $scriptRoot) {
+  $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+$repoRoot = $scriptRoot
 $current = (Get-Location).Path
 
 if ($current -ne $repoRoot) {
-  throw "Run this script from $repoRoot. Current directory: $current"
+  throw "Run this script from $repoRoot (or ensure the parent boot sets the correct working directory). Current directory: $current"
 }
 
 $envPath = Join-Path $repoRoot ".env"
