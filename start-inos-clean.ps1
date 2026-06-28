@@ -244,23 +244,24 @@ function Start-VisiblePowerShell {
     [string]$WindowTitle = "PowerShell"
   )
 
-  $psi = New-Object System.Diagnostics.ProcessStartInfo
-  $psi.FileName = "powershell.exe"
-  $psi.WorkingDirectory = $WorkingDirectory
-  $psi.UseShellExecute = $true
-  $psi.CreateNoWindow = $false
-  $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Normal
-
-  $cmd = "Set-Location '$WorkingDirectory'; `$host.ui.RawUI.WindowTitle = '$WindowTitle'; $Command"
-  $psi.Arguments = "-NoExit -ExecutionPolicy Bypass -Command `"$cmd`""
-
+  $envPrefix = ""
   if ($EnvironmentOverrides) {
     foreach ($entry in $EnvironmentOverrides.GetEnumerator()) {
-      $psi.Environment[$entry.Key] = [string]$entry.Value
+      $key = $entry.Key
+      $val = [string]$entry.Value -replace '"', '\"'
+      $envPrefix += "`$env:$key = `"$val`"; "
     }
   }
 
-  [void][System.Diagnostics.Process]::Start($psi)
+  $fullCommand = $envPrefix + "Set-Location '$WorkingDirectory'; `$host.ui.RawUI.WindowTitle = '$WindowTitle'; $Command"
+
+  $argList = @(
+    "-NoExit",
+    "-ExecutionPolicy", "Bypass",
+    "-Command", $fullCommand
+  )
+
+  Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WorkingDirectory $WorkingDirectory -WindowStyle Normal
 }
 
 function Start-HiddenPowerShell {
@@ -389,7 +390,10 @@ if (-not $ShellOnly) {
     $shouldStartMcp = $true
   }
 
-  if ($shouldStartMcp) {
+  if ($shouldStartMcp -or $VisibleMcp) {
+    if (Test-PortListening -Port 3002) {
+      Restart-StaleMcpRuntime -RootPath $mcpRoot
+    }
     Write-Host "[3/4] Starting mcp-notion clean runtime..." -ForegroundColor Gray
     $mcpCommand = ".\scripts\start_clean_runtime.ps1"
     if ($VisibleMcp) {
