@@ -240,23 +240,28 @@ function Start-VisiblePowerShell {
   param(
     [string]$WorkingDirectory,
     [string]$Command,
-    [hashtable]$EnvironmentOverrides
+    [hashtable]$EnvironmentOverrides,
+    [string]$WindowTitle = "PowerShell"
   )
 
   $envPrefix = ""
   if ($EnvironmentOverrides) {
     foreach ($entry in $EnvironmentOverrides.GetEnumerator()) {
       $key = $entry.Key
-      $val = [string]$entry.Value -replace "'", "''"
-      $envPrefix += "`$env:$key = '$val'; "
+      $val = [string]$entry.Value -replace '"', '\"'
+      $envPrefix += "`$env:$key = `"$val`"; "
     }
   }
 
-  $fullCommand = $envPrefix + "Set-Location '$WorkingDirectory'; $Command"
+  $fullCommand = $envPrefix + "Set-Location '$WorkingDirectory'; `$host.ui.RawUI.WindowTitle = '$WindowTitle'; $Command"
 
-  # Use cmd /c start to reliably pop a new console window
-  $startCommand = "powershell.exe -NoExit -ExecutionPolicy Bypass -Command `"$fullCommand`""
-  cmd /c start "INOS MCP Visible" $startCommand
+  $argList = @(
+    "-NoExit",
+    "-ExecutionPolicy", "Bypass",
+    "-Command", $fullCommand
+  )
+
+  Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WorkingDirectory $WorkingDirectory -WindowStyle Normal
 }
 
 function Start-HiddenPowerShell {
@@ -389,7 +394,7 @@ if (-not $ShellOnly) {
     Write-Host "[3/4] Starting mcp-notion clean runtime..." -ForegroundColor Gray
     $mcpCommand = ".\scripts\start_clean_runtime.ps1"
     if ($VisibleMcp) {
-      Start-VisiblePowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand -EnvironmentOverrides $secretEnv
+      Start-VisiblePowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand -EnvironmentOverrides $secretEnv -WindowTitle "INOS MCP Visible"
     } else {
       Start-HiddenPowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand -EnvironmentOverrides $secretEnv
     }
@@ -411,7 +416,7 @@ if (Test-HttpReady -Url $shellHealth) {
   Write-Host "[4/4] INOS shell already live at $shellUrl" -ForegroundColor Green
 } else {
   Write-Host "[4/4] Starting INOS shell on $shellUrl ..." -ForegroundColor Gray
-  Start-VisiblePowerShell -WorkingDirectory $shellRoot -Command "& '$nodeExe' '.\node_modules\vite\bin\vite.js' --host 127.0.0.1 --port 5173" -EnvironmentOverrides $secretEnv
+  Start-VisiblePowerShell -WorkingDirectory $shellRoot -Command "& '$nodeExe' '.\node_modules\vite\bin\vite.js' --host 127.0.0.1 --port 5173" -EnvironmentOverrides $secretEnv -WindowTitle "INOS Shell"
 
   $shellReady = Wait-HttpReady -Url $shellHealth -Seconds 20
 
