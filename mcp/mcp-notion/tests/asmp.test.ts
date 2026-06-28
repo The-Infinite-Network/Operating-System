@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import os from "os";
 import path from "path";
+import { SessionMemoryManager } from "../src/asmp.js";
 import { Tools } from "../src/tools.js";
 
 describe("ASMP tools", () => {
@@ -53,6 +54,16 @@ describe("ASMP tools", () => {
     expect(result.root_context.agents_md.found).toBe(true);
     expect(result.loaded_context.immutable_context_block).toContain("ASMP_IMMUTABLE_CONTEXT_BLOCK");
     expect(result.loaded_context.immutable_context_block).toContain("Persistent Memory");
+  });
+
+  it("finds the workspace root from AGENTS.md when CLAUDE.md is absent", () => {
+    const nested = path.join(tempRoot, "deep", "child");
+    require("fs").mkdirSync(nested, { recursive: true });
+    require("fs").rmSync(path.join(tempRoot, "CLAUDE.md"), { force: true });
+
+    const detected = SessionMemoryManager.findWorkspaceRoot(nested);
+
+    expect(detected).toBe(tempRoot);
   });
 
   it("distills facts into knowledge candidates and contradiction report", async () => {

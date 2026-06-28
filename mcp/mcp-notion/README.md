@@ -225,6 +225,26 @@ For workspace-agent and TEAM-AI runtime use:
 
 `TEAM AI Agent Fleet` should be treated as a view or hub surface over canonical agent truth, not as the ownership root for agent records.
 
+## ASMP Root Context Contract
+
+`asmp.sessionStart` reads the workspace-root `AGENTS.md` and `CLAUDE.md`, then persists the session cache under `.nos/session_cache.json` at that same workspace root.
+
+Workspace root discovery order:
+
+- `ASMP_WORKSPACE_ROOT` if explicitly set
+- otherwise the nearest ancestor containing `AGENTS.md`
+- otherwise the nearest ancestor containing `CLAUDE.md`
+- otherwise the nearest ancestor containing `Operating-System\`
+
+For `C:\dev\The-Infinite-Network`, the root context contract is:
+
+- root `AGENTS.md` = operator rules, repo boundaries, canon/runtime split
+- root `CLAUDE.md` = Claude-specific execution guidance
+- `Operating-System\CLAUDE.md` = runtime implementation guide
+- this README = `mcp-notion` runtime and Notion-surface contract
+
+Do not treat `TEAM AI Agent Fleet` as the root identity surface, and do not rely on a nonexistent `Operating-System\AGENTS.md`.
+
 ### databases.list
 
 List all Notion databases accessible to this integration.

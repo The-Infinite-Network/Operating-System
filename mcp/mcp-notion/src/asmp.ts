@@ -106,10 +106,11 @@ export class SessionMemoryManager {
 
     let current = path.resolve(start);
     while (true) {
+      const agentsPath = path.join(current, "AGENTS.md");
       const claudePath = path.join(current, "CLAUDE.md");
       const operatingSystemPath = path.join(current, "Operating-System");
       try {
-        if (existsSync(claudePath) || existsSync(operatingSystemPath)) {
+        if (existsSync(agentsPath) || existsSync(claudePath) || existsSync(operatingSystemPath)) {
           return current;
         }
       } catch {

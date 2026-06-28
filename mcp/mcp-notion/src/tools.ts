@@ -5015,7 +5015,7 @@ export class Tools {
 
   /**
    * Tool: asmp.sessionStart
-   * Read local root docs, load mission context, and open a persistent ASMP cache session.
+   * Read workspace-root AGENTS.md and CLAUDE.md, load mission context, and open a persistent ASMP cache session.
    */
   async ["asmp.sessionStart"](params: unknown) {
     try {
