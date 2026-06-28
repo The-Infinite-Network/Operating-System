@@ -478,11 +478,3 @@ Write-Host "Node API: $nodeApiDisplayUrl" -ForegroundColor DarkCyan
 if (-not $ShellOnly) {
   Write-Host "MCP backend: $mcpDisplayUrl" -ForegroundColor DarkCyan
 }
-
-
-
-
-
-
-
-}
