@@ -244,24 +244,23 @@ function Start-VisiblePowerShell {
     [string]$WindowTitle = "PowerShell"
   )
 
-  $envPrefix = ""
+  $psi = New-Object System.Diagnostics.ProcessStartInfo
+  $psi.FileName = "powershell.exe"
+  $psi.WorkingDirectory = $WorkingDirectory
+  $psi.UseShellExecute = $true
+  $psi.CreateNoWindow = $false
+  $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Normal
+
+  $cmd = "Set-Location '$WorkingDirectory'; `$host.ui.RawUI.WindowTitle = '$WindowTitle'; $Command"
+  $psi.Arguments = "-NoExit -ExecutionPolicy Bypass -Command `"$cmd`""
+
   if ($EnvironmentOverrides) {
     foreach ($entry in $EnvironmentOverrides.GetEnumerator()) {
-      $key = $entry.Key
-      $val = [string]$entry.Value -replace '"', '\"'
-      $envPrefix += "`$env:$key = `"$val`"; "
+      $psi.Environment[$entry.Key] = [string]$entry.Value
     }
   }
 
-  $fullCommand = $envPrefix + "Set-Location '$WorkingDirectory'; `$host.ui.RawUI.WindowTitle = '$WindowTitle'; $Command"
-
-  $argList = @(
-    "-NoExit",
-    "-ExecutionPolicy", "Bypass",
-    "-Command", $fullCommand
-  )
-
-  Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WorkingDirectory $WorkingDirectory -WindowStyle Normal
+  [void][System.Diagnostics.Process]::Start($psi)
 }
 
 function Start-HiddenPowerShell {
@@ -418,10 +417,12 @@ if (Test-HttpReady -Url $shellHealth) {
   Write-Host "[4/4] Starting INOS shell on $shellUrl ..." -ForegroundColor Gray
   Start-VisiblePowerShell -WorkingDirectory $shellRoot -Command "& '$nodeExe' '.\node_modules\vite\bin\vite.js' --host 127.0.0.1 --port 5173" -EnvironmentOverrides $secretEnv -WindowTitle "INOS Shell"
 
-  $shellReady = Wait-HttpReady -Url $shellHealth -Seconds 20
+  # Give Vite a moment to initialize the dev server
+  Start-Sleep -Seconds 5
+  $shellReady = Wait-HttpReady -Url $shellHealth -Seconds 90
 
   if (-not $shellReady) {
-    throw "inos-shell did not become ready at $shellUrl within 20 seconds."
+    throw "inos-shell did not become ready at $shellUrl within 90 seconds."
   }
 
   Write-Host "[4/4] INOS shell live at $shellUrl" -ForegroundColor Green
@@ -481,3 +482,7 @@ if (-not $ShellOnly) {
 
 
 
+
+
+
+}
