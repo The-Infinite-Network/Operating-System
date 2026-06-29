@@ -244,27 +244,33 @@ function Start-VisiblePowerShell {
     [string]$WindowTitle = "PowerShell"
   )
 
-  $envPrefix = ""
+  # Temporarily set env vars in parent so child inherits them (avoids putting secrets in command line)
+  $originalEnv = @{}
   if ($EnvironmentOverrides) {
     foreach ($entry in $EnvironmentOverrides.GetEnumerator()) {
       $key = $entry.Key
-      $val = [string]$entry.Value
-      if (-not [string]::IsNullOrEmpty($val)) {
-        $val = $val -replace '"', '\"'
-        $envPrefix += "`$env:$key = `"$val`"; "
-      }
+      $originalEnv[$key] = [Environment]::GetEnvironmentVariable($key)
+      [Environment]::SetEnvironmentVariable($key, $entry.Value)
     }
   }
 
-  $fullCommand = $envPrefix + "Set-Location '$WorkingDirectory'; `$host.ui.RawUI.WindowTitle = '$WindowTitle'; $Command"
+  $fullCommand = "Set-Location '$WorkingDirectory'; `$host.ui.RawUI.WindowTitle = '$WindowTitle'; $Command"
 
   $argList = @(
+    "-NoProfile",
     "-NoExit",
     "-ExecutionPolicy", "Bypass",
     "-Command", $fullCommand
   )
 
-  Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WorkingDirectory $WorkingDirectory -WindowStyle Normal
+  $proc = Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WorkingDirectory $WorkingDirectory -WindowStyle Normal -PassThru
+
+  # Restore original env
+  if ($EnvironmentOverrides) {
+    foreach ($entry in $EnvironmentOverrides.GetEnumerator()) {
+      [Environment]::SetEnvironmentVariable($entry.Key, $originalEnv[$entry.Key])
+    }
+  }
 }
 
 function Start-HiddenPowerShell {
@@ -398,11 +404,12 @@ if (-not $ShellOnly) {
       Restart-StaleMcpRuntime -RootPath $mcpRoot
     }
     Write-Host "[3/4] Starting mcp-notion clean runtime..." -ForegroundColor Gray
-    $mcpCommand = ".\scripts\start_clean_runtime.ps1"
+    $mcpScriptsDir = Join-Path $mcpRoot "scripts"
+    $mcpCommand = "start_clean_runtime.ps1"
     if ($VisibleMcp) {
-      Start-VisiblePowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand -EnvironmentOverrides $secretEnv -WindowTitle "INOS MCP Visible"
+      Start-VisiblePowerShell -WorkingDirectory $mcpScriptsDir -Command $mcpCommand -EnvironmentOverrides $secretEnv -WindowTitle "INOS MCP Visible"
     } else {
-      Start-HiddenPowerShell -WorkingDirectory $mcpRoot -Command $mcpCommand -EnvironmentOverrides $secretEnv
+      Start-HiddenPowerShell -WorkingDirectory $mcpScriptsDir -Command $mcpCommand -EnvironmentOverrides $secretEnv
     }
 
     $maxWait = 30
