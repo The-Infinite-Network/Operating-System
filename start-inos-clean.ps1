@@ -435,6 +435,27 @@ if (Test-HttpReady -Url $shellHealth) {
   Write-Host "[4/4] INOS shell live at $shellUrl" -ForegroundColor Green
 }
 
+# Safe capture of PS console history and open in notepad (after shell is live)
+# This prevents crash if PSConsoleReadLine not initialized, and ensures timing after 5173 is live
+try {
+  if (Get-Module -ListAvailable -Name PSReadLine) {
+    Import-Module PSReadLine -ErrorAction SilentlyContinue | Out-Null
+    $historyItems = [Microsoft.PowerShell.PSConsoleReadLine]::GetHistoryItems()
+    if ($historyItems -and $historyItems.Count -gt 0) {
+      $temp = [System.IO.Path]::GetTempFileName() + ".txt"
+      $historyItems | ForEach-Object { $_.CommandLine } | Out-File -FilePath $temp -Encoding UTF8
+      Write-Host "History captured. Opening notepad: $temp" -ForegroundColor Yellow
+      Start-Process notepad.exe $temp -WindowStyle Normal
+    } else {
+      Write-Host "No history items to capture." -ForegroundColor Yellow
+    }
+  } else {
+    Write-Host "PSReadLine module not available for history capture." -ForegroundColor Yellow
+  }
+} catch {
+  Write-Host "Failed to capture history or open notepad: $_" -ForegroundColor Yellow
+}
+
 # --- Smoke Test ---
 Write-Host ""
 Write-Host "=== SMOKE TEST ===" -ForegroundColor Cyan
