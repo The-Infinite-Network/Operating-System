@@ -263,7 +263,7 @@ function Start-VisiblePowerShell {
     "-Command", $fullCommand
   )
 
-  $proc = Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WorkingDirectory $WorkingDirectory -WindowStyle Normal -PassThru
+  Start-Process -FilePath "powershell.exe" -ArgumentList $argList -WorkingDirectory $WorkingDirectory -WindowStyle Normal
 
   # Restore original env
   if ($EnvironmentOverrides) {
