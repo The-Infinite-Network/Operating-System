@@ -405,7 +405,7 @@ if (-not $ShellOnly) {
     }
     Write-Host "[3/4] Starting mcp-notion clean runtime..." -ForegroundColor Gray
     $mcpScriptsDir = Join-Path $mcpRoot "scripts"
-    $mcpCommand = "start_clean_runtime.ps1"
+    $mcpCommand = ".\start_clean_runtime.ps1"
     if ($VisibleMcp) {
       Start-VisiblePowerShell -WorkingDirectory $mcpScriptsDir -Command $mcpCommand -EnvironmentOverrides $secretEnv -WindowTitle "INOS MCP Visible"
     } else {
