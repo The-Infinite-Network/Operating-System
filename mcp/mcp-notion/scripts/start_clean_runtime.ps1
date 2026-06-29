@@ -9,7 +9,7 @@ $scriptRoot = $PSScriptRoot
 if (-not $scriptRoot) {
   $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 }
-$repoRoot = $scriptRoot
+$repoRoot = Split-Path -Parent $scriptRoot   # mcp-notion root, not the scripts subdir
 $current = (Get-Location).Path
 
 if ($current -ne $repoRoot) {
